@@ -215,15 +215,13 @@ def main() -> None:
     multi_seed = []
     for run in repro["runs"]:
         seed = run["seed"]
-        mc_p99_87 = run["branch_p99_87"]
-        abs_gap = mc_p99_87 - tail_aware_p99_87
-        closure_vs_pooled = gap_closure_pooled
+        mc_p99_87_seed = run["branch_p99_87"]
+        abs_gap = mc_p99_87_seed - tail_aware_p99_87
         multi_seed.append({
             "seed": seed,
-            "mc_p99_87": mc_p99_87,
+            "mc_p99_87": mc_p99_87_seed,
             "tail_aware_p99_87": tail_aware_p99_87,
             "absolute_gap": abs_gap,
-            "closure_fraction_vs_pooled": closure_vs_pooled / shape_gap if shape_gap != 0 else 0.0,
         })
 
     runtime_ms = (time.time() - t0) * 1000.0
