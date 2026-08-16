@@ -1,0 +1,32 @@
+{
+  "n_samples": 100000,
+  "seed": 42,
+  "config_file": "foundations/stage3_config.json",
+  "stats": {
+    "mean": 9.306491755291125,
+    "std": 0.4194255967028288,
+    "p95": 10.02426334179024,
+    "p99": 10.367465677635153,
+    "p99_87": 10.75363421893585,
+    "min": 7.682980649303503,
+    "max": 11.700046557719144
+  },
+  "critical_path_split": {
+    "path_G4_critical": 0.49942,
+    "path_G5_critical": 0.50058
+  },
+  "sink": "G6",
+  "sink_predecessors": [
+    "G4",
+    "G5"
+  ],
+  "gates": [
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "G6"
+  ],
+  "note": "Normalized/toy units \u2014 not calibrated to real technology."
+}

@@ -1,0 +1,55 @@
+{
+  "config_file": "stage3_config_asymmetric.json",
+  "n_samples": 100000,
+  "seed": 42,
+  "stats": {
+    "mean": 11.726343086418751,
+    "std": 0.5499236265437805,
+    "p95": 12.663819489585673,
+    "p99": 13.100746323214835,
+    "p99_87": 13.604779911593377,
+    "min": 9.759650802634127,
+    "max": 14.504885110875371
+  },
+  "critical_path_split": {
+    "path_G4_critical": 0.0,
+    "path_G7_critical": 1.0
+  },
+  "sink": "G6",
+  "sink_predecessors": [
+    "G4",
+    "G7"
+  ],
+  "gates": [
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "G7",
+    "G6"
+  ],
+  "dag": {
+    "G1": [
+      "G2",
+      "G3"
+    ],
+    "G2": [
+      "G4"
+    ],
+    "G3": [
+      "G5"
+    ],
+    "G4": [
+      "G6"
+    ],
+    "G5": [
+      "G7"
+    ],
+    "G6": [],
+    "G7": [
+      "G6"
+    ]
+  },
+  "interpretation": "Path 2 has an extra gate (G7) and should dominate. A fraction near 50/50 indicates a bug in AT propagation or argmax."
+}

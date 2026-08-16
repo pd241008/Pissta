@@ -1,0 +1,105 @@
+# 📓 VLSI Statistical Static Timing Analysis
+
+### The Engineering Playbook
+
+This repository documents the complete build of a physics-informed SSTA framework, from Monte Carlo ground truth through analytical Clark MAX approximations. It is written from real implementation experience, not theory. It serves as a continuous record of how we build timing analysis tools, designed for engineers to understand the "why" behind the "what."
+
+---
+
+## 🧭 How to Read This
+
+> [!IMPORTANT]  
+> **Every pattern here comes from a real decision made under real constraints. If it links to a module, that's where we actually built it.**
+
+This is not a generic list of "best practices." If a pattern or architecture choice is documented here, it means we have implemented it, validated it against Monte Carlo reference data, and dealt with its consequences in production-style code.
+
+---
+
+## 🗺️ Navigation
+
+| Section | Description |
+|---------|-------------|
+| **[Foundations](./foundations/)** | Core theory, parameters, and frozen configuration. |
+| **[Variation](./variation/)** | Process variation modeling — Monte Carlo sampler and analytical moments. |
+| **[Timing](./timing/)** | Timing graph definition, DAG topology, and alpha-power delay model. |
+| **[SSTA](./ssta/)** | Monte Carlo timing analysis and analytical SSTA engines. |
+| **[Experiments](./experiments/)** | Orchestration scripts, reproducibility checks, and sanity tests. |
+| **[Results](./results/)** | Locked reference distributions, raw data, and final reports. |
+| **[docs/ADRs](./docs/adrs/)** | Architecture Decision Records for key technical choices. |
+| **[docs/Postmortems](./docs/postmortems/)** | Lessons learned from bugs and validation failures. |
+
+---
+
+## 🎯 Current Status
+
+| Stage | Status | Description |
+|-------|--------|-------------|
+| Stage 1 | Complete | Monte Carlo baseline (feed-forward chain) |
+| Stage 2 | Complete | Correlated process variation (inter-die + spatial + mismatch) |
+| Stage 3 | Locked | Branching DAG reference distribution (N=100k, seed 42) |
+| Stage 4 | Complete | Analytical SSTA with Clark MAX approximation |
+| Stage 4b | Complete | Hybrid empirical+Clark gap decomposition |
+| Stage 5 | Complete | Tail-aware SSTA with skew-normal 3-moment MAX |
+
+---
+
+## 🏗️ Canonical Layout
+
+```text
+project-root/
+├── foundations/               # Theory, configs, frozen parameters
+│   ├── README.md
+│   ├── config_loader.py
+│   ├── physics_informed_ssta_baseline.py
+│   ├── stage3_config.json
+│   └── stage3_config_asymmetric.json
+├── variation/                 # Process variation modeling
+│   ├── README.md
+│   ├── __init__.py
+│   ├── sampler.py             # MC variation sampler (inter-die + spatial + Pelgrom)
+│   └── analytical.py          # Closed-form moments (mean/var/cov)
+├── timing/                    # Timing graph and delay models
+│   ├── README.md
+│   ├── __init__.py
+│   ├── graph.py               # DAG topology, topological sort
+│   ├── delay.py               # Alpha-power delay with geometry sensitivity
+│   ├── clark_max.py           # Clark's Gaussian MAX approximation
+│   └── tail_aware_max.py      # Skew-normal 3-moment MAX approximation
+├── ssta/                      # SSTA analysis engines
+│   ├── README.md
+│   ├── __init__.py
+│   ├── monte_carlo.py         # Vectorized MC timing analysis
+│   ├── analytical_ssta.py     # Full analytical pipeline
+│   ├── statistical_sum.py     # Gaussian sum propagation
+│   └── statistics.py          # Summary statistics utilities
+├── experiments/               # Orchestration and validation
+│   ├── README.md
+│   ├── __init__.py
+│   ├── run_stage3.py          # Reference MC run (N=100k)
+│   ├── run_stage4.py          # Analytical SSTA pipeline
+│   ├── run_stage4b_hybrid.py  # Empirical+Clark gap decomposition
+│   ├── run_stage5.py          # Tail-aware skew-normal SSTA
+│   ├── reproducibility_check.py
+│   ├── asymmetric_sanity_check.py
+│   └── sanity_checks.py
+├── results/                   # Locked outputs and reports
+│   ├── README.md
+│   ├── stage3_arrival_times.npy
+│   ├── stage3_cpd.npy
+│   ├── stage3_raw.npz
+│   ├── stage3_summary.json
+│   ├── stage4_analytical_ssta.json
+│   ├── stage4b_hybrid_run.json
+│   ├── stage5_tail_aware_ssta.json
+│   └── ...
+├── docs/
+│   ├── adrs/                  # Architecture Decision Records
+│   └── postmortems/           # Lessons learned
+├── tests/                     # Unit tests
+├── CHANGELOG.md
+└── README.md
+```
+
+---
+
+_See [CHANGELOG.md](./CHANGELOG.md) for recent updates._

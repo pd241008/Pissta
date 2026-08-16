@@ -1,0 +1,206 @@
+{
+  "config_file": "foundations/stage3_config.json",
+  "analytical_ssta": {
+    "mean": 9.25636690050889,
+    "std": 0.39633629705697,
+    "p95": 9.908340109167606,
+    "p99": 10.178245127463402,
+    "p99_87": 10.445375791679801
+  },
+  "path_moments": {
+    "AT_G4_mean": 6.410875078798936,
+    "AT_G4_std": 0.2789427546769272,
+    "AT_G5_mean": 6.410875078798936,
+    "AT_G5_std": 0.2789427546769272,
+    "Cov_AT_G4_AT_G5": 0.02814931722973752,
+    "rho_AT_G4_AT_G5": 0.3617742855371913
+  },
+  "clark_max": {
+    "mu_max": 6.5366017155638865,
+    "std_max": 0.24900175339648736
+  },
+  "final_sum": {
+    "mu_final": 9.25636690050889,
+    "var_final": 0.15708246036483076,
+    "std_final": 0.39633629705697,
+    "cov_max_d6": 0.010077742170471825
+  },
+  "monte_carlo_seed42": {
+    "mean": 9.306491755291125,
+    "std": 0.4194255967028288,
+    "p95": 10.02426334179024,
+    "p99": 10.367465677635153,
+    "p99_87": 10.75363421893585
+  },
+  "comparison_seed42": {
+    "mean": {
+      "analytical": 9.25636690050889,
+      "monte_carlo": 9.306491755291125,
+      "absolute_error": -0.05012485478223461,
+      "relative_error": -0.005386009690895235
+    },
+    "std": {
+      "analytical": 0.39633629705697,
+      "monte_carlo": 0.4194255967028288,
+      "absolute_error": -0.02308929964585882,
+      "relative_error": -0.05504981056799458
+    },
+    "p95": {
+      "analytical": 9.908340109167606,
+      "monte_carlo": 10.02426334179024,
+      "absolute_error": -0.11592323262263449,
+      "relative_error": -0.011564264492071062
+    },
+    "p99": {
+      "analytical": 10.178245127463402,
+      "monte_carlo": 10.367465677635153,
+      "absolute_error": -0.18922055017175055,
+      "relative_error": -0.018251379464890815
+    },
+    "p99_87": {
+      "analytical": 10.445375791679801,
+      "monte_carlo": 10.75363421893585,
+      "absolute_error": -0.30825842725604957,
+      "relative_error": -0.028665511675415156
+    }
+  },
+  "multi_seed_validation": [
+    {
+      "seed": 42,
+      "monte_carlo": {
+        "mean": 9.306491755291125,
+        "std": 0.4194255967028288,
+        "p95": 10.02426334179024,
+        "p99": 10.367465677635153,
+        "p99_87": 10.75363421893585
+      },
+      "comparison": {
+        "mean": {
+          "analytical": 9.25636690050889,
+          "monte_carlo": 9.306491755291125,
+          "absolute_error": -0.05012485478223461,
+          "relative_error": -0.005386009690895235
+        },
+        "std": {
+          "analytical": 0.39633629705697,
+          "monte_carlo": 0.4194255967028288,
+          "absolute_error": -0.02308929964585882,
+          "relative_error": -0.05504981056799458
+        },
+        "p95": {
+          "analytical": 9.908340109167606,
+          "monte_carlo": 10.02426334179024,
+          "absolute_error": -0.11592323262263449,
+          "relative_error": -0.011564264492071062
+        },
+        "p99": {
+          "analytical": 10.178245127463402,
+          "monte_carlo": 10.367465677635153,
+          "absolute_error": -0.18922055017175055,
+          "relative_error": -0.018251379464890815
+        },
+        "p99_87": {
+          "analytical": 10.445375791679801,
+          "monte_carlo": 10.75363421893585,
+          "absolute_error": -0.30825842725604957,
+          "relative_error": -0.028665511675415156
+        }
+      }
+    },
+    {
+      "seed": 123,
+      "monte_carlo": {
+        "mean": 9.307608889132737,
+        "std": 0.41851712226218374,
+        "p95": 10.024163376831975,
+        "p99": 10.368583035591042,
+        "p99_87": 10.736670103823167
+      },
+      "comparison": {
+        "mean": {
+          "analytical": 9.25636690050889,
+          "monte_carlo": 9.307608889132737,
+          "absolute_error": -0.05124198862384688,
+          "relative_error": -0.00550538696180878
+        },
+        "std": {
+          "analytical": 0.39633629705697,
+          "monte_carlo": 0.41851712226218374,
+          "absolute_error": -0.02218082520521375,
+          "relative_error": -0.05299860871956961
+        },
+        "p95": {
+          "analytical": 9.908340109167606,
+          "monte_carlo": 10.024163376831975,
+          "absolute_error": -0.11582326766436957,
+          "relative_error": -0.011554407416389717
+        },
+        "p99": {
+          "analytical": 10.178245127463402,
+          "monte_carlo": 10.368583035591042,
+          "absolute_error": -0.19033790812764018,
+          "relative_error": -0.0183571764313686
+        },
+        "p99_87": {
+          "analytical": 10.445375791679801,
+          "monte_carlo": 10.736670103823167,
+          "absolute_error": -0.291294312143366,
+          "relative_error": -0.0271307872297986
+        }
+      }
+    },
+    {
+      "seed": 999,
+      "monte_carlo": {
+        "mean": 9.30709189477939,
+        "std": 0.420089298092062,
+        "p95": 10.027137652845525,
+        "p99": 10.363412758307842,
+        "p99_87": 10.752173549837655
+      },
+      "comparison": {
+        "mean": {
+          "analytical": 9.25636690050889,
+          "monte_carlo": 9.30709189477939,
+          "absolute_error": -0.05072499427049948,
+          "relative_error": -0.005450144346264869
+        },
+        "std": {
+          "analytical": 0.39633629705697,
+          "monte_carlo": 0.420089298092062,
+          "absolute_error": -0.023753001035092036,
+          "relative_error": -0.05654274256205069
+        },
+        "p95": {
+          "analytical": 9.908340109167606,
+          "monte_carlo": 10.027137652845525,
+          "absolute_error": -0.11879754367791939,
+          "relative_error": -0.011847602754730981
+        },
+        "p99": {
+          "analytical": 10.178245127463402,
+          "monte_carlo": 10.363412758307842,
+          "absolute_error": -0.18516763084443966,
+          "relative_error": -0.017867437606014468
+        },
+        "p99_87": {
+          "analytical": 10.445375791679801,
+          "monte_carlo": 10.752173549837655,
+          "absolute_error": -0.30679775815785426,
+          "relative_error": -0.02853355712087502
+        }
+      }
+    }
+  ],
+  "runtime": {
+    "analytical_ms": 0.3857612609863281,
+    "monte_carlo_ms": 200.0,
+    "speedup_factor": 518.4553770086527
+  },
+  "notes": [
+    "Analytical SSTA is deterministic given config; no seed dependence.",
+    "Clark P99.87 (10.4454) is lower than naive Gaussian mean+3sigma from Stage 3 MC (10.5648).",
+    "This is expected: linearized delay model + Clark MAX approximation both neglect higher-order tail effects present in true MC.",
+    "Covariance bookkeeping verified: analytical per-gate covariances match empirical MC covariances within ~3-5%."
+  ]
+}
