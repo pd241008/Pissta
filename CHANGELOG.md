@@ -4,14 +4,15 @@
 
 ---
 
-### August 16, 2026 — Stage 5 Tail-Aware SSTA
+### August 16, 2026 — Stage 5 Tail-Aware SSTA (reporting tightened)
 
 - ✨ **Implemented** skew-normal 3-moment MAX approximation (`timing/tail_aware_max.py`)
 - ✨ **Implemented** Stage 5 orchestration (`experiments/run_stage5.py`)
-- 📊 **Results:** Tail-aware P99.87 = 10.6584 vs MC P99.87 = 10.7536 (gap = 0.0952)
-- 📉 **Gap closure:** 54.28% of shape gap (0.1131 / 0.2083) — within expected 40–120% range
-- ⚡ **Runtime:** 137 ms — ~1.5× faster than full MC, ~350× slower than pure Clark
-- 🌐 **Multi-seed validation** — closure consistent across seeds 42, 123, 999
+- 📊 **Results:** Tail-aware P99.87 = 10.6584 vs pooled MC P99.87 = 10.7475 (gap = 0.0891)
+- 📉 **Gap closure:** 56.9% of shape gap vs pooled MC reference (0.1192 / 0.2083)
+- 🔢 **Absolute gaps:** 0.0952 / 0.0783 / 0.0938 across seeds 42/123/999 (mean 0.0891 ± 0.0090)
+- ⚡ **Runtime:** ~140 ms — ~1.5× faster than full MC, ~350× slower than pure Clark
+- 🛡️ **Noise-corrected reporting:** closure% reported vs pooled MC only; seed-to-seed swing quantified as MC reference noise
 
 ### August 16, 2026 — Monorepo Restructure
 

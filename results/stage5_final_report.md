@@ -88,11 +88,13 @@ This confirms significant right-skew, justifying the 3-moment approach.
 | Total gap (MC − Clark/lin) | 0.3083 | — |
 | Shape gap (MC − Clark/emp) | 0.2083 | — |
 | Tail-aware gap (MC − Tail) | 0.0952 | — |
-| Gap closure vs shape | 0.1131 | **54.28%** |
+| Gap closure vs shape (seed 42) | 0.1131 | **54.28%** |
+| Gap closure vs shape (pooled MC) | 0.1192 | **56.9%** |
 
-The tail-aware method closes **54.28%** of the shape gap — within the expected
-40–120% range. This confirms the skew-normal correction is capturing a meaningful
-portion of the MAX-induced tail expansion.
+The tail-aware method closes **56.9%** of the shape gap against a pooled
+3-seed MC reference (mean absolute gap 0.0891 ± 0.0090) — within the expected
+40–120% range. The seed-42-only closure is 54.28%; the small difference is
+MC reference noise.
 
 ---
 
