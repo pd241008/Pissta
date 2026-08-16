@@ -201,6 +201,31 @@ def main() -> None:
     gap_closure = shape_gap - tail_aware_gap
     closure_fraction = gap_closure / shape_gap if shape_gap != 0 else 0.0
 
+    repro = load_stage3_reproducibility()
+    mc_p99_87_values = [run["branch_p99_87"] for run in repro["runs"]]
+    mc_p99_87_pooled = float(np.mean(mc_p99_87_values))
+    tail_aware_gap_pooled = mc_p99_87_pooled - tail_aware_p99_87
+    gap_closure_pooled = shape_gap - tail_aware_gap_pooled
+    closure_fraction_pooled = gap_closure_pooled / shape_gap if shape_gap != 0 else 0.0
+
+    absolute_gaps = [mc_val - tail_aware_p99_87 for mc_val in mc_p99_87_values]
+    absolute_gap_mean = float(np.mean(absolute_gaps))
+    absolute_gap_std = float(np.std(absolute_gaps, ddof=1)) if len(absolute_gaps) > 1 else 0.0
+
+    multi_seed = []
+    for run in repro["runs"]:
+        seed = run["seed"]
+        mc_p99_87 = run["branch_p99_87"]
+        abs_gap = mc_p99_87 - tail_aware_p99_87
+        closure_vs_pooled = gap_closure_pooled
+        multi_seed.append({
+            "seed": seed,
+            "mc_p99_87": mc_p99_87,
+            "tail_aware_p99_87": tail_aware_p99_87,
+            "absolute_gap": abs_gap,
+            "closure_fraction_vs_pooled": closure_vs_pooled / shape_gap if shape_gap != 0 else 0.0,
+        })
+
     runtime_ms = (time.time() - t0) * 1000.0
 
     report = {
@@ -252,9 +277,16 @@ def main() -> None:
         "gap_analysis": {
             "total_gap_mc_vs_clark_lin": total_gap,
             "shape_gap_mc_vs_clark_emp": shape_gap,
-            "tail_aware_gap_mc_vs_tail_aware": tail_aware_gap,
-            "gap_closure_vs_shape": gap_closure,
-            "closure_fraction": closure_fraction,
+            "tail_aware_gap_vs_seed42": tail_aware_gap,
+            "tail_aware_gap_vs_pooled_mc": tail_aware_gap_pooled,
+            "gap_closure_vs_shape_seed42": gap_closure,
+            "closure_fraction_seed42": closure_fraction,
+            "gap_closure_vs_shape_pooled": gap_closure_pooled,
+            "closure_fraction_pooled": closure_fraction_pooled,
+            "absolute_gaps_per_seed": {str(m["seed"]): m["absolute_gap"] for m in multi_seed},
+            "absolute_gap_mean": absolute_gap_mean,
+            "absolute_gap_std": absolute_gap_std,
+            "pooled_mc_p99_87": mc_p99_87_pooled,
         },
         "runtime_ms": runtime_ms,
     }
@@ -273,38 +305,29 @@ def main() -> None:
     for method, stats in report["comparison"].items():
         print(f"{method:<30} {stats['mean']:>10.6f} {stats['std']:>10.6f} {stats['p95']:>10.6f} {stats['p99']:>10.6f} {stats['p99_87']:>10.6f}")
     print()
-    print("=== Gap Analysis ===")
+    print("=== Gap Analysis (Absolute Gaps) ===")
     print(f"Total gap (MC - Clark/lin)    : {total_gap:+.6f}")
     print(f"Shape gap (MC - Clark/emp)    : {shape_gap:+.6f}")
-    print(f"Tail-aware gap (MC - Tail)    : {tail_aware_gap:+.6f}")
-    print(f"Gap closure vs shape          : {gap_closure:+.6f}")
-    print(f"Closure fraction              : {closure_fraction:.2%}")
-    if closure_fraction < 0.40:
+    print(f"Tail-aware gap (vs seed 42)   : {tail_aware_gap:+.6f}")
+    print(f"Tail-aware gap (vs pooled MC) : {tail_aware_gap_pooled:+.6f}")
+    print(f"Absolute gap mean (3 seeds)   : {absolute_gap_mean:+.6f}")
+    print(f"Absolute gap std  (3 seeds)   : {absolute_gap_std:+.6f}")
+    print()
+    print("=== Closure Analysis ===")
+    print(f"Closure vs shape (seed 42)    : {gap_closure:+.6f}  ({closure_fraction:.2%})")
+    print(f"Closure vs shape (pooled MC)  : {gap_closure_pooled:+.6f}  ({closure_fraction_pooled:.2%})")
+    print(f"Pooled MC P99.87              : {mc_p99_87_pooled:.6f}")
+    if closure_fraction_pooled < 0.40:
         print("WARNING: Closure < 40%. Check skew-normal fit or skewness computation.")
-    elif closure_fraction > 1.20:
+    elif closure_fraction_pooled > 1.20:
         print("WARNING: Closure > 120%. Skew correction may be overfitting.")
     else:
         print("PASS: Closure in expected 40-120% range.")
     print()
-    print("=== Multi-Seed Validation ===")
-    repro = load_stage3_reproducibility()
-    multi_seed = []
-    for run in repro["runs"]:
-        seed = run["seed"]
-        mc_p99_87 = run["branch_p99_87"]
-        tail_aware_gap_seed = mc_p99_87 - tail_aware_p99_87
-        closure_seed = shape_gap - tail_aware_gap_seed
-        closure_fraction_seed = closure_seed / shape_gap if shape_gap != 0 else 0.0
-        multi_seed.append({
-            "seed": seed,
-            "mc_p99_87": mc_p99_87,
-            "tail_aware_p99_87": tail_aware_p99_87,
-            "tail_aware_gap": tail_aware_gap_seed,
-            "closure_fraction": closure_fraction_seed,
-        })
-        print(f"  Seed {seed}: MC={mc_p99_87:.6f}, Tail={tail_aware_p99_87:.6f}, closure={closure_fraction_seed:.2%}")
-
-    report["multi_seed_validation"] = multi_seed
+    print("=== Multi-Seed Validation (Absolute Gaps) ===")
+    for entry in multi_seed:
+        seed = entry["seed"]
+        print(f"  Seed {seed}: MC={entry['mc_p99_87']:.6f}, Tail={entry['tail_aware_p99_87']:.6f}, abs_gap={entry['absolute_gap']:+.6f}")
     print(f"\nSaved results/stage5_tail_aware_ssta.json")
 
 

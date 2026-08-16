@@ -20,7 +20,7 @@
       "std": 0.4194255967028288,
       "p95": 10.02426334179024,
       "p99": 10.367465677635153,
-      "p99_87": 10.75363421893585
+      "p99_87": 10.752173549837655
     },
     "clark_linearized": {
       "mean": 9.25636690050889,
@@ -47,9 +47,20 @@
   "gap_analysis": {
     "total_gap_mc_vs_clark_lin": 0.30825842725604957,
     "shape_gap_mc_vs_clark_emp": 0.20828183755587126,
-    "tail_aware_gap_mc_vs_tail_aware": 0.09521620409843656,
-    "gap_closure_vs_shape": 0.1130656334574347,
-    "closure_fraction": 0.5428492219207786
+    "tail_aware_gap_vs_seed42": 0.09521620409843656,
+    "tail_aware_gap_vs_pooled_mc": 0.08907460936147693,
+    "gap_closure_vs_shape_seed42": 0.1130656334574347,
+    "closure_fraction_seed42": 0.5428492219207786,
+    "gap_closure_vs_shape_pooled": 0.11920722819439433,
+    "closure_fraction_pooled": 0.5723361652329247,
+    "absolute_gaps_per_seed": {
+      "42": 0.09521620409843656,
+      "123": 0.07825208898575298,
+      "999": 0.09375553500024125
+    },
+    "absolute_gap_mean": 0.08907460936147693,
+    "absolute_gap_std": 0.009400989257297649,
+    "pooled_mc_p99_87": 10.747492624198891
   },
-  "runtime_ms": 139.67370986938477
+  "runtime_ms": 141.29400253295898
 }
