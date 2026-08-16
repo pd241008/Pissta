@@ -1,0 +1,63 @@
+{
+  "variation_params": {
+    "l_nom_nm": 45.0,
+    "l_sigma_nm": 2.0,
+    "w_nom_nm": 90.0,
+    "w_sigma_nm": 3.0,
+    "vth_nom_v": 0.40,
+    "vth_sigma_v": 0.02,
+    "inter_die_sigma_l": 0.5,
+    "inter_die_sigma_w": 1.0,
+    "inter_die_sigma_vth": 0.005,
+    "spatial_sigma_l": 1.0,
+    "spatial_sigma_w": 1.5,
+    "spatial_sigma_vth": 0.01,
+    "spatial_lambda": 3.0,
+    "vth_pelgrom_A_v_um": 0.001,
+    "vth_pelgrom_S_v_um": 0.01,
+    "l_random_sigma_nm": 0.5,
+    "w_random_sigma_nm": 1.0,
+    "gate_coords": {
+      "G1": {"x": 0.0, "y": 0.0},
+      "G2": {"x": 0.0, "y": 2.0},
+      "G3": {"x": 0.0, "y": -2.0},
+      "G4": {"x": 2.0, "y": 2.0},
+      "G5": {"x": 2.0, "y": -2.0},
+      "G6": {"x": 4.0, "y": 0.0}
+    }
+  },
+  "timing_params": {
+    "k": 1.0,
+    "alpha": 1.3,
+    "vdd_v": 1.0,
+    "gate_loads": {
+      "G1": 1.0,
+      "G2": 1.1,
+      "G3": 1.1,
+      "G4": 1.2,
+      "G5": 1.2,
+      "G6": 1.4
+    }
+  },
+  "dag": {
+    "successors": {
+      "G1": ["G2", "G3"],
+      "G2": ["G4"],
+      "G3": ["G5"],
+      "G4": ["G6"],
+      "G5": ["G6"],
+      "G6": []
+    }
+  },
+  "experiment": {
+    "n_samples": 100000,
+    "seeds": [42, 123, 999],
+    "reference_seed": 42,
+    "output_dir": "results",
+    "raw_data_file": "results/stage3_raw.npz",
+    "summary_file": "results/stage3_summary.json",
+    "sanity_check_file": "results/stage3_sanity_checks.json",
+    "reproducibility_file": "results/stage3_reproducibility_N100k.json",
+    "asymmetric_check_file": "results/stage3_asymmetric_check.json"
+  }
+}
