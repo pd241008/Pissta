@@ -157,12 +157,36 @@ def _build_dag(
         if not edges:
             break
 
-        g, s = edges[int(rng.integers(0, len(edges)))]
+    # Ensure sink has >= 2 predecessors by construction: force first
+    # operation to split source->sink, then allow any subsequent operations
+    first_split_done = False
+
+    # Add gates by subdividing edges or adding split-reconverge blocks
+    attempts = 0
+    while len(all_nodes) < n_gates and attempts < 1000:
+        attempts += 1
+        all_edges = [(g, s) for g, succs in graph.items() for s in succs]
+        if not all_edges:
+            break
+
+        if not first_split_done:
+            # Force first split-reconverge on source->sink
+            g, s = source, sink
+            first_split_done = True
+            do_split = True
+        elif rng.random() < 0.5 and all_edges:
+            # Subdivide: pick any edge
+            g, s = all_edges[int(rng.integers(0, len(all_edges)))]
+            do_split = False
+        else:
+            # Split-reconverge: pick any edge
+            g, s = all_edges[int(rng.integers(0, len(all_edges)))]
+            do_split = True
 
         if len(all_nodes) >= n_gates:
             break
 
-        if rng.random() < 0.5:
+        if not do_split:
             # Subdivide: g -> new -> s
             if len(all_nodes) >= n_gates:
                 break
@@ -206,6 +230,13 @@ def _build_dag(
             graph[g].append(a)
             prev = a
             for node in path_a[1:]:
+                graph[prev] = [node]
+                prev = node
+            graph[prev] = [s]
+
+            graph[g].append(b)
+            prev = b
+            for node in path_b[1:]:
                 graph[prev] = [node]
                 prev = node
             graph[prev] = [s]

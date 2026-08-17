@@ -95,18 +95,12 @@ def validate_label_quality(
     n_seeds: int = 2,
 ) -> dict:
     """Validate label quality by checking seed-to-seed noise."""
-    valid_graphs = [
-        g for g in graphs
-        if len([p for p, succs in g.successors.items() if g.sink in succs]) >= 2
-    ][:20]
-
-    if len(valid_graphs) == 0:
-        return {"error": "No valid graphs with >= 2 sink predecessors"}
+    validation_graphs = graphs[:20]
 
     rng = np.random.default_rng(42)
 
     noise_results = []
-    for graph in valid_graphs:
+    for graph in validation_graphs:
         labels = []
         for seed in range(n_seeds):
             graph_coords = {name: (gate.x, gate.y) for name, gate in graph.gates.items()}
@@ -186,15 +180,9 @@ def main() -> None:
     print("\n=== Generating MC labels and physics features ===")
     dataset = {}
     generation_times = []
-    skip_reasons = {"sink_predecessors_lt_2": 0, "mc_error": 0}
+    skip_reasons = {"mc_error": 0}
 
     for i, graph in enumerate(graphs):
-        # Skip graphs where sink has < 2 predecessors (no MAX operation to learn)
-        sink_preds = [p for p, succs in graph.successors.items() if graph.sink in succs]
-        if len(sink_preds) < 2:
-            skip_reasons["sink_predecessors_lt_2"] += 1
-            continue
-
         graph_t0 = time.time()
         timing_graph = _to_timing_graph(graph)
 
@@ -236,8 +224,7 @@ def main() -> None:
         if (i + 1) % 100 == 0:
             print(f"  Processed {i + 1}/{len(graphs)} graphs (dataset: {len(dataset)})")
 
-    n_processed = len(graphs) - skip_reasons["sink_predecessors_lt_2"] - skip_reasons["mc_error"]
-    print(f"\nSkipped {skip_reasons['sink_predecessors_lt_2']} graphs (sink with < 2 predecessors)")
+    n_processed = len(graphs) - skip_reasons["mc_error"]
     print(f"Skipped {skip_reasons['mc_error']} graphs (MC error)")
     print(f"Successfully processed: {len(dataset)} graphs")
 
