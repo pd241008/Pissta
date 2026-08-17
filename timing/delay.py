@@ -23,7 +23,7 @@ def nominal_delay(
 ) -> float:
     vdd = gate_params.vdd_v
     base = load_ff * vdd / (gate_params.k * (vdd - vth_nom) ** gate_params.alpha)
-    geom = (l_nom / l_nom) / np.sqrt(w_nom / w_nom)
+    geom = (l_nom / l_nom) / np.sqrt(w_nom / w_nom) # geometry factor is always 1 at nominal by construction
     return float(base * geom)
 
 
