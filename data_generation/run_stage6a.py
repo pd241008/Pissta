@@ -165,7 +165,12 @@ def main() -> None:
     # Step 1: Generate graphs
     print("=== Generating random DAGs ===")
     target_n_graphs = 2000
-    graphs = generate_dataset(n_graphs=target_n_graphs, n_gates_range=(4, 12), seed=42)
+    graphs = generate_dataset(
+        n_graphs=target_n_graphs,
+        n_gates_range=(6, 14),
+        min_reconvergence=1,
+        seed=42,
+    )
     print(f"Generated {len(graphs)} graphs")
 
     # Step 2: Validate generator (20 graphs)
@@ -250,24 +255,49 @@ def main() -> None:
     else:
         print(f"  Validation skipped: {noise['error']}")
 
-    # Step 7: Split dataset
+    # Step 7: Split dataset (stratified by reconvergence count)
     print("\n=== Splitting dataset ===")
     graph_ids = list(dataset.keys())
     rng = np.random.default_rng(42)
-    rng.shuffle(graph_ids)
 
-    n_total = len(graph_ids)
-    n_train = int(0.7 * n_total)
-    n_val = int(0.15 * n_total)
+    # Group by reconvergence count
+    by_recon: Dict[int, List[str]] = {}
+    for gid in graph_ids:
+        nrecon = len(dataset[gid]["graph"]["reconvergence_points"])
+        by_recon.setdefault(nrecon, []).append(gid)
+
+    train_ids: List[str] = []
+    val_ids: List[str] = []
+    test_ids: List[str] = []
+
+    for nrecon, group in by_recon.items():
+        rng.shuffle(group)
+        n = len(group)
+        n_train = int(0.7 * n)
+        n_val = int(0.15 * n)
+        train_ids.extend(group[:n_train])
+        val_ids.extend(group[n_train:n_train + n_val])
+        test_ids.extend(group[n_train + n_val:])
+
+    # Final shuffle within each split
+    rng.shuffle(train_ids)
+    rng.shuffle(val_ids)
+    rng.shuffle(test_ids)
 
     splits = {
-        "train": graph_ids[:n_train],
-        "val": graph_ids[n_train:n_train + n_val],
-        "test": graph_ids[n_train + n_val:],
+        "train": train_ids,
+        "val": val_ids,
+        "test": test_ids,
     }
 
     for split_name, split_ids in splits.items():
+        nrecon_dist = {}
+        for gid in split_ids:
+            nrecon = len(dataset[gid]["graph"]["reconvergence_points"])
+            nrecon_dist[nrecon] = nrecon_dist.get(nrecon, 0) + 1
         print(f"  {split_name}: {len(split_ids)} graphs")
+        for k in sorted(nrecon_dist.keys()):
+            print(f"    nrecon={k}: {nrecon_dist[k]}")
 
     # Step 8: Save to disk
     print("\n=== Saving dataset ===")

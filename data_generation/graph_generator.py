@@ -132,26 +132,11 @@ def _find_reconvergence_points(graph: Dict[str, List[str]]) -> List[str]:
     return [g for g, count in pred_count.items() if count > 1]
 
 
-def generate_random_dag(
-    n_gates: int | None = None,
-    graph_id: str | None = None,
-    rng: np.random.Generator | None = None,
-) -> GeneratedGraph:
-    """Generate a random valid timing DAG."""
-    if rng is None:
-        rng = np.random.default_rng()
-    if n_gates is None:
-        n_gates = int(rng.integers(4, 13))  # Uniform(4, 12)
-    if graph_id is None:
-        graph_id = f"graph_{random.randint(0, 999999):06d}"
-
-    # Ensure unique graph_id
-    existing = getattr(generate_random_dag, "_used_ids", set())
-    while graph_id in existing:
-        graph_id = f"graph_{random.randint(0, 999999):06d}"
-    generate_random_dag._used_ids = existing | {graph_id}
-
-    # Use simple counter-based naming to avoid collisions
+def _build_dag(
+    n_gates: int,
+    rng: np.random.Generator,
+) -> Tuple[Dict[str, List[str]], str, str, Set[str]]:
+    """Build a random DAG with exactly n_gates nodes."""
     counter = [0]
 
     def fresh_name() -> str:
@@ -159,13 +144,12 @@ def generate_random_dag(
         counter[0] += 1
         return name
 
-    # Start with source -> sink
     source = fresh_name()
     sink = fresh_name()
     graph: Dict[str, List[str]] = {source: [sink]}
     all_nodes = {source, sink}
+    next_idx = 2
 
-    # Add gates by subdividing edges or adding split-reconverge blocks
     attempts = 0
     while len(all_nodes) < n_gates and attempts < 1000:
         attempts += 1
@@ -182,7 +166,8 @@ def generate_random_dag(
             # Subdivide: g -> new -> s
             if len(all_nodes) >= n_gates:
                 break
-            new_node = fresh_name()
+            new_node = f"g{next_idx}"
+            next_idx += 1
             all_nodes.add(new_node)
             graph[g].remove(s)
             graph[g].append(new_node)
@@ -191,11 +176,12 @@ def generate_random_dag(
             # Split-reconverge: g -> a -> ... -> s, g -> b -> ... -> s
             if len(all_nodes) + 2 > n_gates:
                 continue
-            a = fresh_name()
-            b = fresh_name()
+            a = f"g{next_idx}"
+            next_idx += 1
+            b = f"g{next_idx}"
+            next_idx += 1
             all_nodes.update([a, b])
 
-            # Random path lengths (1-3 intermediate gates each)
             path_a = [a]
             path_b = [b]
             len_a = int(rng.integers(1, 4))
@@ -204,17 +190,18 @@ def generate_random_dag(
             for _ in range(len_a - 1):
                 if len(all_nodes) >= n_gates:
                     break
-                node = fresh_name()
+                node = f"g{next_idx}"
+                next_idx += 1
                 all_nodes.add(node)
                 path_a.append(node)
             for _ in range(len_b - 1):
                 if len(all_nodes) >= n_gates:
                     break
-                node = fresh_name()
+                node = f"g{next_idx}"
+                next_idx += 1
                 all_nodes.add(node)
                 path_b.append(node)
 
-            # Build paths
             graph[g].remove(s)
             graph[g].append(a)
             prev = a
@@ -230,42 +217,67 @@ def generate_random_dag(
                 prev = node
             graph[prev] = [s]
 
-        # Ensure all nodes have entries in graph
         for node in all_nodes:
             if node not in graph:
                 graph[node] = []
 
-    # Validate
-    if not _validate_graph(graph, source, sink):
-        raise RuntimeError(f"Generated invalid graph {graph_id}")
+    return graph, source, sink, all_nodes
 
-    # Assign coordinates
-    coords = _assign_coordinates(graph, source, sink)
 
-    # Generate gate loads
-    gate_loads = {name: float(rng.uniform(0.8, 1.6)) for name in all_nodes}
-    gates = {
-        name: GeneratedGate(name=name, load_ff=gate_loads[name], x=coords[name][0], y=coords[name][1])
-        for name in all_nodes
-    }
+def generate_random_dag(
+    n_gates: int | None = None,
+    graph_id: str | None = None,
+    rng: np.random.Generator | None = None,
+    min_reconvergence: int = 0,
+) -> GeneratedGraph:
+    """Generate a random valid timing DAG."""
+    if rng is None:
+        rng = np.random.default_rng()
+    if n_gates is None:
+        n_gates = int(rng.integers(4, 13))  # Uniform(4, 12)
+    if graph_id is None:
+        graph_id = f"graph_{random.randint(0, 999999):06d}"
 
-    reconvergence_points = _find_reconvergence_points(graph)
+    existing = getattr(generate_random_dag, "_used_ids", set())
+    while graph_id in existing:
+        graph_id = f"graph_{random.randint(0, 999999):06d}"
+    generate_random_dag._used_ids = existing | {graph_id}
 
-    return GeneratedGraph(
-        graph_id=graph_id,
-        gates=gates,
-        successors=graph,
-        coordinates=coords,
-        gate_loads=gate_loads,
-        reconvergence_points=reconvergence_points,
-        source=source,
-        sink=sink,
-    )
+    for attempt in range(50):
+        graph, source, sink, all_nodes = _build_dag(n_gates, rng)
+
+        if not _validate_graph(graph, source, sink):
+            continue
+
+        reconvergence_points = _find_reconvergence_points(graph)
+        if len(reconvergence_points) < min_reconvergence:
+            continue
+
+        coords = _assign_coordinates(graph, source, sink)
+        gate_loads = {name: float(rng.uniform(0.8, 1.6)) for name in all_nodes}
+        gates = {
+            name: GeneratedGate(name=name, load_ff=gate_loads[name], x=coords[name][0], y=coords[name][1])
+            for name in all_nodes
+        }
+
+        return GeneratedGraph(
+            graph_id=graph_id,
+            gates=gates,
+            successors=graph,
+            coordinates=coords,
+            gate_loads=gate_loads,
+            reconvergence_points=reconvergence_points,
+            source=source,
+            sink=sink,
+        )
+
+    raise RuntimeError(f"Failed to generate valid graph {graph_id} with min_reconvergence={min_reconvergence} after 50 attempts")
 
 
 def generate_dataset(
     n_graphs: int,
     n_gates_range: Tuple[int, int] = (4, 12),
+    min_reconvergence: int = 0,
     seed: int = 42,
 ) -> List[GeneratedGraph]:
     """Generate a dataset of random DAGs."""
@@ -276,7 +288,12 @@ def generate_dataset(
     graphs = []
     for i in range(n_graphs):
         n_gates = int(rng.integers(n_gates_range[0], n_gates_range[1] + 1))
-        graph = generate_random_dag(n_gates=n_gates, graph_id=f"graph_{i:06d}", rng=rng)
+        graph = generate_random_dag(
+            n_gates=n_gates,
+            graph_id=f"graph_{i:06d}",
+            rng=rng,
+            min_reconvergence=min_reconvergence,
+        )
         graphs.append(graph)
 
     return graphs
