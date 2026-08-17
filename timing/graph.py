@@ -112,7 +112,7 @@ def alpha_power_delay(
 ) -> np.ndarray:
     vdd = gate_params.vdd_v
     denominator = gate_params.k * np.power(
-        np.maximum(vdd - vth_v, 1e-6),
+        np.maximum(vdd - vth_v, 0.1),
         gate_params.alpha,
     )
     delay = load_ff * vdd / denominator

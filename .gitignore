@@ -51,3 +51,6 @@ results/*.png
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Stage 6A generated data (regeneratable)
+data_generation/data/

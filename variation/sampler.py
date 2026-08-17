@@ -57,27 +57,34 @@ def _pelgrom_vth_sigma(
 ) -> float:
     w_um = w_nm * 1e-3
     l_um = l_nm * 1e-3
-    return float(np.sqrt((a_vth ** 2) / (w_um * l_um) + (s_vth * d_um) ** 2))
+    d_eff = min(d_um, 5.0)
+    return float(np.sqrt((a_vth ** 2) / (w_um * l_um) + (s_vth * d_eff) ** 2))
 
 
 def sample_correlated_process(
     n_samples: int,
     params: VariationParams,
     rng: np.random.Generator,
+    gate_coords: Dict[str, tuple[float, float]] | None = None,
 ) -> Dict[str, np.ndarray]:
     if n_samples <= 0:
         raise ValueError("n_samples must be positive.")
 
-    names = list(params.gate_coords.keys())
+    if gate_coords is not None:
+        names = list(gate_coords.keys())
+        coords = gate_coords
+    else:
+        names = list(params.gate_coords.keys())
+        coords = params.gate_coords
     n_gates = len(names)
 
     inter_l = rng.normal(0.0, params.inter_die_sigma_l, n_samples)
     inter_w = rng.normal(0.0, params.inter_die_sigma_w, n_samples)
     inter_vth = rng.normal(0.0, params.inter_die_sigma_vth, n_samples)
 
-    cov_l = _build_spatial_covariance(params.gate_coords, params.spatial_sigma_l, params.spatial_lambda)
-    cov_w = _build_spatial_covariance(params.gate_coords, params.spatial_sigma_w, params.spatial_lambda)
-    cov_vth = _build_spatial_covariance(params.gate_coords, params.spatial_sigma_vth, params.spatial_lambda)
+    cov_l = _build_spatial_covariance(coords, params.spatial_sigma_l, params.spatial_lambda)
+    cov_w = _build_spatial_covariance(coords, params.spatial_sigma_w, params.spatial_lambda)
+    cov_vth = _build_spatial_covariance(coords, params.spatial_sigma_vth, params.spatial_lambda)
 
     spatial_l = _sample_spatial_intra_die(n_samples, cov_l, rng)
     spatial_w = _sample_spatial_intra_die(n_samples, cov_w, rng)
@@ -92,7 +99,7 @@ def sample_correlated_process(
         w_random[:, idx] = rng.normal(0.0, params.w_random_sigma_nm, n_samples)
 
         d_um = float(np.sqrt(
-            params.gate_coords[name][0] ** 2 + params.gate_coords[name][1] ** 2
+            coords[name][0] ** 2 + coords[name][1] ** 2
         ))
         sigma_vth = _pelgrom_vth_sigma(
             params.w_nom_nm, params.l_nom_nm,
@@ -113,5 +120,21 @@ def sample_correlated_process(
 
     if np.any(L <= 0) or np.any(W <= 0):
         raise RuntimeError("Generated non-positive geometry. Adjust parameters.")
+
+    vdd = getattr(params, "vdd_v", 1.0)
+    vth_max = vdd - 0.05
+    vth_min = params.vth_nom_v - 5.0 * max(
+        params.inter_die_sigma_vth,
+        params.spatial_sigma_vth,
+        max(
+            _pelgrom_vth_sigma(
+                params.w_nom_nm, params.l_nom_nm,
+                params.vth_pelgrom_A_v_um, params.vth_pelgrom_S_v_um,
+                float(np.sqrt(coords[name][0] ** 2 + coords[name][1] ** 2)),
+            )
+            for name in names
+        ),
+    )
+    Vth = np.clip(Vth, vth_min, vth_max)
 
     return {"L_nm": L, "W_nm": W, "Vth_v": Vth}

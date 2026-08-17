@@ -23,7 +23,7 @@ def nominal_delay(
 ) -> float:
     vdd = gate_params.vdd_v
     base = load_ff * vdd / (gate_params.k * (vdd - vth_nom) ** gate_params.alpha)
-    geom = (l_nom / l_nom) / np.sqrt(w_nom / w_nom)
+    geom = (l_nom / l_nom) / np.sqrt(w_nom / w_nom) # geometry factor is always 1 at nominal by construction
     return float(base * geom)
 
 
@@ -47,10 +47,14 @@ def compute_delay_moments(
     timing_params: TimingParams,
     variation_params: VariationParams,
     process_moments: Dict[str, np.ndarray],
+    gate_loads: Dict[str, float] | None = None,
 ) -> Dict[str, np.ndarray]:
     names = process_moments["names"]
     n = len(names)
     idx = process_moments["idx"]
+
+    if gate_loads is None:
+        gate_loads = timing_params.gate_loads
 
     mean_d = np.zeros(n)
     var_d = np.zeros(n)
@@ -58,16 +62,18 @@ def compute_delay_moments(
 
     partials = {}
     for name in names:
-        gate = timing_params.gate_loads[name]
+        if name not in gate_loads:
+            raise KeyError(f"Gate '{name}' not found in gate_loads. Available: {list(gate_loads.keys())}")
+        load = float(gate_loads[name])
         partials[name] = delay_partials(
-            load_ff=gate,
+            load_ff=load,
             gate_params=timing_params,
             vth_nom=variation_params.vth_nom_v,
             l_nom=variation_params.l_nom_nm,
             w_nom=variation_params.w_nom_nm,
         )
         mean_d[idx[name]] = nominal_delay(
-            load_ff=gate,
+            load_ff=load,
             gate_params=timing_params,
             vth_nom=variation_params.vth_nom_v,
             l_nom=variation_params.l_nom_nm,

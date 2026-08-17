@@ -34,6 +34,7 @@ class VariationParams:
     vth_pelgrom_S_v_um: float = 1e-2
     l_random_sigma_nm: float = 0.5
     w_random_sigma_nm: float = 1.0
+    vdd_v: float = 1.0
     gate_coords: Dict[str, tuple[float, float]] = field(
         default_factory=lambda: {
             "G1": (0.0, 0.0),
