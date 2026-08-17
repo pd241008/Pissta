@@ -164,30 +164,30 @@ def main() -> None:
 
     # Step 1: Generate graphs
     print("=== Generating random DAGs ===")
-    n_graphs = 2000
-    graphs = generate_dataset(n_graphs=n_graphs, n_gates_range=(4, 12), seed=42)
+    target_n_graphs = 2000
+    graphs = generate_dataset(n_graphs=target_n_graphs, n_gates_range=(4, 12), seed=42)
     print(f"Generated {len(graphs)} graphs")
 
     # Step 2: Validate generator (20 graphs)
     print("\n=== Validating generator ===")
     validation_graphs = graphs[:20]
-    sizes = [len(g.gates) for g in validation_graphs]
-    reconv_counts = [len(g.reconvergence_points) for g in validation_graphs]
-    print(f"Gate count range: {min(sizes)}-{max(sizes)}")
-    print(f"Reconvergence points range: {min(reconv_counts)}-{max(reconv_counts)}")
-    print(f"Mean reconvergence points: {np.mean(reconv_counts):.2f}")
+    val_sizes = [len(g.gates) for g in validation_graphs]
+    val_reconv_counts = [len(g.reconvergence_points) for g in validation_graphs]
+    print(f"Gate count range: {min(val_sizes)}-{max(val_sizes)}")
+    print(f"Reconvergence points range: {min(val_reconv_counts)}-{max(val_reconv_counts)}")
+    print(f"Mean reconvergence points: {np.mean(val_reconv_counts):.2f}")
 
     # Step 3-4: Generate MC labels and physics features
     print("\n=== Generating MC labels and physics features ===")
     dataset = {}
     generation_times = []
-    skipped = 0
+    skip_reasons = {"sink_predecessors_lt_2": 0, "mc_error": 0}
 
     for i, graph in enumerate(graphs):
         # Skip graphs where sink has < 2 predecessors (no MAX operation to learn)
         sink_preds = [p for p, succs in graph.successors.items() if graph.sink in succs]
         if len(sink_preds) < 2:
-            skipped += 1
+            skip_reasons["sink_predecessors_lt_2"] += 1
             continue
 
         graph_t0 = time.time()
@@ -197,46 +197,58 @@ def main() -> None:
         graph_coords = {name: (gate.x, gate.y) for name, gate in graph.gates.items()}
         graph_variation_params = replace(config.variation_params, gate_coords=graph_coords)
 
-        # MC labels (N=10,000)
-        mc_results = run_branching_monte_carlo(
-            n_samples=10_000,
-            seed=42,
-            variation_params=graph_variation_params,
-            gate_params=config.timing_params,
-            graph=timing_graph,
-        )
-        cpd = mc_results["critical_path_delay"]
-        mc_labels = {
-            "mean": float(np.mean(cpd)),
-            "std": float(np.std(cpd, ddof=1)),
-        }
+        try:
+            # MC labels (N=10,000)
+            mc_results = run_branching_monte_carlo(
+                n_samples=10_000,
+                seed=42,
+                variation_params=graph_variation_params,
+                gate_params=config.timing_params,
+                graph=timing_graph,
+            )
+            cpd = mc_results["critical_path_delay"]
+            mc_labels = {
+                "mean": float(np.mean(cpd)),
+                "std": float(np.std(cpd, ddof=1)),
+            }
 
-        # Physics features
-        physics = compute_physics_features(graph, config, variation_params=graph_variation_params)
+            # Physics features
+            physics = compute_physics_features(graph, config, variation_params=graph_variation_params)
 
-        dataset[graph.graph_id] = {
-            "graph": graph_to_dict(graph),
-            "mc_labels": mc_labels,
-            "physics_features": physics,
-            "wall_time_s": time.time() - graph_t0,
-        }
+            dataset[graph.graph_id] = {
+                "graph": graph_to_dict(graph),
+                "mc_labels": mc_labels,
+                "physics_features": physics,
+                "wall_time_s": time.time() - graph_t0,
+            }
 
-        generation_times.append(time.time() - graph_t0)
+            generation_times.append(time.time() - graph_t0)
+        except Exception as e:
+            skip_reasons["mc_error"] += 1
+            print(f"  MC failed for {graph.graph_id}: {e}")
+            continue
 
         if (i + 1) % 100 == 0:
-            print(f"  Processed {i + 1}/{len(graphs)} graphs (skipped {skipped})")
+            print(f"  Processed {i + 1}/{len(graphs)} graphs (dataset: {len(dataset)})")
 
-    print(f"\nSkipped {skipped} graphs (sink with < 2 predecessors)")
+    n_processed = len(graphs) - skip_reasons["sink_predecessors_lt_2"] - skip_reasons["mc_error"]
+    print(f"\nSkipped {skip_reasons['sink_predecessors_lt_2']} graphs (sink with < 2 predecessors)")
+    print(f"Skipped {skip_reasons['mc_error']} graphs (MC error)")
+    print(f"Successfully processed: {len(dataset)} graphs")
 
     total_time = time.time() - t0
     print(f"\nTotal generation time: {total_time:.1f}s")
-    print(f"Mean time per graph: {np.mean(generation_times):.3f}s")
+    if generation_times:
+        print(f"Mean time per graph: {np.mean(generation_times):.3f}s")
 
     # Step 6: Validate label quality
     print("\n=== Validating label quality ===")
     noise = validate_label_quality(graphs, config, n_samples=10_000, n_seeds=2)
-    print(f"Mean noise (mean): {noise['mean_noise_mean']:.4f} ± {noise['mean_noise_std']:.4f}")
-    print(f"Mean noise (std):  {noise['std_noise_mean']:.4f} ± {noise['std_noise_std']:.4f}")
+    if "error" not in noise:
+        print(f"Mean noise (mean): {noise['mean_noise_mean']:.4f} ± {noise['mean_noise_std']:.4f}")
+        print(f"Mean noise (std):  {noise['std_noise_mean']:.4f} ± {noise['std_noise_std']:.4f}")
+    else:
+        print(f"  Validation skipped: {noise['error']}")
 
     # Step 7: Split dataset
     print("\n=== Splitting dataset ===")
@@ -271,32 +283,42 @@ def main() -> None:
         json.dump(splits, f, indent=2)
 
     # Save manifest
+    actual_sizes = [len(d["graph"]["gates"]) for d in dataset.values()]
+    actual_reconv = [len(d["graph"]["reconvergence_points"]) for d in dataset.values()]
+
     manifest = {
-        "n_graphs": n_graphs,
+        "target_n_graphs": target_n_graphs,
+        "n_generated": len(graphs),
+        "n_dataset": len(dataset),
         "n_train": len(splits["train"]),
         "n_val": len(splits["val"]),
         "n_test": len(splits["test"]),
+        "skip_reasons": skip_reasons,
         "total_generation_time_s": total_time,
-        "mean_time_per_graph_s": float(np.mean(generation_times)),
+        "mean_time_per_graph_s": float(np.mean(generation_times)) if generation_times else 0.0,
         "label_noise": noise,
         "config_file": "foundations/stage3_config.json",
     }
     with open(output_dir / "manifest.json", "w") as f:
         json.dump(manifest, f, indent=2)
 
-    # Save summary stats
+    # Save summary stats (computed from actual dataset, not pre-filter set)
     means = [d["mc_labels"]["mean"] for d in dataset.values()]
     stds = [d["mc_labels"]["std"] for d in dataset.values()]
 
     summary = {
         "mean_delay": {"mean": float(np.mean(means)), "std": float(np.std(means, ddof=1))},
         "std_delay": {"mean": float(np.mean(stds)), "std": float(np.std(stds, ddof=1))},
-        "n_graphs": n_graphs,
-        "gates_per_graph": {"min": int(min(sizes)), "max": int(max(sizes)), "mean": float(np.mean(sizes))},
+        "n_graphs": len(dataset),
+        "gates_per_graph": {
+            "min": int(min(actual_sizes)),
+            "max": int(max(actual_sizes)),
+            "mean": float(np.mean(actual_sizes)),
+        },
         "reconvergence_points_per_graph": {
-            "min": int(min(reconv_counts)),
-            "max": int(max(reconv_counts)),
-            "mean": float(np.mean(reconv_counts)),
+            "min": int(min(actual_reconv)),
+            "max": int(max(actual_reconv)),
+            "mean": float(np.mean(actual_reconv)),
         },
     }
     with open(output_dir / "summary_stats.json", "w") as f:

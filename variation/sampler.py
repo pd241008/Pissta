@@ -57,7 +57,8 @@ def _pelgrom_vth_sigma(
 ) -> float:
     w_um = w_nm * 1e-3
     l_um = l_nm * 1e-3
-    return float(np.sqrt((a_vth ** 2) / (w_um * l_um) + (s_vth * d_um) ** 2))
+    d_eff = min(d_um, 5.0)
+    return float(np.sqrt((a_vth ** 2) / (w_um * l_um) + (s_vth * d_eff) ** 2))
 
 
 def sample_correlated_process(
@@ -119,5 +120,21 @@ def sample_correlated_process(
 
     if np.any(L <= 0) or np.any(W <= 0):
         raise RuntimeError("Generated non-positive geometry. Adjust parameters.")
+
+    vdd = getattr(params, "vdd_v", 1.0)
+    vth_max = vdd - 0.05
+    vth_min = params.vth_nom_v - 5.0 * max(
+        params.inter_die_sigma_vth,
+        params.spatial_sigma_vth,
+        max(
+            _pelgrom_vth_sigma(
+                params.w_nom_nm, params.l_nom_nm,
+                params.vth_pelgrom_A_v_um, params.vth_pelgrom_S_v_um,
+                float(np.sqrt(coords[name][0] ** 2 + coords[name][1] ** 2)),
+            )
+            for name in names
+        ),
+    )
+    Vth = np.clip(Vth, vth_min, vth_max)
 
     return {"L_nm": L, "W_nm": W, "Vth_v": Vth}
