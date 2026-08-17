@@ -1,0 +1,311 @@
+"""
+Stage 6A — Training Data Generation
+
+Generates a validated dataset of (DAG structure → MC-labeled delay statistics)
+pairs with a clean train/val/test split by graph.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import pickle
+import sys
+import time
+from dataclasses import replace
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+import numpy as np
+
+from foundations.config_loader import load_config, VariationParams
+from ssta.monte_carlo import run_branching_monte_carlo
+from data_generation.graph_generator import generate_dataset, print_graph_summary, GeneratedGraph
+from data_generation.analytical_ssta_arbitrary import compute_analytical_ssta_arbitrary
+
+
+def graph_to_dict(graph: GeneratedGraph) -> dict:
+    """Convert GeneratedGraph to a JSON-serializable dict."""
+    return {
+        "graph_id": graph.graph_id,
+        "source": graph.source,
+        "sink": graph.sink,
+        "successors": graph.successors,
+        "gates": {
+            name: {"load_ff": gate.load_ff, "x": gate.x, "y": gate.y}
+            for name, gate in graph.gates.items()
+        },
+        "coordinates": {name: list(coord) for name, coord in graph.coordinates.items()},
+        "gate_loads": graph.gate_loads,
+        "reconvergence_points": graph.reconvergence_points,
+    }
+
+
+def compute_physics_features(graph: GeneratedGraph, config, variation_params=None) -> dict:
+    """Compute physics-derived features for a graph."""
+    from timing.graph import TimingGraph, Gate
+    from timing.delay import compute_delay_moments, nominal_delay, delay_partials
+    from variation.analytical import compute_process_moments
+
+    if variation_params is None:
+        variation_params = config.variation_params
+
+    timing_params = config.timing_params
+
+    # Build TimingGraph
+    gates = {
+        name: Gate(name=name, load_ff=gate.load_ff, x=gate.x, y=gate.y)
+        for name, gate in graph.gates.items()
+    }
+    timing_graph = TimingGraph(gates=gates, successors=graph.successors)
+
+    # Analytical SSTA
+    analytical = compute_analytical_ssta_arbitrary(
+        timing_graph, timing_params, variation_params
+    )
+
+    # Per-gate linearized sensitivities
+    process_moments = compute_process_moments(variation_params)
+    graph_gate_loads = {name: gate.load_ff for name, gate in graph.gates.items()}
+    delay_moments = compute_delay_moments(timing_params, variation_params, process_moments, gate_loads=graph_gate_loads)
+
+    sensitivities = {}
+    for name in timing_graph.topological_order():
+        gate = timing_graph.gates[name]
+        partials = delay_partials(
+            load_ff=gate.load_ff,
+            gate_params=timing_params,
+            vth_nom=variation_params.vth_nom_v,
+            l_nom=variation_params.l_nom_nm,
+            w_nom=variation_params.w_nom_nm,
+        )
+        sensitivities[name] = partials
+
+    return {
+        "analytical_ssta": analytical,
+        "sensitivities": sensitivities,
+    }
+
+
+def validate_label_quality(
+    graphs: List[GeneratedGraph],
+    config,
+    n_samples: int = 10_000,
+    n_seeds: int = 2,
+) -> dict:
+    """Validate label quality by checking seed-to-seed noise."""
+    valid_graphs = [
+        g for g in graphs
+        if len([p for p, succs in g.successors.items() if g.sink in succs]) >= 2
+    ][:20]
+
+    if len(valid_graphs) == 0:
+        return {"error": "No valid graphs with >= 2 sink predecessors"}
+
+    rng = np.random.default_rng(42)
+
+    noise_results = []
+    for graph in valid_graphs:
+        labels = []
+        for seed in range(n_seeds):
+            graph_coords = {name: (gate.x, gate.y) for name, gate in graph.gates.items()}
+            graph_variation_params = replace(config.variation_params, gate_coords=graph_coords)
+            graph_gate_loads = {name: gate.load_ff for name, gate in graph.gates.items()}
+            graph_timing_params = replace(config.timing_params, gate_loads=graph_gate_loads)
+
+            results = run_branching_monte_carlo(
+                n_samples=n_samples,
+                seed=seed,
+                variation_params=graph_variation_params,
+                gate_params=graph_timing_params,
+                graph=_to_timing_graph(graph),
+            )
+            cpd = results["critical_path_delay"]
+            labels.append({
+                "mean": float(np.mean(cpd)),
+                "std": float(np.std(cpd, ddof=1)),
+            })
+
+        mean_noise = abs(labels[0]["mean"] - labels[1]["mean"]) / max(labels[0]["mean"], 1e-9)
+        std_noise = abs(labels[0]["std"] - labels[1]["std"]) / max(labels[0]["std"], 1e-9)
+        noise_results.append({
+            "graph_id": graph.graph_id,
+            "mean_noise": mean_noise,
+            "std_noise": std_noise,
+        })
+
+    mean_noises = [r["mean_noise"] for r in noise_results]
+    std_noises = [r["std_noise"] for r in noise_results]
+
+    return {
+        "mean_noise_mean": float(np.mean(mean_noises)),
+        "mean_noise_std": float(np.std(mean_noises, ddof=1)),
+        "std_noise_mean": float(np.mean(std_noises)),
+        "std_noise_std": float(np.std(std_noises, ddof=1)),
+        "per_graph": noise_results,
+    }
+
+
+def _to_timing_graph(graph: GeneratedGraph) -> TimingGraph:
+    """Convert GeneratedGraph to TimingGraph for MC analysis."""
+    from timing.graph import TimingGraph, Gate
+
+    gates = {
+        name: Gate(name=name, load_ff=gate.load_ff, x=gate.x, y=gate.y)
+        for name, gate in graph.gates.items()
+    }
+    return TimingGraph(gates=gates, successors=graph.successors)
+
+
+def main() -> None:
+    t0 = time.time()
+    config = load_config("foundations/stage3_config.json")
+
+    # Step 1: Generate graphs
+    print("=== Generating random DAGs ===")
+    n_graphs = 2000
+    graphs = generate_dataset(n_graphs=n_graphs, n_gates_range=(4, 12), seed=42)
+    print(f"Generated {len(graphs)} graphs")
+
+    # Step 2: Validate generator (20 graphs)
+    print("\n=== Validating generator ===")
+    validation_graphs = graphs[:20]
+    sizes = [len(g.gates) for g in validation_graphs]
+    reconv_counts = [len(g.reconvergence_points) for g in validation_graphs]
+    print(f"Gate count range: {min(sizes)}-{max(sizes)}")
+    print(f"Reconvergence points range: {min(reconv_counts)}-{max(reconv_counts)}")
+    print(f"Mean reconvergence points: {np.mean(reconv_counts):.2f}")
+
+    # Step 3-4: Generate MC labels and physics features
+    print("\n=== Generating MC labels and physics features ===")
+    dataset = {}
+    generation_times = []
+    skipped = 0
+
+    for i, graph in enumerate(graphs):
+        # Skip graphs where sink has < 2 predecessors (no MAX operation to learn)
+        sink_preds = [p for p, succs in graph.successors.items() if graph.sink in succs]
+        if len(sink_preds) < 2:
+            skipped += 1
+            continue
+
+        graph_t0 = time.time()
+        timing_graph = _to_timing_graph(graph)
+
+        # Create variation params with this graph's coordinates
+        graph_coords = {name: (gate.x, gate.y) for name, gate in graph.gates.items()}
+        graph_variation_params = replace(config.variation_params, gate_coords=graph_coords)
+
+        # MC labels (N=10,000)
+        mc_results = run_branching_monte_carlo(
+            n_samples=10_000,
+            seed=42,
+            variation_params=graph_variation_params,
+            gate_params=config.timing_params,
+            graph=timing_graph,
+        )
+        cpd = mc_results["critical_path_delay"]
+        mc_labels = {
+            "mean": float(np.mean(cpd)),
+            "std": float(np.std(cpd, ddof=1)),
+        }
+
+        # Physics features
+        physics = compute_physics_features(graph, config, variation_params=graph_variation_params)
+
+        dataset[graph.graph_id] = {
+            "graph": graph_to_dict(graph),
+            "mc_labels": mc_labels,
+            "physics_features": physics,
+            "wall_time_s": time.time() - graph_t0,
+        }
+
+        generation_times.append(time.time() - graph_t0)
+
+        if (i + 1) % 100 == 0:
+            print(f"  Processed {i + 1}/{len(graphs)} graphs (skipped {skipped})")
+
+    print(f"\nSkipped {skipped} graphs (sink with < 2 predecessors)")
+
+    total_time = time.time() - t0
+    print(f"\nTotal generation time: {total_time:.1f}s")
+    print(f"Mean time per graph: {np.mean(generation_times):.3f}s")
+
+    # Step 6: Validate label quality
+    print("\n=== Validating label quality ===")
+    noise = validate_label_quality(graphs, config, n_samples=10_000, n_seeds=2)
+    print(f"Mean noise (mean): {noise['mean_noise_mean']:.4f} ± {noise['mean_noise_std']:.4f}")
+    print(f"Mean noise (std):  {noise['std_noise_mean']:.4f} ± {noise['std_noise_std']:.4f}")
+
+    # Step 7: Split dataset
+    print("\n=== Splitting dataset ===")
+    graph_ids = list(dataset.keys())
+    rng = np.random.default_rng(42)
+    rng.shuffle(graph_ids)
+
+    n_total = len(graph_ids)
+    n_train = int(0.7 * n_total)
+    n_val = int(0.15 * n_total)
+
+    splits = {
+        "train": graph_ids[:n_train],
+        "val": graph_ids[n_train:n_train + n_val],
+        "test": graph_ids[n_train + n_val:],
+    }
+
+    for split_name, split_ids in splits.items():
+        print(f"  {split_name}: {len(split_ids)} graphs")
+
+    # Step 8: Save to disk
+    print("\n=== Saving dataset ===")
+    output_dir = Path("data_generation/data")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save full dataset
+    with open(output_dir / "dataset.pkl", "wb") as f:
+        pickle.dump(dataset, f)
+
+    # Save splits
+    with open(output_dir / "splits.json", "w") as f:
+        json.dump(splits, f, indent=2)
+
+    # Save manifest
+    manifest = {
+        "n_graphs": n_graphs,
+        "n_train": len(splits["train"]),
+        "n_val": len(splits["val"]),
+        "n_test": len(splits["test"]),
+        "total_generation_time_s": total_time,
+        "mean_time_per_graph_s": float(np.mean(generation_times)),
+        "label_noise": noise,
+        "config_file": "foundations/stage3_config.json",
+    }
+    with open(output_dir / "manifest.json", "w") as f:
+        json.dump(manifest, f, indent=2)
+
+    # Save summary stats
+    means = [d["mc_labels"]["mean"] for d in dataset.values()]
+    stds = [d["mc_labels"]["std"] for d in dataset.values()]
+
+    summary = {
+        "mean_delay": {"mean": float(np.mean(means)), "std": float(np.std(means, ddof=1))},
+        "std_delay": {"mean": float(np.mean(stds)), "std": float(np.std(stds, ddof=1))},
+        "n_graphs": n_graphs,
+        "gates_per_graph": {"min": int(min(sizes)), "max": int(max(sizes)), "mean": float(np.mean(sizes))},
+        "reconvergence_points_per_graph": {
+            "min": int(min(reconv_counts)),
+            "max": int(max(reconv_counts)),
+            "mean": float(np.mean(reconv_counts)),
+        },
+    }
+    with open(output_dir / "summary_stats.json", "w") as f:
+        json.dump(summary, f, indent=2)
+
+    print(f"\nSaved dataset to {output_dir}")
+    print(f"  dataset.pkl: {os.path.getsize(output_dir / 'dataset.pkl') / 1024 / 1024:.1f} MB")
+    print("Done.")
+
+
+if __name__ == "__main__":
+    main()
