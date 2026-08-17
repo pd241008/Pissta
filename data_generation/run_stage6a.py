@@ -153,7 +153,6 @@ def _to_timing_graph(graph: GeneratedGraph) -> TimingGraph:
 
 
 def main() -> None:
-    t0 = time.time()
     config = load_config("foundations/stage3_config.json")
 
     # Step 1: Generate graphs
@@ -181,6 +180,8 @@ def main() -> None:
     dataset = {}
     generation_times = []
     skip_reasons = {"mc_error": 0}
+
+    t0 = time.time()
 
     for i, graph in enumerate(graphs):
         graph_t0 = time.time()
