@@ -31,13 +31,14 @@ We use **structured random generation with validation at each step**:
 - **Binary splits only**: Matches Stage 3 structure; N-way splits deferred to later extension
 - **Per-graph coordinates**: Spatial covariance model requires meaningful 2D layout. We assign coordinates based on topological level × branch position.
 - **Physical bounds**: Vth sampling can produce values near Vdd, causing alpha-power delay singularity. We cap Pelgrom distance at 5μm, clip Vth to `[vth_nom - 5σ, Vdd - 50mV]`, and set alpha-power floor at 0.1V.
-- **Skip invalid graphs**: 652/2000 graphs skipped (sink with < 2 predecessors). These are pure chains with no MAX operation to learn — not useful for GNN training.
-- **Label noise**: N=10,000 samples gives mean noise 0.06%, std noise 0.62% — well below the signal variance across graphs.
+- **Skip invalid graphs**: 546/2000 graphs skipped (sink with < 2 predecessors). These are pure chains with no MAX operation to learn — not useful for GNN training. The generator now enforces `min_reconvergence=1`, so pure chains are filtered at construction time.
+- **Label noise**: N=10,000 samples gives mean noise 0.05%, std noise 0.66% — well below the signal variance across graphs.
 
 ## Consequences
 
-- **Dataset size**: 1,348 valid graphs from 2,000 generated (70/15/15 split: 943/202/203)
-- **Generation cost**: ~26s total (~19ms/graph) — cheap at this scale
+- **Dataset size**: 1,454 valid graphs from 2,000 generated (stratified 70/15/15 split: 1016/216/222)
+- **Generation cost**: ~21s total (~14ms/graph) — cheap at this scale
+- **Stratification**: Splits are stratified by reconvergence count, ensuring test/val have sufficient complex-topology graphs for ablation (test: 17 nrecon=3 + 2 nrecon=4)
 - **Downstream impact**: Stage 6B (vanilla GNN) and 6C (physics-informed) inherit this dataset. Splits are frozen in `splits.json` for fair comparison.
 - **Physics features**: Analytical SSTA and per-gate sensitivities computed for all graphs, stored but not used by vanilla GNN
-- **Future extension**: N-way splits, P99.87 labels, and larger graphs (n_gates > 12) can be added by modifying `graph_generator.py` parameters
+- **Future extension**: N-way splits, P99.87 labels, and larger graphs (n_gates > 14) can be added by modifying `graph_generator.py` parameters

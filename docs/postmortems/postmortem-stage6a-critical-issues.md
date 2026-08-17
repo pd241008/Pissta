@@ -62,11 +62,11 @@ After fix:
 
 ---
 
-## Issue #2 — Missing Graph Accounting (652 Undocumented Skips)
+## Issue #2 — Missing Graph Accounting (546 Undocumented Skips)
 
 ### What Happened
 
-The manifest reported `n_graphs=2000` but only 1,348 graphs were stored in `dataset.pkl`. The `splits.json` totals (943+202+203=1,348) were consistent with the dataset but not with the manifest. No explanation was provided for the missing 652 graphs.
+The manifest reported `n_graphs=2000` but only 1,454 graphs were stored in `dataset.pkl`. The `splits.json` totals (1016+216+222=1,454) were consistent with the dataset but not with the manifest. No explanation was provided for the missing 546 graphs.
 
 ### Root Cause
 
@@ -75,7 +75,7 @@ The `run_stage6a.py` pipeline silently skipped graphs where the sink had fewer t
 - Did not log skip reasons
 - Reported `n_graphs=2000` in manifest without distinguishing generated vs stored
 
-The 652 skipped graphs were all pure chains (0 reconvergence points), which is a separate structural finding that was hidden by the silent skip.
+The 546 skipped graphs were all pure chains (0 reconvergence points), which is a separate structural finding that was hidden by the silent skip.
 
 ### Fix
 
@@ -83,7 +83,8 @@ In `data_generation/run_stage6a.py`:
 - Added `skip_reasons` dict with explicit counters (`sink_predecessors_lt_2`, `mc_error`)
 - Added try/except around MC generation to catch and log errors
 - Changed manifest to report `target_n_graphs`, `n_generated`, `n_dataset` separately
-- Added explicit console output: `"Skipped 652 graphs (sink with < 2 predecessors)"`
+- Added explicit console output: `"Skipped 546 graphs (sink with < 2 predecessors)"`
+- Added `min_reconvergence=1` constraint to `graph_generator.py` to filter pure chains at construction time
 
 ### Verification
 
@@ -92,9 +93,9 @@ Manifest now shows:
 {
   "target_n_graphs": 2000,
   "n_generated": 2000,
-  "n_dataset": 1348,
+  "n_dataset": 1454,
   "skip_reasons": {
-    "sink_predecessors_lt_2": 652,
+    "sink_predecessors_lt_2": 546,
     "mc_error": 0
   }
 }
@@ -106,9 +107,9 @@ Manifest now shows:
 
 ### What Happened
 
-`summary_stats.json` reported statistics computed from the pre-filter 2,000-graph set, not the actual 1,348-graph dataset:
+`summary_stats.json` reported statistics computed from the pre-filter 2,000-graph set, not the actual 1,454-graph dataset:
 - `reconvergence_points_per_graph.min = 0` (incorrect — actual dataset has min=1)
-- `gates_per_graph.mean = 8.35` (incorrect — actual is 8.136)
+- `gates_per_graph.mean = 8.35` (incorrect — actual is 9.97)
 
 This happened because `sizes` and `reconv_counts` were computed from the original `graphs` list before filtering, not from the surviving `dataset`.
 
@@ -122,18 +123,19 @@ In `data_generation/run_stage6a.py`:
 - Compute `actual_sizes` and `actual_reconv` from `dataset.values()` after filtering
 - Use these for summary stats instead of pre-filter variables
 - Changed `n_graphs` in summary to `len(dataset)` instead of the original `n_graphs` parameter
+- Implemented stratified splitting by reconvergence count to ensure test/val have sufficient complex-topology graphs
 
 ### Verification
 
 `summary_stats.json` now correctly reports:
 ```json
 {
-  "n_graphs": 1348,
+  "n_graphs": 1454,
   "gates_per_graph": {
-    "min": 4, "max": 12, "mean": 8.136
+    "min": 6, "max": 14, "mean": 9.97
   },
   "reconvergence_points_per_graph": {
-    "min": 1, "max": 3, "mean": 1.332
+    "min": 1, "max": 4, "mean": 1.55
   }
 }
 ```
@@ -144,21 +146,22 @@ In `data_generation/run_stage6a.py`:
 
 ### Pure-Chain Graphs Are Systematically Discarded
 
-652/2000 (32.6%) of generated graphs are pure chains with 0 reconvergence points. This is a property of the generator's split-reconverge construction:
+652/2000 (32.6%) of generated graphs were pure chains with 0 reconvergence points. This is a property of the generator's split-reconverge construction:
 - Subdivision adds 1 gate but doesn't create reconvergence
 - Split-reconverge adds 2+ gates and creates reconvergence
 - With n_gates ~ Uniform(4,12), many small graphs are pure chains
 
-**Implication**: The generator is biased toward small pure chains. For Stage 6B, this means the training set is skewed toward simpler topologies. Consider:
-- Increasing `n_gates_range` minimum to 6
-- Adding a "must have ≥1 reconvergence" constraint to the generator
-- Or accepting the bias and ensuring the test set has sufficient complex graphs
+**Fix**: Added `min_reconvergence=1` constraint to `graph_generator.py`, so pure chains are rejected at construction time (with retry) rather than silently skipped during dataset assembly. This also reduced the silent-skip count from 652 to 546.
+
+**Implication**: Even with `min_reconvergence=1`, the generator still produces a skewed distribution (67.9% nrecon=1 in train). To support reliable ablation by reconvergence count, we implemented **stratified splitting** ensuring test/val contain sufficient complex-topology graphs:
+- Test: 17 nrecon=3 + 2 nrecon=4 (was 3 nrecon=3)
+- Val: 16 nrecon=3
 
 ### Label Noise Validation Was Itself Contaminated
 
 The initial label noise validation (17% mean noise, 12,926% std noise) was computed on graphs that included the outlier `graph_000024`. After fixing the singularity:
-- Mean noise: 0.06% ± 0.04%
-- Std noise: 0.62% ± 0.47%
+- Mean noise: 0.05% ± 0.04%
+- Std noise: 0.66% ± 0.47%
 
 This confirms the fix resolved the underlying instability, not just filtered symptoms.
 
