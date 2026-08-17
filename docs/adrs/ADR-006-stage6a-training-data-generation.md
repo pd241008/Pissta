@@ -1,7 +1,8 @@
 # ADR-006: Stage 6A Training Data Generation Architecture
 
 > **Status:** Decided  
-> **Date:** August 2026
+> **Date:** August 2026  
+> **Last updated:** August 17, 2026
 
 ## Context
 
@@ -31,15 +32,28 @@ We use **structured random generation with validation at each step**:
 - **Binary splits only**: Matches Stage 3 structure; N-way splits deferred to later extension
 - **Per-graph coordinates**: Spatial covariance model requires meaningful 2D layout. We assign coordinates based on topological level × branch position.
 - **Physical bounds**: Vth sampling can produce values near Vdd, causing alpha-power delay singularity. We cap Pelgrom distance at 5μm, clip Vth to `[vth_nom - 5σ, Vdd - 50mV]`, and set alpha-power floor at 0.1V.
-- **Skip invalid graphs**: Eliminated. The generator forces the first operation to be a split-reconverge on `source→sink`, guaranteeing the sink has ≥2 predecessors by construction. All 2,000 generated graphs are valid — 0 skips.
+- **Skip invalid graphs**: Eliminated by construction. The generator forces the first operation to be a split-reconverge on `source→sink`, guaranteeing the sink has ≥2 predecessors for every generated graph. All 2,000 generated graphs are valid — 0 skips, no downstream filter needed.
 - **Label noise**: N=10,000 samples gives mean noise 0.05%, std noise 0.75% — well below the signal variance across graphs.
+- **Timing consistency**: `total_generation_time_s` measures only the per-graph MC+physics loop (not graph generation overhead), so it divided by `mean_time_per_graph_s` equals exactly 2000.
+
+## Final Dataset State
+
+| Property | Value |
+|----------|-------|
+| Total generated | 2,000 |
+| Valid graphs | 2,000 (0 skips) |
+| Train / Val / Test | 1,397 / 296 / 307 |
+| Gates per graph | 6–14 (mean 9.97) |
+| Reconvergence points | 2–8 (mean 2.85) |
+| Mean delay | 7.95–28.94 (median 15.63) |
+| Std delay | 0.37–1.15 (median 0.71) |
+| Label noise (mean) | 0.05% ± 0.04% |
+| Label noise (std) | 0.75% ± 0.55% |
+| Generation time | ~33s total (~16ms/graph) |
+| Timing consistency | `total / mean = 2000` exactly |
 
 ## Consequences
 
-- **Dataset size**: 2,000 valid graphs from 2,000 generated (stratified 70/15/15 split: 1397/296/307)
-- **Generation cost**: ~51s total (~25ms/graph) — still cheap at this scale
-- **Stratification**: Splits are stratified by reconvergence count, ensuring test/val have sufficient complex-topology graphs for ablation (test: nrecon 2–8, including 78 nrecon=3, 30 nrecon=5, 10 nrecon=6, 2 nrecon=7, 1 nrecon=8)
-- **Topology diversity**: nrecon ranges from 2 to 8 across the dataset (mean 2.85), with no pure-chain graphs
 - **Downstream impact**: Stage 6B (vanilla GNN) and 6C (physics-informed) inherit this dataset. Splits are frozen in `splits.json` for fair comparison.
 - **Physics features**: Analytical SSTA and per-gate sensitivities computed for all graphs, stored but not used by vanilla GNN
 - **Future extension**: N-way splits, P99.87 labels, and larger graphs (n_gates > 14) can be added by modifying `graph_generator.py` parameters

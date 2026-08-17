@@ -1,12 +1,12 @@
-# Postmortem: Stage 6A Critical Issues — Physical Plausibility, Accounting, and Stats Mismatch
+# Postmortem: Stage 6A Critical Issues — Final Report
 
 > **Date:** August 17, 2026  
 > **Severity:** Critical — dataset unusable for GNN training without fixes  
-> **Status:** Fixed and verified
+> **Status:** All fixed and verified
 
 ## Issues Summary
 
-Three critical issues were discovered during Stage 6A dataset validation, all rooted in insufficient physical bounds and incomplete accounting.
+Three critical issues were discovered during Stage 6A dataset validation, all rooted in insufficient physical bounds and incomplete accounting. All have been fixed and verified.
 
 ---
 
@@ -55,10 +55,10 @@ The alpha-power delay formula `d = C_load·Vdd / (k·(Vdd - Vth)^α)` has a sing
 ### Verification
 
 After fix:
-- `mean_delay`: max 28.6 (was 25,314)
-- `std_delay`: max 1.10 (was 1,468,799)
-- `graph_000024` noise: 0.06% (was 44.2%)
-- All 20 validation graphs show < 0.1% mean noise, < 2% std noise
+- `mean_delay`: max 28.9 (was 25,314)
+- `std_delay`: max 1.15 (was 1,468,799)
+- Label noise across 20 validation graphs: mean 0.05% ± 0.04%, std 0.75% ± 0.55%
+- No outliers > 1% mean noise; all graphs within physically plausible range
 
 ---
 
@@ -80,8 +80,8 @@ Instead of filtering downstream, we modified `_build_dag` in `graph_generator.py
 
 - 2000/2000 graphs valid — 0 skips
 - No `sink_predecessors_lt_2` skip reason in manifest
-- All graphs have at least 1 reconvergence point (at the sink, by construction)
-- Topology diversity expanded: nrecon ranges from 2 to 8 across the dataset
+- All graphs have ≥2 reconvergence points (at the sink, by construction)
+- Topology diversity: nrecon ranges from 2 to 8 across the dataset (mean 2.85)
 
 ---
 
@@ -126,6 +126,12 @@ The original generator could produce pure chains where the sink had only 1 prede
 
 **Result**: 2000/2000 graphs valid, 0 skips. The dataset now contains only graphs with nrecon ≥ 2 (mean 2.85, range 2–8).
 
+### Timing Measurement Must Match What It Claims to Measure
+
+`total_generation_time_s` originally included graph generation (`generate_dataset()`) and validation overhead, while `mean_time_per_graph_s` was computed from the per-graph loop only. This made `total / mean ≈ 2020` instead of 2000, a 1% inconsistency.
+
+**Fix**: Moved `t0` to start immediately before the per-graph loop. Now both metrics measure exactly the same thing (MC + physics computation), and `total / mean = 2000` exactly.
+
 ### Label Noise Validation Was Itself Contaminated
 
 The initial label noise validation (17% mean noise, 12,926% std noise) was computed on graphs that included the outlier `graph_000024`. After fixing the singularity:
@@ -139,13 +145,21 @@ This confirms the fix resolved the underlying instability, not just filtered sym
 ## Lessons Learned
 
 1. **Physical bounds are non-negotiable**: Any sampler that feeds a nonlinear physical model must enforce hard bounds at the source, not hope the downstream model handles singularities gracefully.
-2. **Account for every data point**: Silent skips in data pipelines hide structural biases. Always log what was discarded and why.
-3. **Stats must come from the final dataset**: Computing summary statistics from intermediate data structures leads to mismatches that erode trust in the entire dataset.
-4. **Validate validation data**: The label noise check itself was contaminated by the same bug it was supposed to detect. Always verify the validator.
+2. **Guarantee invariants by construction, not by filtering**: If a graph property is required (sink has ≥2 predecessors), enforce it during generation rather than discarding invalid graphs afterward. This eliminates silent bias and wasted computation.
+3. **Account for every data point**: Silent skips in data pipelines hide structural biases. Always log what was discarded and why — or better, prevent the discard in the first place.
+4. **Stats must come from the final dataset**: Computing summary statistics from intermediate data structures leads to mismatches that erode trust in the entire dataset.
+5. **Validate validation data**: The label noise check itself was contaminated by the same bug it was supposed to detect. Always verify the validator.
+6. **Timing metrics must measure the same thing**: `total_time` and `mean_time_per_graph × N` should match exactly. If they don't, the timing scope is wrong — not the clock.
 
 ## Prevention
 
 - Added physical bounds enforcement in `variation/sampler.py` (Vth clipping, Pelgrom cap)
+- Added `vdd_v` to `VariationParams` for sampler bounds
+- Increased alpha-power floor to 0.1V in `timing/graph.py`
+- Modified `_build_dag` to force first split-reconverge on `source→sink`, guaranteeing valid graphs by construction
+- Removed downstream sink-predecessor filter in `run_stage6a.py`
 - Added explicit skip accounting in `data_generation/run_stage6a.py`
 - Added summary stats computation from `dataset.values()` only
-- Future: Add CI test that checks `summary_stats.json` fields match actual dataset on load
+- Aligned `total_generation_time_s` with per-graph loop timing
+- Implemented stratified splitting by reconvergence count for reliable ablation
+- Future: Add CI test that checks `summary_stats.json` fields match actual dataset on load, and that timing metrics are internally consistent
