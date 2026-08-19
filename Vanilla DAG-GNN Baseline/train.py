@@ -7,15 +7,12 @@ Includes early stopping, logging, and checkpoint management.
 from __future__ import annotations
 
 import time
-from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 import torch
 import torch.nn.functional as F
-from torch_geometric.data import DataLoader
-
-from model import VanillaDAGGNNSage
+from torch_geometric.loader import DataLoader
 
 
 class EarlyStopping:
@@ -141,11 +138,12 @@ def train_model(
             break
 
     train_time = time.time() - start_time
-    best_epoch = np.argmin(history["val_loss"])
+    best_epoch = int(np.argmin(history["val_loss"]))
+    best_val_loss = float(min(history["val_loss"]))
 
     return {
         "history": history,
         "best_epoch": best_epoch,
-        "best_val_loss": min(history["val_loss"]),
+        "best_val_loss": best_val_loss,
         "train_time": train_time,
     }

@@ -14,8 +14,8 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 import torch
-from torch_geometric.data import Data, DataLoader
-from torch_geometric.utils import to_undirected
+from torch_geometric.data import Data
+from torch_geometric.loader import DataLoader
 
 
 class GraphDataset:
@@ -36,12 +36,9 @@ class GraphDataset:
             self.splits = json.load(f)
 
         self.graph_ids = self.splits[split]
-        self._data_list = None
 
     def _compute_normalization(self) -> Tuple[Dict[str, float], Dict[str, float]]:
         """Compute mean/std for features and targets from train set only."""
-        train_dataset = GraphDataset(data_dir=self.data_dir, split="train")
-
         # Collect all node features and targets from train set
         all_load = []
         all_x = []
@@ -49,8 +46,8 @@ class GraphDataset:
         all_mean = []
         all_std = []
 
-        for gid in train_dataset.graph_ids:
-            entry = train_dataset.dataset[gid]
+        for gid in self.graph_ids:
+            entry = self.dataset[gid]
             gates = entry["graph"]["gates"]
             for name, gate in gates.items():
                 all_load.append(gate["load_ff"])
@@ -60,19 +57,19 @@ class GraphDataset:
             all_std.append(entry["mc_labels"]["std"])
 
         feature_stats = {
-            "load_mean": np.mean(all_load),
-            "load_std": np.std(all_load, ddof=0) + 1e-8,
-            "x_mean": np.mean(all_x),
-            "x_std": np.std(all_x, ddof=0) + 1e-8,
-            "y_mean": np.mean(all_y),
-            "y_std": np.std(all_y, ddof=0) + 1e-8,
+            "load_mean": float(np.mean(all_load)),
+            "load_std": float(np.std(all_load, ddof=0) + 1e-8),
+            "x_mean": float(np.mean(all_x)),
+            "x_std": float(np.std(all_x, ddof=0) + 1e-8),
+            "y_mean": float(np.mean(all_y)),
+            "y_std": float(np.std(all_y, ddof=0) + 1e-8),
         }
 
         target_stats = {
-            "mean_mean": np.mean(all_mean),
-            "mean_std": np.std(all_mean, ddof=0) + 1e-8,
-            "std_mean": np.mean(all_std),
-            "std_std": np.std(all_std, ddof=0) + 1e-8,
+            "mean_mean": float(np.mean(all_mean)),
+            "mean_std": float(np.std(all_mean, ddof=0) + 1e-8),
+            "std_mean": float(np.mean(all_std)),
+            "std_std": float(np.std(all_std, ddof=0) + 1e-8),
         }
 
         return feature_stats, target_stats
@@ -83,7 +80,6 @@ class GraphDataset:
         entry: dict,
         feature_stats: Dict[str, float],
         target_stats: Dict[str, float],
-        use_undirected: bool = False,
     ) -> Data:
         """Create a PyG Data object from a dataset entry."""
         gates = entry["graph"]["gates"]
@@ -113,9 +109,6 @@ class GraphDataset:
         else:
             edge_index = torch.tensor(edge_list, dtype=torch.long).t().contiguous()
 
-        if use_undirected:
-            edge_index = to_undirected(edge_index, num_nodes=n_nodes)
-
         # Targets: normalized mean and std
         mean_val = entry["mc_labels"]["mean"]
         std_val = entry["mc_labels"]["std"]
@@ -125,7 +118,6 @@ class GraphDataset:
         ], dtype=torch.float32).unsqueeze(0)  # Shape [1, 2] so batching gives [batch_size, 2]
 
         # Store graph-level info for evaluation
-        graph_id = torch.tensor([hash(gid) % (2**31)], dtype=torch.long)
         nrecon = len(entry["graph"]["reconvergence_points"])
 
         return Data(
@@ -141,25 +133,19 @@ class GraphDataset:
 
     def get_data(
         self,
-        feature_stats: Dict[str, float] | None = None,
-        target_stats: Dict[str, float] | None = None,
-        use_undirected: bool = False,
+        feature_stats: Dict[str, float],
+        target_stats: Dict[str, float],
     ) -> List[Data]:
         """Get list of PyG Data objects for this split."""
-        if feature_stats is None or target_stats is None:
-            if self.split != "train":
-                raise ValueError("feature_stats and target_stats must be provided for non-train splits")
-            feature_stats, target_stats = self._compute_normalization()
-
         data_list = []
         for gid in self.graph_ids:
             entry = self.dataset[gid]
-            data = self._create_data_object(gid, entry, feature_stats, target_stats, use_undirected)
+            data = self._create_data_object(gid, entry, feature_stats, target_stats)
             data_list.append(data)
 
         return data_list
 
-    def get_analytical_baseline(self) -> Dict[str, float]:
+    def get_analytical_baseline(self) -> Dict:
         """Get analytical SSTA baseline errors for this split."""
         baseline = {}
         for gid in self.graph_ids:
@@ -188,7 +174,6 @@ class GraphDataset:
 def create_dataloaders(
     data_dir: str | Path = "data_generation/data",
     batch_size: int = 32,
-    use_undirected: bool = False,
 ) -> Tuple[DataLoader, DataLoader, DataLoader, Dict, Dict]:
     """Create train/val/test DataLoaders with proper normalization."""
     # Train dataset computes normalization stats
@@ -196,9 +181,9 @@ def create_dataloaders(
     feature_stats, target_stats = train_dataset._compute_normalization()
 
     # Create all datasets with shared stats
-    train_data = train_dataset.get_data(feature_stats, target_stats, use_undirected)
-    val_data = GraphDataset(data_dir=data_dir, split="val").get_data(feature_stats, target_stats, use_undirected)
-    test_data = GraphDataset(data_dir=data_dir, split="test").get_data(feature_stats, target_stats, use_undirected)
+    train_data = train_dataset.get_data(feature_stats, target_stats)
+    val_data = GraphDataset(data_dir=data_dir, split="val").get_data(feature_stats, target_stats)
+    test_data = GraphDataset(data_dir=data_dir, split="test").get_data(feature_stats, target_stats)
 
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)

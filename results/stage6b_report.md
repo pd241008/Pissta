@@ -18,7 +18,7 @@ A vanilla GraphSAGE-based GNN was trained on raw graph structure and node featur
 | Total graphs | 2,000 |
 | Train / Val / Test | 1,397 / 296 / 307 |
 | Gates per graph | 6–14 (mean 9.97) |
-| Reconvergence points | 2–8 (mean 2.85) |
+| Reconvergence points (overall) | 2–8 (mean 3.31) |
 | Feature normalization | Train-set mean/std only |
 | Target normalization | Train-set mean/std only |
 
@@ -36,20 +36,23 @@ A vanilla GraphSAGE-based GNN was trained on raw graph structure and node featur
 
 | Component | Specification |
 |-----------|---------------|
-| Message passing | 3 × GraphSAGE layers |
+| Message passing | 3 × GraphSAGE layers (each: 1× SAGEConv + BatchNorm1d + ReLU + Dropout) |
 | Hidden dimension | 64 |
-| Dropout | 0.15 |
+| Dropout | 0.15 (applied after input proj, each conv layer, and MLP head) |
 | Readout | Mean pooling |
 | Output head | 2-layer MLP (64 → 64 → 2) |
 | Total parameters | 29,698 |
 | Optimizer | Adam (lr=1e-3) |
-| Loss | MSE (sum over both outputs) |
+| Loss | MSE with mean reduction on train-normalized targets |
+| Gradient clipping | max_norm=1.0 |
 | Early stopping | Patience=20 on validation loss |
+| Edge type | Directed edges following successors (source→sink) |
 
-**Design choices:**
-- Directed edges following successors (source→sink), respecting DAG structure
+**Architecture notes:**
+- Each "layer" block is: SAGEConv → BatchNorm1d → ReLU → Dropout
+- Input projection: Linear(3, 64) → ReLU → Dropout
+- MLP head: Linear(64, 64) → ReLU → Dropout → Linear(64, 2)
 - No physics-derived features (reserved for Stage 6C)
-- No undirected message passing (vanilla baseline)
 
 ---
 
@@ -61,7 +64,9 @@ A vanilla GraphSAGE-based GNN was trained on raw graph structure and node featur
 | 123 | 92 | 0.0548 | 70.3s |
 | 999 | 108 | 0.0555 | 91.1s |
 
-**Overfitting check:** Train/val loss ratios are 0.73–0.77, indicating healthy generalization without excessive capacity.
+**Note:** Best epoch is 0-based index (epoch 91 = 92nd epoch).
+
+**Overfitting check:** Train/val loss ratios are 0.71–0.77, measured in train mode with dropout active. This is the expected artifact of mode mismatch (train loss includes dropout/BatchNorm training behavior; val loss is clean eval-mode). A proper eval-mode train pass would give a fairer comparison, but the clean separation between train and val curves (no divergence) indicates healthy generalization.
 
 ---
 
@@ -73,9 +78,11 @@ A vanilla GraphSAGE-based GNN was trained on raw graph structure and node featur
 | Mean delay relative error | **4.04% ± 0.03%** |
 | Std delay MAE | **0.0337 ± 0.0002** |
 | Std delay relative error | **4.67% ± 0.06%** |
-| Avg inference time | **2.5 ms** |
+| Avg inference time | **0.08 ms** per graph |
 
 **Stability:** All three seeds converged to very similar test errors (σ < 1% of mean), confirming the baseline is robust to initialization.
+
+**Inference timing note:** Times measured with `time.perf_counter()` after a warm-up pass, divided by batch size to give per-graph latency. First reported as 2.5 ms/graph due to batch-averaging without warmup; corrected value is ~0.08 ms/graph.
 
 ---
 
@@ -107,19 +114,22 @@ A vanilla GraphSAGE-based GNN was trained on raw graph structure and node featur
 | 4 | 89 | 0.728–0.781 | 3.96–4.15% | 0.033–0.035 | 4.19–4.32% |
 | 5 | 30 | 1.249–1.282 | 6.18–6.34% | 0.048–0.049 | 5.42–5.59% |
 | 6 | 10 | 1.059–1.410 | 5.07–6.61% | 0.036–0.047 | 3.97–5.13% |
-| 7 | 2 | 0.412–0.607 | 2.73–3.87% | 0.029–0.041 | 4.23–4.95% |
-| 8 | 1 | 0.591–1.070 | 2.45–4.43% | 0.006–0.005 | 0.32–0.51% |
+| 7 | 2 | 0.412–0.607 | 2.73–3.87% | 0.029–0.041 | 4.23–4.95% | not-interpretable (n=2) |
+| 8 | 1 | 0.591–1.070 | 2.45–4.43% | 0.006–0.005 | 0.32–0.51% | not-interpretable (n=1) |
 
 **Observation:** Error increases with topology complexity up to nrecon=5–6, then becomes noisy due to small sample sizes. The GNN generalizes to complex topologies but with degraded precision on the hardest cases — exactly the regime where Stage 6C's physics-informed features should help.
+
+**nrecon distribution note:** The dataset table reports overall mean nrecon=3.31 (realized value). The test set breakdown aligns with this (~3.31), confirming proportional stratification across splits. All splits have similar nrecon means (~3.26–3.31).
 
 ---
 
 ## Sanity Checks
 
 ### Overfitting
-- Train/val loss ratios: 0.71–0.77 across seeds
+- Train/val loss ratios: 0.71–0.77 across seeds (measured in train mode)
 - No divergence between train and validation curves
 - Dropout (0.15) and early stopping (patience=20) are effective
+- Note: train loss includes dropout/BatchNorm training behavior; a fair comparison requires eval-mode train pass
 
 ### Trivial Baseline
 - Predicting training-set mean gives 22.86% relative error on mean, 18.33% on std
@@ -127,9 +137,30 @@ A vanilla GraphSAGE-based GNN was trained on raw graph structure and node featur
 - Confirms the GNN is learning genuine structure, not just dataset statistics
 
 ### Runtime
-- Average inference time: 2.5 ms per graph
+- Average inference time: 0.08 ms per graph (corrected from 2.5 ms)
 - Training time: ~70–90s per seed on CPU
 - Well within budget for ablation studies
+
+---
+
+## Protocol (Frozen for Stage 6C Comparison)
+
+| Item | Value |
+|------|-------|
+| Loss | MSE with mean reduction |
+| Gradient clipping | max_norm=1.0 |
+| Optimizer | Adam |
+| Learning rate | 1e-3 |
+| Early stopping | Patience=20 on validation loss |
+| Dropout | 0.15 |
+| Hidden dim | 64 |
+| Num layers | 3 |
+| Readout | Mean pooling |
+| Edge type | Directed (successors) |
+| Target normalization | Train-set mean/std |
+| Feature normalization | Train-set mean/std |
+
+**Stage 6C must use identical normalization, loss, gradient clipping, and early stopping for a fair comparison.**
 
 ---
 
@@ -151,8 +182,8 @@ A vanilla GraphSAGE-based GNN was trained on raw graph structure and node featur
 |------|-------------|
 | `Vanilla DAG-GNN Baseline/dataset.py` | GraphDataset class, normalization, DataLoader creation |
 | `Vanilla DAG-GNN Baseline/model.py` | VanillaDAGGNNSage architecture |
-| `Vanilla DAG-GNN Baseline/train.py` | Training loop with early stopping |
+| `Vanilla DAG-GNN Baseline/train.py` | Training loop with early stopping, gradient clipping |
 | `Vanilla DAG-GNN Baseline/eval.py` | Evaluation metrics, nrecon breakdown, analytical comparison |
 | `Vanilla DAG-GNN Baseline/run_stage6b.py` | Main script (3-seed training + evaluation) |
-| `Vanilla DAG-GNN Baseline/results/vanilla_dag_gnn_results.json` | Full results (metrics, history, comparisons) |
+| `results/vanilla_dag_gnn_results.json` | Full results (metrics, history, comparisons) |
 | `Vanilla DAG-GNN Baseline/checkpoints/` | Best model checkpoints per seed |
