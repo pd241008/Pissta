@@ -13,7 +13,7 @@ from typing import Dict, List
 import numpy as np
 import torch
 
-from stage6b.model import VanillaDAGGNNSage
+from model import VanillaDAGGNNSage
 
 
 @torch.no_grad()

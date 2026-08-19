@@ -56,5 +56,5 @@ htmlcov/
 data_generation/data/
 
 # Stage 6B generated artifacts (regeneratable)
-stage6b/checkpoints/
-stage6b/results/*.json
+"Vanilla DAG-GNN Baseline/checkpoints/"
+"Vanilla DAG-GNN Baseline/results/"*.json

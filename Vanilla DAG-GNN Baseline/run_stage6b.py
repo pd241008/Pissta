@@ -36,10 +36,10 @@ def _to_serializable(obj: Any) -> Any:
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from stage6b.dataset import create_dataloaders, GraphDataset
-from stage6b.model import VanillaDAGGNNSage
-from stage6b.train import train_model
-from stage6b.eval import evaluate_model, compute_analytical_baseline_metrics, compare_model_vs_analytical
+from dataset import create_dataloaders, GraphDataset
+from model import VanillaDAGGNNSage
+from train import train_model
+from eval import evaluate_model, compute_analytical_baseline_metrics, compare_model_vs_analytical
 
 
 def set_seed(seed: int):
@@ -190,7 +190,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device: {device}")
 
-    checkpoint_dir = Path("stage6b/checkpoints")
+    checkpoint_dir = Path("checkpoints")
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
     # Create data loaders
@@ -268,7 +268,7 @@ def main():
             print(f"Seed {r['seed']}: no history available")
 
     # Save results
-    results_dir = Path("stage6b/results")
+    results_dir = Path("results")
     results_dir.mkdir(parents=True, exist_ok=True)
 
     # Convert to serializable format
@@ -315,10 +315,10 @@ def main():
         "target_stats": {k: float(v) for k, v in target_stats.items()},
     }
 
-    with open(results_dir / "stage6b_results.json", "w") as f:
+    with open(results_dir / "vanilla_dag_gnn_results.json", "w") as f:
         json.dump(_to_serializable(output), f, indent=2)
 
-    print(f"\nResults saved to {results_dir / 'stage6b_results.json'}")
+    print(f"\nResults saved to {results_dir / 'vanilla_dag_gnn_results.json'}")
 
 
 if __name__ == "__main__":

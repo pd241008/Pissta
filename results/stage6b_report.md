@@ -149,10 +149,10 @@ A vanilla GraphSAGE-based GNN was trained on raw graph structure and node featur
 
 | File | Description |
 |------|-------------|
-| `stage6b/dataset.py` | GraphDataset class, normalization, DataLoader creation |
-| `stage6b/model.py` | VanillaDAGGNNSage architecture |
-| `stage6b/train.py` | Training loop with early stopping |
-| `stage6b/eval.py` | Evaluation metrics, nrecon breakdown, analytical comparison |
-| `stage6b/run_stage6b.py` | Main script (3-seed training + evaluation) |
-| `stage6b/results/stage6b_results.json` | Full results (metrics, history, comparisons) |
-| `stage6b/checkpoints/` | Best model checkpoints per seed |
+| `Vanilla DAG-GNN Baseline/dataset.py` | GraphDataset class, normalization, DataLoader creation |
+| `Vanilla DAG-GNN Baseline/model.py` | VanillaDAGGNNSage architecture |
+| `Vanilla DAG-GNN Baseline/train.py` | Training loop with early stopping |
+| `Vanilla DAG-GNN Baseline/eval.py` | Evaluation metrics, nrecon breakdown, analytical comparison |
+| `Vanilla DAG-GNN Baseline/run_stage6b.py` | Main script (3-seed training + evaluation) |
+| `Vanilla DAG-GNN Baseline/results/vanilla_dag_gnn_results.json` | Full results (metrics, history, comparisons) |
+| `Vanilla DAG-GNN Baseline/checkpoints/` | Best model checkpoints per seed |

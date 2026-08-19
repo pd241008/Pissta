@@ -15,7 +15,7 @@ import torch
 import torch.nn.functional as F
 from torch_geometric.data import DataLoader
 
-from stage6b.model import VanillaDAGGNNSage
+from model import VanillaDAGGNNSage
 
 
 class EarlyStopping:
