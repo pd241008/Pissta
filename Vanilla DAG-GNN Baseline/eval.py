@@ -12,6 +12,7 @@ from typing import Dict, List
 
 import numpy as np
 import torch
+from torch_geometric.loader import DataLoader
 
 from model import VanillaDAGGNNSage
 
@@ -22,85 +23,38 @@ def evaluate_model(
     loader: DataLoader,
     device: torch.device,
     target_stats: Dict[str, float],
+    dataset: List | None = None,
 ) -> Dict:
     """Evaluate model on a dataset and compute all metrics."""
     model.eval()
 
     all_preds = []
     all_targets = []
-    all_gids = []
-    all_nrecons = []
-    all_original_mean = []
-    all_original_std = []
     inference_times = []
+
+    # Warm-up pass (lazy init, cuBLAS kernels, etc.)
+    warmup_loader = DataLoader(loader.dataset, batch_size=min(loader.batch_size, 4))
+    for batch in warmup_loader:
+        batch = batch.to(device)
+        _ = model(batch.x, batch.edge_index, batch.batch)
+        break
 
     for batch in loader:
         batch = batch.to(device)
 
-        # Time inference
-        start = time.time()
+        # Time inference with perf_counter
+        start = time.perf_counter()
         pred = model(batch.x, batch.edge_index, batch.batch)
-        torch.cuda.synchronize() if torch.cuda.is_available() else None
-        inference_times.append(time.time() - start)
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+        elapsed = time.perf_counter() - start
 
         all_preds.append(pred.cpu().numpy())
         all_targets.append(batch.y.cpu().numpy())
 
-        # Store graph-level info
-        num_graphs = batch.batch.max().item() + 1 if batch.batch is not None else 1
-        
-        # Handle graph_id - may be list of strings or tensor
-        if hasattr(batch, 'graph_id'):
-            gid_data = batch.graph_id
-            if isinstance(gid_data, list):
-                gids = gid_data
-            elif gid_data.dim() == 0:
-                gids = [str(gid_data.item())] * num_graphs
-            else:
-                gids = [str(g.item()) for g in gid_data]
-        else:
-            gids = [""] * num_graphs
-            
-        # Handle nrecon - may be tensor or list
-        if hasattr(batch, 'nrecon'):
-            nrecon_data = batch.nrecon
-            if isinstance(nrecon_data, list):
-                nrecons = nrecon_data
-            elif nrecon_data.dim() == 0:
-                nrecons = [int(nrecon_data.item())] * num_graphs
-            else:
-                nrecons = [int(n.item()) for n in nrecon_data]
-        else:
-            nrecons = [0] * num_graphs
-            
-        # Handle original_mean and original_std similarly
-        if hasattr(batch, 'original_mean'):
-            mean_data = batch.original_mean
-            if isinstance(mean_data, list):
-                orig_means = mean_data
-            elif mean_data.dim() == 0:
-                orig_means = [float(mean_data.item())] * num_graphs
-            else:
-                orig_means = [float(m.item()) for m in mean_data]
-        else:
-            orig_means = [0.0] * num_graphs
-            
-        if hasattr(batch, 'original_std'):
-            std_data = batch.original_std
-            if isinstance(std_data, list):
-                orig_stds = std_data
-            elif std_data.dim() == 0:
-                orig_stds = [float(std_data.item())] * num_graphs
-            else:
-                orig_stds = [float(s.item()) for s in std_data]
-        else:
-            orig_stds = [0.0] * num_graphs
-        
-        for i in range(num_graphs):
-            all_gids.append(gids[i] if i < len(gids) else "")
-            all_nrecons.append(nrecons[i] if i < len(nrecons) else 0)
-            all_original_mean.append(orig_means[i] if i < len(orig_means) else 0.0)
-            all_original_std.append(orig_stds[i] if i < len(orig_stds) else 0.0)
+        # Per-graph timing
+        batch_size = batch.num_graphs if hasattr(batch, 'num_graphs') else (batch.batch.max().item() + 1 if batch.batch is not None else 1)
+        inference_times.append(elapsed / batch_size)
 
     preds = np.vstack(all_preds)
     targets = np.vstack(all_targets)
@@ -118,21 +72,24 @@ def evaluate_model(
     std_mae = np.mean(np.abs(pred_std - target_std))
     std_relative = np.mean(np.abs(pred_std - target_std) / np.maximum(np.abs(target_std), 1e-9))
 
-    # Per-graph errors
+    # Per-graph errors with metadata from dataset
     per_graph = []
-    for i in range(len(all_gids)):
-        per_graph.append({
-            "graph_id": all_gids[i],
-            "nrecon": all_nrecons[i],
-            "mc_mean": all_original_mean[i],
-            "mc_std": all_original_std[i],
-            "pred_mean": float(pred_mean[i]),
-            "pred_std": float(pred_std[i]),
-            "mean_mae": float(np.abs(pred_mean[i] - target_mean[i])),
-            "mean_relative": float(np.abs(pred_mean[i] - target_mean[i]) / max(abs(target_mean[i]), 1e-9)),
-            "std_mae": float(np.abs(pred_std[i] - target_std[i])),
-            "std_relative": float(np.abs(pred_std[i] - target_std[i]) / max(abs(target_std[i]), 1e-9)),
-        })
+    if dataset is not None:
+        for idx, data in enumerate(dataset):
+            if idx < len(pred_mean):
+                nrecon = data.nrecon if hasattr(data, 'nrecon') else 0
+                per_graph.append({
+                    "graph_id": data.graph_id if hasattr(data, 'graph_id') else "",
+                    "nrecon": nrecon,
+                    "mc_mean": float(data.original_mean) if hasattr(data, 'original_mean') else 0.0,
+                    "mc_std": float(data.original_std) if hasattr(data, 'original_std') else 0.0,
+                    "pred_mean": float(pred_mean[idx]),
+                    "pred_std": float(pred_std[idx]),
+                    "mean_mae": float(np.abs(pred_mean[idx] - target_mean[idx])),
+                    "mean_relative": float(np.abs(pred_mean[idx] - target_mean[idx]) / max(abs(target_mean[idx]), 1e-9)),
+                    "std_mae": float(np.abs(pred_std[idx] - target_std[idx])),
+                    "std_relative": float(np.abs(pred_std[idx] - target_std[idx]) / max(abs(target_std[idx]), 1e-9)),
+                })
 
     # Breakdown by nrecon
     nrecon_breakdown = {}
@@ -158,8 +115,8 @@ def evaluate_model(
         stats["std_mae"] = stats["std_mae_sum"] / stats["count"]
         stats["std_relative"] = stats["std_relative_sum"] / stats["count"]
 
-    # Runtime
-    avg_inference_time_ms = np.mean(inference_times) * 1000 if inference_times else 0.0
+    # Runtime (per-graph, after warmup)
+    avg_inference_time_ms = float(np.mean(inference_times) * 1000) if inference_times else 0.0
 
     return {
         "mean_mae": float(mean_mae),
@@ -168,8 +125,8 @@ def evaluate_model(
         "std_relative": float(std_relative),
         "per_graph": per_graph,
         "nrecon_breakdown": nrecon_breakdown,
-        "avg_inference_time_ms": float(avg_inference_time_ms),
-        "n_graphs": len(all_gids),
+        "avg_inference_time_ms": avg_inference_time_ms,
+        "n_graphs": len(per_graph),
     }
 
 
