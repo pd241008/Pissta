@@ -6,7 +6,7 @@
 
 ## Issues Summary
 
-Six critical issues were discovered during Stage 6B code review and checkpoint/artifact forensics. All have been fixed and verified with a clean 3-seed run.
+Seven critical issues were discovered during Stage 6B code review and checkpoint/artifact forensics. All have been fixed and verified with a clean 3-seed run.
 
 ---
 
@@ -158,6 +158,39 @@ The 2.85 was the generator parameter, not the realized reconvergence count. The 
 
 ---
 
+## Issue #7 — Fragile Dual-Construction Metadata Pattern
+
+### What Happened
+
+`run_stage6b.py` built `test_data` (used for per-graph metadata in `evaluate_model`) via a separate `GraphDataset(split="test").get_data(...)` call, independent from the `test_data` built inside `create_dataloaders()` that actually feeds `test_loader`. Both produced identically-ordered lists, but this was a fragile pattern — if someone later changed one construction path (e.g., added shuffling or filtering), predictions and metadata would silently misalign with no error raised.
+
+Additionally, an old `Vanilla DAG-GNN Baseline/results/stage6b_results.json` from a previous naming convention remained in the repo.
+
+### Root Cause
+
+1. **Separate construction paths**: `create_dataloaders()` builds one set of Data objects; `main()` builds another for metadata. No assertion enforces they are the same.
+2. **Legacy artifact**: The old `stage6b_results.json` was never cleaned up after the folder rename from `stage6b` to `Vanilla DAG-GNN Baseline`.
+
+### Fix
+
+1. **Single source of truth**: `evaluate_model()` now reads per-graph metadata directly from `test_loader.dataset` instead of a separately-built list. Predictions and metadata always come from the same DataLoader.
+2. **Removed legacy file**: Deleted `Vanilla DAG-GNN Baseline/results/stage6b_results.json`.
+3. **Simplified API**: Removed `test_data: List` parameter from `run_single_seed()` and the redundant `test_data = test_dataset.get_data(...)` call in `main()`.
+
+### Verification
+
+```
+Test graphs: 307
+Mean delay MAE: 0.6829
+...
+nrecon=2 (n=97): mean_mae=0.3813
+...
+```
+
+The nrecon breakdown matches the real split exactly, confirming metadata alignment is preserved through the single DataLoader path.
+
+---
+
 ## Cross-Cutting Findings
 
 ### Code Hygiene Issues
@@ -215,3 +248,5 @@ Corrected methodology:
 - Removed deprecated imports and unused code paths
 - Made paths script-relative for CWD-independent reproducibility
 - Added stratified split verification (train/val/test nrecon means)
+- Eliminated dual-construction metadata pattern: `evaluate_model` reads from `loader.dataset` directly
+- Removed legacy `stage6b_results.json` artifact
