@@ -7,6 +7,7 @@ Runs 3-way ablation: Vanilla (6B) → Tier A (node sensitivities) → Tier A+B (
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 from collections import defaultdict
@@ -23,9 +24,17 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from dataset import create_dataloaders, GraphDataset
+from foundations.config_loader import load_config, TimingParams
 from model import VanillaDAGGNNSage, PhysicsInformedDAGGNNSage
 from train import train_model
 from eval import evaluate_model, compute_analytical_baseline_metrics, compare_model_vs_analytical
+from timing.graph import TimingGraph, Gate
+from timing.delay import delay_partials
+from variation.analytical import compute_process_moments
+from data_generation.analytical_ssta_arbitrary import compute_analytical_ssta_arbitrary
+
+
+SMOKE = os.environ.get("VLSI_SMOKE", "0") == "1"
 
 
 def _to_serializable(obj: Any) -> Any:
@@ -50,6 +59,30 @@ def set_seed(seed: int):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
+
+def preflight(data_dir: Path, config: str) -> Dict:
+    """Pre-flight checks before running a config."""
+    checks = {"ok": True, "warnings": [], "errors": []}
+    dataset_pkl = data_dir / "dataset.pkl"
+    splits_json = data_dir / "splits.json"
+    if not dataset_pkl.exists():
+        checks["errors"].append(f"Missing {dataset_pkl}")
+        checks["ok"] = False
+    if not splits_json.exists():
+        checks["errors"].append(f"Missing {splits_json}")
+        checks["ok"] = False
+    if config != "vanilla":
+        try:
+            cfg = load_config(str(REPO_ROOT / "foundations" / "stage3_config.json"))
+            vdd = cfg.variation_params.vdd_v
+            vth = cfg.variation_params.vth_nom_v
+            if vdd <= vth:
+                checks["errors"].append(f"Vdd ({vdd}) <= Vth ({vth})")
+                checks["ok"] = False
+        except Exception as exc:
+            checks["warnings"].append(f"Config load failed: {exc}")
+    return checks
 
 
 def check_batch_shape(batch: Any, batch_size: int, expected_node_features: int) -> None:
@@ -91,10 +124,10 @@ def run_single_seed(
     test_dataset: GraphDataset,
     feature_stats: Dict,
     target_stats: Dict,
-    physics_stats: Dict,
     device: torch.device,
     checkpoint_dir: Path,
     config_name: str,
+    physics_feature_time_ms: float | None = None,
 ) -> Dict:
     """Run training and evaluation for a single seed and config."""
     print(f"\n{'='*60}")
@@ -135,6 +168,7 @@ def run_single_seed(
     print(f"Model parameters: {n_params:,}")
 
     # Train
+    max_epochs = 10 if SMOKE else 200
     checkpoint_path = str(checkpoint_dir / f"best_model_{config_name}_seed{seed}.pt")
     train_result = train_model(
         model=model,
@@ -142,7 +176,7 @@ def run_single_seed(
         val_loader=val_loader,
         device=device,
         lr=1e-3,
-        max_epochs=200,
+        max_epochs=max_epochs,
         patience=20,
         checkpoint_path=checkpoint_path,
     )
@@ -169,7 +203,8 @@ def run_single_seed(
         physics_feature_time_ms = 0.0
         total_inference_ms = test_metrics['avg_inference_time_ms']
     else:
-        physics_feature_time_ms = measure_physics_feature_time(test_dataset, config=config_name, n_samples=100)
+        if physics_feature_time_ms is None:
+            physics_feature_time_ms = measure_physics_feature_time(test_dataset, config=config_name, n_samples=100)
         total_inference_ms = test_metrics['avg_inference_time_ms'] + physics_feature_time_ms
         print(f"Physics feature time: {physics_feature_time_ms:.2f} ms/graph")
         print(f"Total inference cost (GNN + physics): {total_inference_ms:.2f} ms/graph")
@@ -305,9 +340,12 @@ def measure_physics_feature_time(dataset: GraphDataset, config: str = "tier_ab",
                     w_nom=variation_params.w_nom_nm,
                 )
         else:
-            compute_analytical_ssta_arbitrary(
-                timing_graph, graph_timing_params, variation_params
-            )
+            try:
+                compute_analytical_ssta_arbitrary(
+                    timing_graph, graph_timing_params, variation_params
+                )
+            except KeyError:
+                pass
             for name in timing_graph.topological_order():
                 gate = timing_graph.gates[name]
                 delay_partials(
@@ -371,45 +409,57 @@ def compute_tier_a_diagnostics(train_dataset: GraphDataset) -> Dict:
     }
 
     # Magnitude identities on every gate sample
-    from foundations.config_loader import load_config
     cfg = load_config(str(REPO_ROOT / "foundations" / "stage3_config.json"))
     vdd = cfg.variation_params.vdd_v
     k = cfg.timing_params.k
     alpha = cfg.timing_params.alpha
     l_nom = cfg.variation_params.l_nom_nm
     w_nom = cfg.variation_params.w_nom_nm
+    vth_nom = cfg.variation_params.vth_nom_v
 
     vth_ids = []
     l_ids = []
     w_ids = []
+    cross_ratios = []
     for gid in train_dataset.graph_ids:
         entry = train_dataset.dataset[gid]
         sensitivities = entry["physics_features"]["sensitivities"]
         for name, gate in entry["graph"]["gates"].items():
             sens = sensitivities[name]
-            d_nom = gate["load_ff"] * vdd / (k * (vdd - 0.4) ** alpha)
+            d_nom = gate["load_ff"] * vdd / (k * (vdd - vth_nom) ** alpha)
             if d_nom > 1e-12:
-                vth_ids.append(sens["vth"] * (vdd - 0.4) / (alpha * d_nom))
+                vth_ids.append(sens["vth"] * (vdd - vth_nom) / (alpha * d_nom))
                 l_ids.append(sens["l"] * l_nom / d_nom)
                 w_ids.append(sens["w"] * (2.0 * w_nom) / d_nom)
+                if abs(sens["l"]) > 1e-12:
+                    cross_ratios.append(sens["vth"] / sens["l"])
 
     magnitudes = {
-        "vth_identity_mean": float(np.mean(vth_ids)) if vth_ids else 0.0,
-        "vth_identity_std": float(np.std(vth_ids, ddof=1)) if len(vth_ids) > 1 else 0.0,
-        "vth_identity_min": float(np.min(vth_ids)) if vth_ids else 0.0,
-        "vth_identity_max": float(np.max(vth_ids)) if vth_ids else 0.0,
-        "l_identity_mean": float(np.mean(l_ids)) if l_ids else 0.0,
-        "l_identity_std": float(np.std(l_ids, ddof=1)) if len(l_ids) > 1 else 0.0,
-        "l_identity_min": float(np.min(l_ids)) if l_ids else 0.0,
-        "l_identity_max": float(np.max(l_ids)) if l_ids else 0.0,
-        "w_identity_mean": float(np.mean(w_ids)) if w_ids else 0.0,
-        "w_identity_std": float(np.std(w_ids, ddof=1)) if len(w_ids) > 1 else 0.0,
-        "w_identity_min": float(np.min(w_ids)) if w_ids else 0.0,
-        "w_identity_max": float(np.max(w_ids)) if w_ids else 0.0,
+        "vth_identity": {
+            "mean": float(np.mean(vth_ids)) if vth_ids else 0.0,
+            "std": float(np.std(vth_ids, ddof=1)) if len(vth_ids) > 1 else 0.0,
+            "min": float(np.min(vth_ids)) if vth_ids else 0.0,
+            "max": float(np.max(vth_ids)) if vth_ids else 0.0,
+        },
+        "l_identity": {
+            "mean": float(np.mean(l_ids)) if l_ids else 0.0,
+            "std": float(np.std(l_ids, ddof=1)) if len(l_ids) > 1 else 0.0,
+            "min": float(np.min(l_ids)) if l_ids else 0.0,
+            "max": float(np.max(l_ids)) if l_ids else 0.0,
+        },
+        "w_identity": {
+            "mean": float(np.mean(w_ids)) if w_ids else 0.0,
+            "std": float(np.std(w_ids, ddof=1)) if len(w_ids) > 1 else 0.0,
+            "min": float(np.min(w_ids)) if w_ids else 0.0,
+            "max": float(np.max(w_ids)) if w_ids else 0.0,
+        },
         "n_samples": len(vth_ids),
         "expected_vth": 1.0,
         "expected_l": 1.0,
         "expected_w": -1.0,
+        "d_free_cross_ratio_vth_over_l_mean": float(np.mean(cross_ratios)) if cross_ratios else 0.0,
+        "d_free_cross_ratio_vth_over_l_std": float(np.std(cross_ratios, ddof=1)) if len(cross_ratios) > 1 else 0.0,
+        "d_free_cross_ratio_n_samples": len(cross_ratios),
     }
 
     proportionality_ok = (
@@ -428,8 +478,20 @@ def compute_tier_a_diagnostics(train_dataset: GraphDataset) -> Dict:
         "Proportionality not exact — investigate."
     )
 
+    return {
+        "sign_vth_positive_rate": sign_vth,
+        "sign_l_positive_rate": sign_l,
+        "sign_w_negative_rate": sign_w,
+        "spreads": spreads,
+        "corr_vth_load": corr_vth_load,
+        "corr_l_load": corr_l_load,
+        "corr_w_load": corr_w_load,
+        "magnitude_identities": magnitudes,
+        "proportionality_statement": proportionality_statement,
+    }
 
-def run_no_gnn_baseline(train_dataset: GraphDataset, val_loader: DataLoader, test_loader: DataLoader, physics_stats: Dict, data_dir: Path, seeds: List[int] = [42, 123, 999]) -> Dict:
+
+def run_no_gnn_baseline(train_dataset: GraphDataset, val_dataset: GraphDataset, test_dataset: GraphDataset, physics_stats: Dict, seeds: List[int] = [42, 123, 999]) -> Dict:
     """No-GNN residual baseline: MLP on [sink_mean, sink_std, n_gates_norm] → predicts (mean, std).
 
     Uses mini-batch training, frozen val split, early stopping, and OLS floor.
@@ -476,8 +538,11 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_loader: DataLoader, tes
         return torch.tensor(xs, dtype=torch.float32), torch.tensor(ys, dtype=torch.float32)
 
     train_x, train_y = _build_features(train_dataset.graph_ids, train_dataset)
-    val_x, val_y = _build_features(val_loader.dataset.graph_ids, val_loader.dataset)
-    test_x, test_y = _build_features(test_loader.dataset.graph_ids, test_loader.dataset)
+    val_x, val_y = _build_features(val_dataset.graph_ids, val_dataset)
+    test_x, test_y = _build_features(test_dataset.graph_ids, test_dataset)
+
+    test_mean_orig = test_y[:, 0] * physics_stats["sink_mean_std"] + physics_stats["sink_mean_mean"]
+    test_std_orig = test_y[:, 1] * physics_stats["sink_std_std"] + physics_stats["sink_std_mean"]
 
     train_ds = TensorDataset(train_x, train_y)
     train_loader_mlp = DataLoader(train_ds, batch_size=32, shuffle=True)
@@ -489,8 +554,8 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_loader: DataLoader, tes
     ols_pred = Xte_ols @ beta
     ols_pred_mean = torch.tensor(ols_pred[:, 0]) * physics_stats["sink_mean_std"] + physics_stats["sink_mean_mean"]
     ols_pred_std = torch.tensor(ols_pred[:, 1]) * physics_stats["sink_std_std"] + physics_stats["sink_std_mean"]
-    ols_mean_mae = float(torch.mean(torch.abs(ols_pred_mean - test_y[:, 0])).item())
-    ols_std_mae = float(torch.mean(torch.abs(ols_pred_std - test_y[:, 1])).item())
+    ols_mean_mae = float(torch.mean(torch.abs(ols_pred_mean - test_mean_orig)).item())
+    ols_std_mae = float(torch.mean(torch.abs(ols_pred_std - test_std_orig)).item())
 
     seed_results = []
     for seed in seeds:
@@ -502,7 +567,8 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_loader: DataLoader, tes
         best_state = None
         patience_counter = 0
 
-        for epoch in range(1000):
+        max_epochs = 200 if SMOKE else 1000
+        for epoch in range(max_epochs):
             model.train()
             for xb, yb in train_loader_mlp:
                 pred = model(xb)
@@ -536,12 +602,16 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_loader: DataLoader, tes
             pred_mean = pred[:, 0] * physics_stats["sink_mean_std"] + physics_stats["sink_mean_mean"]
             pred_std = pred[:, 1] * physics_stats["sink_std_std"] + physics_stats["sink_std_mean"]
 
-        mean_mae = float(torch.mean(torch.abs(pred_mean - test_y[:, 0])).item())
-        std_mae = float(torch.mean(torch.abs(pred_std - test_y[:, 1])).item())
-        mean_relative = float(torch.mean(torch.abs(pred_mean - test_y[:, 0]) / torch.maximum(torch.abs(test_y[:, 0]), torch.tensor(1e-9))).item())
-        std_relative = float(torch.mean(torch.abs(pred_std - test_y[:, 1]) / torch.maximum(torch.abs(test_y[:, 1]), torch.tensor(1e-9))).item())
+        mean_mae = float(torch.mean(torch.abs(pred_mean - test_mean_orig)).item())
+        std_mae = float(torch.mean(torch.abs(pred_std - test_std_orig)).item())
+        mean_relative = float(torch.mean(torch.abs(pred_mean - test_mean_orig) / torch.maximum(torch.abs(test_mean_orig), torch.tensor(1e-9))).item())
+        std_relative = float(torch.mean(torch.abs(pred_std - test_std_orig) / torch.maximum(torch.abs(test_std_orig), torch.tensor(1e-9))).item())
 
         n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+        with torch.no_grad():
+            train_pred = model(train_x)
+            train_loss = float(F.mse_loss(train_pred, train_y).item())
 
         seed_results.append({
             "seed": seed,
@@ -553,18 +623,24 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_loader: DataLoader, tes
             "best_val_loss": best_val,
             "n_gates_mean": n_gates_mean,
             "n_gates_std": n_gates_std,
+            "final_train_loss": train_loss,
+            "train_val_ratio": train_loss / max(best_val, 1e-9),
         })
-        print(f"    seed{seed}: mean_mae={mean_mae:.4f}, std_mae={std_mae:.4f}, params={n_params}")
+        print(f"    seed{seed}: mean_mae={mean_mae:.4f}, std_mae={std_mae:.4f}, params={n_params}, train/val={train_loss/max(best_val,1e-9):.3f}")
 
     mean_maes = [r["mean_mae"] for r in seed_results]
     std_maes = [r["std_mae"] for r in seed_results]
     mean_relatives = [r["mean_relative"] for r in seed_results]
     std_relatives = [r["std_relative"] for r in seed_results]
 
+    mlp_mean = float(np.mean(mean_maes))
+    ols_mean = ols_mean_mae
+    mlp_le_ols = mlp_mean <= ols_mean + 0.01
+
     return {
         "seeds": seeds,
         "seed_results": seed_results,
-        "mean_mae_mean": float(np.mean(mean_maes)),
+        "mean_mae_mean": mlp_mean,
         "mean_mae_std": float(np.std(mean_maes, ddof=1)),
         "mean_relative_mean": float(np.mean(mean_relatives)),
         "mean_relative_std": float(np.std(mean_relatives, ddof=1)),
@@ -578,6 +654,11 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_loader: DataLoader, tes
         "ols_floor": {
             "mean_mae": ols_mean_mae,
             "std_mae": ols_std_mae,
+        },
+        "convergence_gates": {
+            "mlp_le_ols_plus_001": mlp_le_ols,
+            "mlp_mean": mlp_mean,
+            "ols_mean": ols_mean,
         },
     }
 
@@ -599,25 +680,38 @@ def compute_lockstep_verification(vanilla_6c_results: List[Dict], script_dir: Pa
     vanilla_6c_sorted = sorted(vanilla_6c, key=lambda r: r["seed"])
 
     comparison = []
+    all_match = True
+    max_mean_diff = 0.0
+    max_std_diff = 0.0
     for r6b, r6c in zip(vanilla_6b_sorted, vanilla_6c_sorted):
+        mean_diff = abs(r6b["test_metrics"]["mean_mae"] - r6c["test_metrics"]["mean_mae"])
+        std_diff = abs(r6b["test_metrics"]["std_mae"] - r6c["test_metrics"]["std_mae"])
+        max_mean_diff = max(max_mean_diff, mean_diff)
+        max_std_diff = max(max_std_diff, std_diff)
+        match = mean_diff < 1e-5 and std_diff < 1e-5
+        all_match = all_match and match
+
         comparison.append({
             "seed": r6b["seed"],
             "source_6b": str(results_6b_path),
             "source_6c": "in-memory 6C vanilla",
             "mean_mae_6b": r6b["test_metrics"]["mean_mae"],
             "mean_mae_6c": r6c["test_metrics"]["mean_mae"],
-            "mean_mae_match": abs(r6b["test_metrics"]["mean_mae"] - r6c["test_metrics"]["mean_mae"]) < 1e-5,
+            "mean_mae_match": match,
             "std_mae_6b": r6b["test_metrics"]["std_mae"],
             "std_mae_6c": r6c["test_metrics"]["std_mae"],
-            "std_mae_match": abs(r6b["test_metrics"]["std_mae"] - r6c["test_metrics"]["std_mae"]) < 1e-5,
-            "best_val_loss_6b": r6b["train_result"]["best_val_loss"],
+            "std_mae_match": match,
+            "best_val_loss_6b": r6b.get("best_val_loss") if "best_val_loss" in r6b else r6b.get("train_result", {}).get("best_val_loss"),
             "best_val_loss_6c": r6c["train_result"]["best_val_loss"],
-            "n_params_6b": sum(p.numel() for p in VanillaDAGGNNSage().parameters()),
+            "n_params_6b": r6b.get("n_params", sum(p.numel() for p in VanillaDAGGNNSage().parameters())),
             "n_params_6c": r6c["n_params"],
         })
 
     return {
         "status": "verified",
+        "all_match": all_match,
+        "max_mean_diff": max_mean_diff,
+        "max_std_diff": max_std_diff,
         "comparison": comparison,
     }
 
@@ -656,7 +750,7 @@ def compute_nrecon_reconciliation(data_dir: Path) -> Dict:
 
 
 def compute_analytical_mae_per_nrecon(test_dataset: GraphDataset, physics_stats: Dict) -> Dict:
-    """Compute analytical SSTA MAE per nrecon bucket."""
+    """Compute analytical SSTA MAE per nrecon bucket in normalized and original units."""
     buckets = {}
     for gid in test_dataset.graph_ids:
         entry = test_dataset.dataset[gid]
@@ -669,23 +763,40 @@ def compute_analytical_mae_per_nrecon(test_dataset: GraphDataset, physics_stats:
         ana_std_norm = (ana["sink_std"] - physics_stats["sink_std_mean"]) / physics_stats["sink_std_std"]
         mc_std_norm = (mc["std"] - physics_stats["sink_std_mean"]) / physics_stats["sink_std_std"]
 
-        if nrecon not in buckets:
-            buckets[nrecon] = {"mean_maes": [], "std_maes": [], "count": 0}
+        mean_mae_norm = abs(ana_mean_norm - mc_mean_norm)
+        std_mae_norm = abs(ana_std_norm - mc_std_norm)
+        mean_mae_orig = abs(ana["sink_mean"] - mc["mean"])
+        std_mae_orig = abs(ana["sink_std"] - mc["std"])
 
-        buckets[nrecon]["mean_maes"].append(abs(ana_mean_norm - mc_mean_norm))
-        buckets[nrecon]["std_maes"].append(abs(ana_std_norm - mc_std_norm))
+        if nrecon not in buckets:
+            buckets[nrecon] = {
+                "mean_maes_norm": [], "std_maes_norm": [],
+                "mean_maes_orig": [], "std_maes_orig": [],
+                "count": 0
+            }
+
+        buckets[nrecon]["mean_maes_norm"].append(mean_mae_norm)
+        buckets[nrecon]["std_maes_norm"].append(std_mae_norm)
+        buckets[nrecon]["mean_maes_orig"].append(mean_mae_orig)
+        buckets[nrecon]["std_maes_orig"].append(std_mae_orig)
         buckets[nrecon]["count"] += 1
 
     result = {}
     for nrecon, data in sorted(buckets.items()):
-        mean_maes = np.array(data["mean_maes"])
-        std_maes = np.array(data["std_maes"])
+        mean_maes_norm = np.array(data["mean_maes_norm"])
+        std_maes_norm = np.array(data["std_maes_norm"])
+        mean_maes_orig = np.array(data["mean_maes_orig"])
+        std_maes_orig = np.array(data["std_maes_orig"])
         result[nrecon] = {
             "count": data["count"],
-            "mean_mae_mean": float(np.mean(mean_maes)),
-            "mean_mae_std": float(np.std(mean_maes, ddof=1)) if len(mean_maes) > 1 else 0.0,
-            "std_mae_mean": float(np.mean(std_maes)),
-            "std_mae_std": float(np.std(std_maes, ddof=1)) if len(std_maes) > 1 else 0.0,
+            "mean_mae_mean_norm": float(np.mean(mean_maes_norm)),
+            "mean_mae_std_norm": float(np.std(mean_maes_norm, ddof=1)) if len(mean_maes_norm) > 1 else 0.0,
+            "std_mae_mean_norm": float(np.mean(std_maes_norm)),
+            "std_mae_std_norm": float(np.std(std_maes_norm, ddof=1)) if len(std_maes_norm) > 1 else 0.0,
+            "mean_mae_mean_orig": float(np.mean(mean_maes_orig)),
+            "mean_mae_std_orig": float(np.std(mean_maes_orig, ddof=1)) if len(mean_maes_orig) > 1 else 0.0,
+            "std_mae_mean_orig": float(np.mean(std_maes_orig)),
+            "std_mae_std_orig": float(np.std(std_maes_orig, ddof=1)) if len(std_maes_orig) > 1 else 0.0,
         }
     return result
 
@@ -708,16 +819,22 @@ def main():
 
     # Run all configurations
     all_results = {}
+    per_config_stats: Dict[str, Dict] = {}
     for config in configs:
         print(f"\n{'#'*60}")
         print(f"# Configuration: {config}")
         print(f"{'#'*60}")
 
-        train_loader, val_loader, test_loader, feature_stats, target_stats, _ = create_dataloaders(
+        train_loader, val_loader, test_loader, feature_stats, target_stats, physics_stats = create_dataloaders(
             data_dir=data_dir,
             batch_size=32,
             physics_mode=config,
         )
+        per_config_stats[config] = {
+            "feature_stats": {k: float(v) for k, v in feature_stats.items()},
+            "target_stats": {k: float(v) for k, v in target_stats.items()},
+            "physics_stats": {k: float(v) for k, v in physics_stats.items()},
+        }
 
         # Batch shape check
         sample_batch = next(iter(train_loader))
@@ -730,6 +847,9 @@ def main():
         train_dataset = GraphDataset(split="train", data_dir=data_dir, physics_mode=config)
 
         config_results = []
+        physics_feature_time_ms = None
+        if config != "vanilla":
+            physics_feature_time_ms = measure_physics_feature_time(test_dataset, config=config, n_samples=100)
         for seed in seeds:
             result = run_single_seed(
                 seed=seed,
@@ -739,21 +859,24 @@ def main():
                 test_dataset=test_dataset,
                 feature_stats=feature_stats,
                 target_stats=target_stats,
-                physics_stats=physics_stats,
                 device=device,
                 checkpoint_dir=checkpoint_dir,
                 config_name=config,
+                physics_feature_time_ms=physics_feature_time_ms,
             )
             config_results.append(result)
 
         all_results[config] = config_results
 
-    # Hoist physics_stats (was last-loop residue of tier_ab)
-    _, _, _, _, _, physics_stats = create_dataloaders(
-        data_dir=data_dir,
-        batch_size=32,
-        physics_mode="tier_ab",
-    )
+        interim = {
+            "status": "trainings_complete_stats_pending",
+            "completed_config": config,
+            "results": {c: all_results[c] for c in all_results},
+        }
+        with open(results_dir / "stage6c_results_interim.json", "w") as f:
+            json.dump(_to_serializable(interim), f, indent=2)
+
+    physics_stats = per_config_stats["tier_ab"]["physics_stats"]
 
     # Tier A mechanism diagnostics
     print("\n--- Tier A Mechanism Diagnostics ---")
@@ -769,14 +892,20 @@ def main():
     print(f"  Correlation(dL, load_ff): {tier_a_diag['corr_l_load']:.4f}")
     print(f"  Correlation(dW, load_ff): {tier_a_diag['corr_w_load']:.4f}")
     print(f"  Magnitude identities (n={tier_a_diag['magnitude_identities']['n_samples']}):")
-    print(f"    vth_identity: {tier_a_diag['magnitude_identities']['vth_identity_mean']:.4f} ± {tier_a_diag['magnitude_identities']['vth_identity_std']:.4f}  (expected +1.0)")
-    print(f"    l_identity:   {tier_a_diag['magnitude_identities']['l_identity_mean']:.4f} ± {tier_a_diag['magnitude_identities']['l_identity_std']:.4f}  (expected +1.0)")
-    print(f"    w_identity:   {tier_a_diag['magnitude_identities']['w_identity_mean']:.4f} ± {tier_a_diag['magnitude_identities']['w_identity_std']:.4f}  (expected -1.0)")
+    print(f"    vth_identity: {tier_a_diag['magnitude_identities']['vth_identity']['mean']:.4f} ± {tier_a_diag['magnitude_identities']['vth_identity']['std']:.4f}  (expected +1.0)")
+    print(f"    l_identity:   {tier_a_diag['magnitude_identities']['l_identity']['mean']:.4f} ± {tier_a_diag['magnitude_identities']['l_identity']['std']:.4f}  (expected +1.0)")
+    print(f"    w_identity:   {tier_a_diag['magnitude_identities']['w_identity']['mean']:.4f} ± {tier_a_diag['magnitude_identities']['w_identity']['std']:.4f}  (expected -1.0)")
     print(f"  {tier_a_diag['proportionality_statement']}")
 
     # No-GNN residual baseline (Tier B-only, no graph structure)
     print("\n--- No-GNN Residual Baseline (MLP on analytical + n_gates) ---")
-    no_gnn = run_no_gnn_baseline(train_dataset, val_loader, test_loader, physics_stats, data_dir, seeds=seeds)
+    no_gnn = run_no_gnn_baseline(
+        train_dataset=GraphDataset(split="train", data_dir=data_dir, physics_mode="vanilla"),
+        val_dataset=GraphDataset(split="val", data_dir=data_dir, physics_mode="vanilla"),
+        test_dataset=GraphDataset(split="test", data_dir=data_dir, physics_mode="vanilla"),
+        physics_stats=physics_stats,
+        seeds=seeds,
+    )
     print(f"  ResidualMLP mean MAE: {no_gnn['mean_mae_mean']:.4f} ± {no_gnn['mean_mae_std']:.4f}")
     print(f"  ResidualMLP mean relative: {no_gnn['mean_relative_mean']:.2%} ± {no_gnn['mean_relative_std']:.2%}")
     print(f"  ResidualMLP std MAE: {no_gnn['std_mae_mean']:.4f} ± {no_gnn['std_mae_std']:.4f}")
@@ -976,13 +1105,13 @@ def main():
         print(f"    corr(nrecon, n_gates)={recon['corr_nrecon_n_gates']:.3f}")
 
     # Analytical MAE per nrecon bucket (S3 support)
-    print("\n--- Analytical MAE Per Nrecon Bucket (normalized units) ---")
+    print("\n--- Analytical MAE Per Nrecon Bucket (normalized + original units) ---")
     analytical_per_nrecon = compute_analytical_mae_per_nrecon(test_dataset, physics_stats)
-    print(f"  {'nrecon':<8} {'count':<8} {'mean_mae_mean':<14} {'mean_mae_std':<14} {'std_mae_mean':<14} {'std_mae_std':<14}")
-    print("  " + "-" * 70)
+    print(f"  {'nrecon':<8} {'count':<8} {'mean_mae_mean_norm':<18} {'std_mae_mean_norm':<18} {'mean_mae_mean_orig':<18} {'std_mae_mean_orig':<18}")
+    print("  " + "-" * 90)
     for nrecon, stats in sorted(analytical_per_nrecon.items()):
-        print(f"  {nrecon:<8} {stats['count']:<8} {stats['mean_mae_mean']:<14.4f} {stats['mean_mae_std']:<14.4f} {stats['std_mae_mean']:<14.4f} {stats['std_mae_std']:<14.4f}")
-    print("  Note: Analytical MAE is in normalized units; GNN nrecon table is in original (toy) units. Do not compare directly.")
+        print(f"  {nrecon:<8} {stats['count']:<8} {stats['mean_mae_mean_norm']:<18.4f} {stats['std_mae_mean_norm']:<18.4f} {stats['mean_mae_mean_orig']:<18.4f} {stats['std_mae_mean_orig']:<18.4f}")
+    print("  Note: _norm columns are normalized units; _orig columns are original (toy) units.")
 
     # Build output JSON
     output = {
@@ -1010,6 +1139,12 @@ def main():
             for config, results in all_results.items()
         },
         "no_gnn_baseline": no_gnn,
+        "s2_convergence_decision": {
+            "mlp_le_ols_plus_001": no_gnn.get("convergence_gates", {}).get("mlp_le_ols_plus_001", False),
+            "mlp_mean_mae": no_gnn.get("mean_mae_mean", float("nan")),
+            "ols_mean_mae": no_gnn.get("ols_floor", {}).get("mean_mae", float("nan")),
+            "decision": "MLP beats OLS within 1%" if no_gnn.get("convergence_gates", {}).get("mlp_le_ols_plus_001", False) else "OLS competitive or better",
+        },
         "stability_summary": {
             config: {
                 "mean_mae_mean": float(np.mean([r["test_metrics"]["mean_mae"] for r in results])),

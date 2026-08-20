@@ -399,7 +399,12 @@ def main():
         },
     }
 
-    output_path = results_dir / "vanilla_dag_gnn_results.json"
+    output_name = "vanilla_dag_gnn_results.json"
+    locked_path = results_dir / output_name
+    if locked_path.exists():
+        output_name = "vanilla_dag_gnn_results_rerun.json"
+
+    output_path = results_dir / output_name
     with open(output_path, "w") as f:
         json.dump(_to_serializable(output), f, indent=2)
 
