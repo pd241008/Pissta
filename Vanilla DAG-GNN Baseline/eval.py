@@ -36,7 +36,10 @@ def evaluate_model(
     warmup_loader = DataLoader(loader.dataset, batch_size=min(loader.batch_size, 4))
     for batch in warmup_loader:
         batch = batch.to(device)
-        _ = model(batch.x, batch.edge_index, batch.batch)
+        kwargs = {"x": batch.x, "edge_index": batch.edge_index, "batch": batch.batch}
+        if hasattr(batch, "graph_physics"):
+            kwargs["graph_physics"] = batch.graph_physics
+        _ = model(**kwargs)
         break
 
     for batch in loader:
@@ -44,7 +47,10 @@ def evaluate_model(
 
         # Time inference with perf_counter
         start = time.perf_counter()
-        pred = model(batch.x, batch.edge_index, batch.batch)
+        kwargs = {"x": batch.x, "edge_index": batch.edge_index, "batch": batch.batch}
+        if hasattr(batch, "graph_physics"):
+            kwargs["graph_physics"] = batch.graph_physics
+        pred = model(**kwargs)
         if torch.cuda.is_available():
             torch.cuda.synchronize()
         elapsed = time.perf_counter() - start
