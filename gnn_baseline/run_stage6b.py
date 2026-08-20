@@ -247,8 +247,8 @@ def main():
     print(f"Batch OK: x={sample_batch.x.shape}, y={sample_batch.y.shape}, "
           f"num_graphs={sample_batch.num_graphs if hasattr(sample_batch, 'num_graphs') else sample_batch.batch.max().item()+1}")
 
-    train_dataset = GraphDataset(split="train")
-    test_dataset = GraphDataset(split="test")
+    train_dataset = GraphDataset(split="train", data_dir=data_dir)
+    test_dataset = GraphDataset(split="test", data_dir=data_dir)
 
     print(f"Train: {len(train_loader.dataset)} graphs, Val: {len(val_loader.dataset)}, Test: {len(test_loader.dataset)}")
     print(f"Feature stats: {feature_stats}")

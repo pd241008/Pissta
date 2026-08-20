@@ -74,9 +74,9 @@ The no-GNN baseline (plain MLP on analytical features + n_gates) gets mean MAE 0
 | Analytical sink_mean ↔ MC mean correlation | 0.9766 | — | **Highly correlated** — analytical already explains most of the label variance |
 | Analytical sink_std ↔ MC std correlation | 0.8459 | — | Strong but not dominant correlation |
 | Analytical mean MAE | 0.1837 | Normalized (sink_mean σ) | Analytical is already close to the label |
-| Tier A+B mean MAE | 0.5423 | Original units (ps) | GNN adds correction on top of analytical |
+| Tier A+B mean MAE | 0.5423 | Original (toy) units | GNN adds correction on top of analytical |
 
-**Note:** Analytical MAE is in normalized units (σ of sink_mean), while Tier A+B MAE is in original units (ps). These cannot be directly compared. The original-unit comparison is analytical 0.7216 ps vs GNN 0.5423 ps — GNN is 25% better.
+**Note:** Analytical MAE is in normalized units (σ of sink_mean), while Tier A+B MAE is in original (toy) units. These cannot be directly compared. The original-unit comparison is analytical 0.7216 vs GNN 0.5423 — GNN is 25% better.
 
 **Honest assessment:** Tier B's gain is partly "the analytical baseline was already decent" (mean correlation 0.98), not purely "the GNN learned something new from graph structure." The GNN is learning to correct the analytical estimate, which is a legitimate and useful capability — but it's not the same as learning physics from node-level features alone.
 
