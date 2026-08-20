@@ -20,50 +20,6 @@ from variation.analytical import compute_process_moments
 from timing.delay import compute_delay_moments
 
 
-def _propagate_node_at(
-    node: str,
-    AT_mean: Dict[str, float],
-    AT_var: Dict[str, float],
-    delay_mean: Dict[str, float],
-    delay_var: Dict[str, float],
-    cov_delay: np.ndarray,
-    idx: Dict[str, int],
-    predecessors: Dict[str, List[str]],
-) -> Tuple[float, float]:
-    """Compute AT distribution for a single node given its predecessors."""
-    preds = predecessors.get(node, [])
-    if not preds:
-        return delay_mean[node], delay_var[node]
-
-    # Start with first predecessor
-    mu = AT_mean[preds[0]] + delay_mean[node]
-    var = AT_var[preds[0]] + delay_var[node] + 2.0 * cov_delay[idx[preds[0]], idx[node]]
-
-    # Combine remaining predecessors using Clark MAX iteratively
-    for pred in preds[1:]:
-        mu_pred = AT_mean[pred]
-        var_pred = AT_var[pred]
-        cov_pred_node = cov_delay[idx[pred], idx[node]]
-
-        # AT_pred + delay_node
-        mu_pred_total = mu_pred + delay_mean[node]
-        var_pred_total = var_pred + delay_var[node] + 2.0 * cov_pred_node
-
-        # Covariance between current combined AT and this predecessor's AT
-        # Approximate using shared gate covariances
-        cov_combined_pred = 0.0
-        for other_pred in preds[: preds.index(pred) + 1]:
-            cov_combined_pred += cov_delay[idx[other_pred], idx[node]]
-
-        rho = cov_combined_pred / (math.sqrt(max(var, 1e-18)) * math.sqrt(max(var_pred_total, 1e-18)))
-        rho = max(-1.0, min(1.0, rho))
-
-        mu_max, var_max = clark_max(mu, var, mu_pred_total, var_pred_total, rho)
-        mu, var = mu_max, var_max
-
-    return mu, var
-
-
 def compute_analytical_ssta_arbitrary(
     graph: TimingGraph,
     timing_params: TimingParams,

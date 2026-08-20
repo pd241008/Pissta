@@ -17,6 +17,9 @@ python -m pytest tests/ -v
 | `test_analysis.py` | Tests for MC and analytical SSTA engines |
 | `test_clark_max.py` | Tests for Clark MAX approximation |
 
+> [!NOTE]
+> These test modules are planned but not yet implemented. The test directory currently contains only this README.
+
 ## Naming Convention
 
 - `test_*.py` — Test modules

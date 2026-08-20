@@ -1,4 +1,4 @@
-# ADR-007: Stage 6B Vanilla DAG-GNN Baseline Architecture
+# ADR-007: Stage 6B GNN Baseline Architecture
 
 > **Status:** Decided  
 > **Date:** August 19, 2026  

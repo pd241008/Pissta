@@ -1,5 +1,5 @@
 """
-Stage 6B — Vanilla DAG-GNN Baseline
+Stage 6B — GNN Baseline
 
 Trains and evaluates a GraphSAGE-based GNN on the Stage 6A dataset.
 """

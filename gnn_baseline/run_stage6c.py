@@ -7,9 +7,11 @@ Runs 3-way ablation: Vanilla (6B) → Tier A (node sensitivities) → Tier A+B (
 from __future__ import annotations
 
 import json
+import math
 import sys
+import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import torch
@@ -247,22 +249,63 @@ def compute_tier_b_leakage(test_dataset: GraphDataset, physics_stats: Dict) -> D
     }
 
 
-def measure_physics_feature_time(dataset: GraphDataset, n_samples: int = 100) -> float:
-    """Measure per-graph physics feature extraction time (ms).
+def measure_physics_feature_time(dataset: GraphDataset, config: str = "tier_ab", n_samples: int = 100) -> float:
+    """Measure per-graph physics feature computation time (ms).
 
-    Simulates inference-time cost of computing analytical SSTA + sensitivities
-    from raw graph data, which is required for Tier A+B but not for Vanilla.
+    Computes analytical SSTA + sensitivities from raw graph data by reconstructing
+    the TimingGraph, rather than timing dict lookups.
     """
-    import time
+    from foundations.config_loader import TimingParams, VariationParams, load_config
+    from timing.graph import TimingGraph, Gate
+    from timing.delay import compute_delay_moments, delay_partials
+    from data_generation.analytical_ssta_arbitrary import compute_analytical_ssta_arbitrary
+
+    config_obj = load_config("foundations/stage3_config.json")
+    timing_params = config_obj.timing_params
+    variation_params = config_obj.variation_params
 
     graph_ids = dataset.graph_ids[:n_samples]
     times = []
     for gid in graph_ids:
         entry = dataset.dataset[gid]
+        graph = entry["graph"]
+
+        # Reconstruct TimingGraph
+        gates = {
+            name: Gate(name=name, load_ff=gate_data["load_ff"], x=gate_data["x"], y=gate_data["y"])
+            for name, gate_data in graph["gates"].items()
+        }
+        timing_graph = TimingGraph(gates=gates, successors=graph["successors"])
+
+        # Build per-gate loads
+        gate_loads = {name: gate_data["load_ff"] for name, gate_data in graph["gates"].items()}
+        graph_timing_params = TimingParams(
+            k=timing_params.k,
+            alpha=timing_params.alpha,
+            vdd_v=timing_params.vdd_v,
+            gate_loads=gate_loads,
+        )
+
         start = time.perf_counter()
-        _ = entry["physics_features"]["sensitivities"]
-        _ = entry["physics_features"]["analytical_ssta"]["sink_mean"]
-        _ = entry["physics_features"]["analytical_ssta"]["sink_std"]
+
+        if config == "tier_a":
+            # Only compute sensitivities
+            process_moments = compute_process_moments(variation_params)
+            for name in timing_graph.topological_order():
+                gate = timing_graph.gates[name]
+                delay_partials(
+                    load_ff=gate.load_ff,
+                    gate_params=graph_timing_params,
+                    vth_nom=variation_params.vth_nom_v,
+                    l_nom=variation_params.l_nom_nm,
+                    w_nom=variation_params.w_nom_nm,
+                )
+        else:
+            # Compute analytical SSTA (includes sensitivities internally)
+            compute_analytical_ssta_arbitrary(
+                timing_graph, graph_timing_params, variation_params
+            )
+
         elapsed = time.perf_counter() - start
         times.append(elapsed * 1000)  # ms
 
@@ -273,9 +316,11 @@ def compute_tier_a_diagnostics(train_dataset: GraphDataset, physics_stats: Dict)
     """Compute diagnostics for Tier A (node-level sensitivities) null result.
 
     Checks:
-    (a) Sign sanity: ∂d/∂L>0, ∂d/∂W<0, ∂d/∂Vth>0 across all gates
+    (a) Sign sanity: d/dL>0, d/dW<0, d/dVth>0 across all gates
     (b) Physics_stats spreads (std/mean)
-    (c) Correlation of ∂d/∂Vth with load_ff (redundancy check)
+    (c) Correlation of d/dVth with load_ff (redundancy check)
+    (d) Magnitude identities on a sample gate
+    (e) Redundancy correlations for all three sensitivities vs load_ff
     """
     all_vth = []
     all_l = []
@@ -303,19 +348,41 @@ def compute_tier_a_diagnostics(train_dataset: GraphDataset, physics_stats: Dict)
     sign_w = float(np.mean(all_w < 0))
 
     corr_vth_load = float(np.corrcoef(all_vth, all_load)[0, 1]) if len(all_vth) > 1 else 0.0
+    corr_l_load = float(np.corrcoef(all_l, all_load)[0, 1]) if len(all_l) > 1 else 0.0
+    corr_w_load = float(np.corrcoef(all_w, all_load)[0, 1]) if len(all_w) > 1 else 0.0
 
     spreads = {
         "vth_spread": float(np.std(all_vth) / max(abs(np.mean(all_vth)), 1e-9)),
         "l_spread": float(np.std(all_l) / max(abs(np.mean(all_l)), 1e-9)),
         "w_spread": float(np.std(all_w) / max(abs(np.mean(all_w)), 1e-9)),
+        "load_ff_spread": float(np.std(all_load) / max(abs(np.mean(all_load)), 1e-9)),
     }
+
+    # Magnitude identities on first gate
+    magnitudes = {}
+    if len(train_dataset.graph_ids) > 0:
+        gid = train_dataset.graph_ids[0]
+        entry = train_dataset.dataset[gid]
+        sensitivities = entry["physics_features"]["sensitivities"]
+        first_gate_name = list(sensitivities.keys())[0]
+        first_gate_data = entry["graph"]["gates"][first_gate_name]
+        sens = sensitivities[first_gate_name]
+        d_nom = first_gate_data["load_ff"]
+        magnitudes = {
+            "vth_identity": float(sens["vth"] * (1.0 - 0.4) / (1.3 * d_nom)) if d_nom != 0 else 0.0,
+            "l_identity": float(sens["l"] * 45.0 / d_nom) if d_nom != 0 else 0.0,
+            "w_identity": float(sens["w"] * (2.0 * 90.0) / d_nom) if d_nom != 0 else 0.0,
+        }
 
     return {
         "sign_vth_positive_rate": sign_vth,
         "sign_l_positive_rate": sign_l,
         "sign_w_negative_rate": sign_w,
         "corr_vth_load": corr_vth_load,
+        "corr_l_load": corr_l_load,
+        "corr_w_load": corr_w_load,
         "spreads": spreads,
+        "magnitude_identities": magnitudes,
     }
 
 
@@ -411,23 +478,116 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, test_loader: DataLoader, ph
         "std_relative": std_relative,
     }
 
-    sink_means = np.array(sink_means)
-    sink_stds = np.array(sink_stds)
-    mc_means = np.array(mc_means)
-    mc_stds = np.array(mc_stds)
 
-    mean_corr = float(np.corrcoef(sink_means, mc_means)[0, 1])
-    std_corr = float(np.corrcoef(sink_stds, mc_stds)[0, 1])
+def compute_lockstep_verification(data_dir: Path) -> Dict:
+    """Compare 6B vanilla results with 6C vanilla run for lockstep verification."""
+    results_6b_path = data_dir.parent / "gnn_baseline" / "results" / "vanilla_dag_gnn_results.json"
+    results_6c_path = data_dir.parent / "gnn_baseline" / "results" / "stage6c_results.json"
 
-    mean_mae = float(np.mean(np.abs(sink_means - mc_means)))
-    std_mae = float(np.mean(np.abs(sink_stds - mc_stds)))
+    if not results_6b_path.exists() or not results_6c_path.exists():
+        return {"status": "skipped", "reason": "One or both result files not found"}
+
+    with open(results_6b_path) as f:
+        data_6b = json.load(f)
+    with open(results_6c_path) as f:
+        data_6c = json.load(f)
+
+    vanilla_6b = data_6b["results"]
+    vanilla_6c = data_6c["results"]["vanilla"]
+
+    vanilla_6b_sorted = sorted(vanilla_6b, key=lambda r: r["seed"])
+    vanilla_6c_sorted = sorted(vanilla_6c, key=lambda r: r["seed"])
+
+    comparison = []
+    for r6b, r6c in zip(vanilla_6b_sorted, vanilla_6c_sorted):
+        comparison.append({
+            "seed": r6b["seed"],
+            "source_6b": str(results_6b_path),
+            "source_6c": str(results_6c_path),
+            "mean_mae_6b": r6b["test_metrics"]["mean_mae"],
+            "mean_mae_6c": r6c["test_metrics"]["mean_mae"],
+            "mean_mae_match": abs(r6b["test_metrics"]["mean_mae"] - r6c["test_metrics"]["mean_mae"]) < 1e-5,
+            "std_mae_6b": r6b["test_metrics"]["std_mae"],
+            "std_mae_6c": r6c["test_metrics"]["std_mae"],
+            "std_mae_match": abs(r6b["test_metrics"]["std_mae"] - r6c["test_metrics"]["std_mae"]) < 1e-5,
+            "best_val_loss_6b": r6b["train_result"]["best_val_loss"],
+            "best_val_loss_6c": r6c["train_result"]["best_val_loss"],
+            "n_params_6b": sum(p.numel() for p in VanillaDAGGNSSage().parameters()),
+            "n_params_6c": r6c["n_params"],
+        })
 
     return {
-        "mean_correlation": mean_corr,
-        "std_correlation": std_corr,
-        "mean_mae_normalized": mean_mae,
-        "std_mae_normalized": std_mae,
+        "status": "verified",
+        "comparison": comparison,
     }
+
+
+def compute_nrecon_reconciliation(data_dir: Path) -> Dict:
+    """Raw recount of nrecon distribution from dataset.pkl + splits.json."""
+    import pickle
+
+    with open(data_dir / "dataset.pkl", "rb") as f:
+        dataset = pickle.load(f)
+    with open(data_dir / "splits.json", "r") as f:
+        splits = json.load(f)
+
+    reconciliation = {}
+    for split_name, split_ids in splits.items():
+        nrecon_counts = {}
+        n_gates_list = []
+        for gid in split_ids:
+            entry = dataset[gid]
+            nrecon = len(entry["graph"]["reconvergence_points"])
+            n_gates_list.append(len(entry["graph"]["gates"]))
+            nrecon_counts[nrecon] = nrecon_counts.get(nrecon, 0) + 1
+
+        reconciliation[split_name] = {
+            "n_graphs": len(split_ids),
+            "nrecon_distribution": dict(sorted(nrecon_counts.items())),
+            "mean_nrecon": float(np.mean([len(dataset[gid]["graph"]["reconvergence_points"]) for gid in split_ids])),
+            "mean_n_gates": float(np.mean(n_gates_list)),
+            "corr_nrecon_n_gates": float(np.corrcoef(
+                [len(dataset[gid]["graph"]["reconvergence_points"]) for gid in split_ids],
+                n_gates_list
+            )[0, 1]) if len(split_ids) > 1 else 0.0,
+        }
+
+    return reconciliation
+
+
+def compute_analytical_mae_per_nrecon(test_dataset: GraphDataset, physics_stats: Dict) -> Dict:
+    """Compute analytical SSTA MAE per nrecon bucket."""
+    buckets = {}
+    for gid in test_dataset.graph_ids:
+        entry = test_dataset.dataset[gid]
+        nrecon = len(entry["graph"]["reconvergence_points"])
+        ana = entry["physics_features"]["analytical_ssta"]
+        mc = entry["mc_labels"]
+
+        ana_mean_norm = (ana["sink_mean"] - physics_stats["sink_mean_mean"]) / physics_stats["sink_mean_std"]
+        mc_mean_norm = (mc["mean"] - physics_stats["sink_mean_mean"]) / physics_stats["sink_mean_std"]
+        ana_std_norm = (ana["sink_std"] - physics_stats["sink_std_mean"]) / physics_stats["sink_std_std"]
+        mc_std_norm = (mc["std"] - physics_stats["sink_std_mean"]) / physics_stats["sink_std_std"]
+
+        if nrecon not in buckets:
+            buckets[nrecon] = {"mean_maes": [], "std_maes": [], "count": 0}
+
+        buckets[nrecon]["mean_maes"].append(abs(ana_mean_norm - mc_mean_norm))
+        buckets[nrecon]["std_maes"].append(abs(ana_std_norm - mc_std_norm))
+        buckets[nrecon]["count"] += 1
+
+    result = {}
+    for nrecon, data in sorted(buckets.items()):
+        mean_maes = np.array(data["mean_maes"])
+        std_maes = np.array(data["std_maes"])
+        result[nrecon] = {
+            "count": data["count"],
+            "mean_mae_mean": float(np.mean(mean_maes)),
+            "mean_mae_std": float(np.std(mean_maes, ddof=1)) if len(mean_maes) > 1 else 0.0,
+            "std_mae_mean": float(np.mean(std_maes)),
+            "std_mae_std": float(np.std(std_maes, ddof=1)) if len(std_maes) > 1 else 0.0,
+        }
+    return result
 
 
 def main():

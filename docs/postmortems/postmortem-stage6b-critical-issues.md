@@ -1,4 +1,4 @@
-# Postmortem: Stage 6B Vanilla DAG-GNN Baseline — Critical Issues
+# Postmortem: Stage 6B gnn_baseline — Critical Issues
 
 > **Date:** August 20, 2026  
 > **Severity:** Critical — multiple issues affected reproducibility, metrics validity, and Stage 6C comparison integrity  
@@ -30,7 +30,7 @@ The original training run wrapped the model in `nn.DataParallel` (or equivalent)
 
 ```python
 model = VanillaDAGGNNSage()
-ckpt = torch.load("Vanilla DAG-GNN Baseline/checkpoints/best_model_seed42.pt", weights_only=True)
+ckpt = torch.load("gnn_baseline/checkpoints/best_model_seed42.pt", weights_only=True)
 model.load_state_dict(ckpt)  # strict=True succeeds
 ```
 
@@ -164,17 +164,17 @@ The 2.85 was the generator parameter, not the realized reconvergence count. The 
 
 `run_stage6b.py` built `test_data` (used for per-graph metadata in `evaluate_model`) via a separate `GraphDataset(split="test").get_data(...)` call, independent from the `test_data` built inside `create_dataloaders()` that actually feeds `test_loader`. Both produced identically-ordered lists, but this was a fragile pattern — if someone later changed one construction path (e.g., added shuffling or filtering), predictions and metadata would silently misalign with no error raised.
 
-Additionally, an old `Vanilla DAG-GNN Baseline/results/stage6b_results.json` from a previous naming convention remained in the repo.
+Additionally, an old `gnn_baseline/results/stage6b_results.json` from a previous naming convention remained in the repo.
 
 ### Root Cause
 
 1. **Separate construction paths**: `create_dataloaders()` builds one set of Data objects; `main()` builds another for metadata. No assertion enforces they are the same.
-2. **Legacy artifact**: The old `stage6b_results.json` was never cleaned up after the folder rename from `stage6b` to `Vanilla DAG-GNN Baseline`.
+2. **Legacy artifact**: The old `stage6b_results.json` was never cleaned up after the folder rename from `stage6b` to `gnn_baseline`.
 
 ### Fix
 
 1. **Single source of truth**: `evaluate_model()` now reads per-graph metadata directly from `test_loader.dataset` instead of a separately-built list. Predictions and metadata always come from the same DataLoader.
-2. **Removed legacy file**: Deleted `Vanilla DAG-GNN Baseline/results/stage6b_results.json`.
+2. **Removed legacy file**: Deleted `gnn_baseline/results/stage6b_results.json`.
 3. **Simplified API**: Removed `test_data: List` parameter from `run_single_seed()` and the redundant `test_data = test_dataset.get_data(...)` call in `main()`.
 
 ### Verification

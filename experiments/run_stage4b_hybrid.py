@@ -47,6 +47,11 @@ def main() -> None:
     max_at = np.maximum(at_g4, at_g5)
     cov_max_d6_emp = float(np.cov(max_at, d_g6)[0, 1])
 
+    # NOTE: clark_max and gaussian_sum treat inputs as population moments, but
+    # the empirical moments above are sample estimates (ddof=1). This means the
+    # "shape gap" partly reflects estimator variance rather than true distributional
+    # shape differences. A rigorous fix would use ddof=0 or add a bias correction.
+
     mu_max_b, var_max_b = clark_max(mu1_emp, sigma1_emp ** 2, mu2_emp, sigma2_emp ** 2, rho_emp)
     std_max_b = np.sqrt(max(var_max_b, 0.0))
 

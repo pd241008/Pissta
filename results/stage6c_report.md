@@ -165,9 +165,9 @@ All ratios are in the 1.30–1.75 range, consistent with healthy generalization.
 
 | File | Description |
 |------|-------------|
-| `Vanilla DAG-GNN Baseline/dataset.py` | Extended with physics_mode, physics normalization, graph-level features |
-| `Vanilla DAG-GNN Baseline/model.py` | Added PhysicsInformedDAGGNNSage (Tier A and Tier A+B) |
-| `Vanilla DAG-GNN Baseline/train.py` | Updated to pass graph_physics when present |
-| `Vanilla DAG-GNN Baseline/eval.py` | Updated to pass graph_physics when present |
-| `Vanilla DAG-GNN Baseline/run_stage6c.py` | 3-way ablation runner with sanity checks |
-| `Vanilla DAG-GNN Baseline/results/stage6c_results.json` | Full results |
+| `gnn_baseline/dataset.py` | Extended with physics_mode, physics normalization, graph-level features |
+| `gnn_baseline/model.py` | Added PhysicsInformedDAGGNNSage (Tier A and Tier A+B) |
+| `gnn_baseline/train.py` | Updated to pass graph_physics when present |
+| `gnn_baseline/eval.py` | Updated to pass graph_physics when present |
+| `gnn_baseline/run_stage6c.py` | 3-way ablation runner with sanity checks |
+| `gnn_baseline/results/stage6c_results.json` | Full results |

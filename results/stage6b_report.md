@@ -1,4 +1,4 @@
-# Stage 6B — Vanilla DAG-GNN Baseline: Final Report
+# Stage 6B — gnn_baseline: Final Report
 
 > **Date:** August 19, 2026  
 > **Status:** Complete
@@ -180,10 +180,10 @@ A vanilla GraphSAGE-based GNN was trained on raw graph structure and node featur
 
 | File | Description |
 |------|-------------|
-| `Vanilla DAG-GNN Baseline/dataset.py` | GraphDataset class, normalization, DataLoader creation |
-| `Vanilla DAG-GNN Baseline/model.py` | VanillaDAGGNNSage architecture |
-| `Vanilla DAG-GNN Baseline/train.py` | Training loop with early stopping, gradient clipping |
-| `Vanilla DAG-GNN Baseline/eval.py` | Evaluation metrics, nrecon breakdown, analytical comparison |
-| `Vanilla DAG-GNN Baseline/run_stage6b.py` | Main script (3-seed training + evaluation) |
+| `gnn_baseline/dataset.py` | GraphDataset class, normalization, DataLoader creation |
+| `gnn_baseline/model.py` | VanillaDAGGNNSage architecture |
+| `gnn_baseline/train.py` | Training loop with early stopping, gradient clipping |
+| `gnn_baseline/eval.py` | Evaluation metrics, nrecon breakdown, analytical comparison |
+| `gnn_baseline/run_stage6b.py` | Main script (3-seed training + evaluation) |
 | `results/vanilla_dag_gnn_results.json` | Full results (metrics, history, comparisons) |
-| `Vanilla DAG-GNN Baseline/checkpoints/` | Best model checkpoints per seed |
+| `gnn_baseline/checkpoints/` | Best model checkpoints per seed |
