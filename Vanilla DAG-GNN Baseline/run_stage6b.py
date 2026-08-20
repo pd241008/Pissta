@@ -231,10 +231,13 @@ def main():
     results_dir.mkdir(parents=True, exist_ok=True)
 
     # Create data loaders
+    # Note: create_dataloaders was extended by Stage 6C to return physics_stats as a 6th value.
+    # For vanilla mode, physics_stats is an empty dict and is ignored here.
     print("Loading data...")
-    train_loader, val_loader, test_loader, feature_stats, target_stats = create_dataloaders(
+    train_loader, val_loader, test_loader, feature_stats, target_stats, physics_stats = create_dataloaders(
         data_dir=data_dir,
         batch_size=32,
+        physics_mode="vanilla",
     )
 
     # Batch shape check

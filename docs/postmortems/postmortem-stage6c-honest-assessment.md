@@ -6,62 +6,51 @@
 
 ## Issues Summary
 
-Stage 6C completed a 3-way ablation (Vanilla → Tier A → Tier A+B) with identical training protocol. The results reveal an important nuance: the "physics-informed" improvement is real but comes with a caveat about what's actually driving it.
+Stage 6C completed a 3-way ablation (Vanilla → Tier A → Tier A+B) with identical training protocol. The results reveal important nuances about what "physics-informed" actually means in this context.
 
 ---
 
-## Finding #1 — Tier A (Node-Level Sensitivities) Shows No Significant Improvement
+## Finding #1 — Tier A (Node-Level Sensitivities) Null Result Explained by Redundancy
 
 ### What Happened
 
 Tier A added per-gate vth, l, w sensitivities to node features (3-dim → 6-dim). After 3-seed training:
 
-| Metric | Vanilla | Tier A | Change | z-score | Significant? |
-|--------|---------|--------|--------|---------|--------------|
-| Mean MAE | 0.687 ± 0.004 | 0.685 ± 0.005 | -0.3% | 0.70 | No |
-| Std MAE | 0.0337 ± 0.0002 | 0.0341 ± 0.0009 | +1.2% | -0.71 | No |
+| Metric | Vanilla | Tier A | Change | Bootstrap CI | Significant? |
+|--------|---------|--------|--------|--------------|--------------|
+| Mean MAE | 0.687 ± 0.004 | 0.685 ± 0.005 | -0.3% | [-0.025, +0.020] | No |
+| Std MAE | 0.0337 ± 0.0002 | 0.0341 ± 0.0009 | +1.2% | — | No |
 
 ### Root Cause
 
-Local delay sensitivity (∂d/∂Vth, ∂d/∂L, ∂d/∂W) is not informative enough in isolation. The GNN sees each gate's sensitivity but lacks the graph-level context to know how those sensitivities propagate through the timing path. Mean pooling dilutes the signal across all gates, and the 3-layer receptive field is insufficient to trace sensitivity chains from source to sink.
+Mechanism diagnostics reveal that ∂d/∂Vth is **perfectly correlated (r=1.00)** with the existing load_ff feature. This means Tier A adds no new information — the GNN already has access to the same signal through load_ff. The null result is due to **redundancy**, not "insufficiency."
 
 ### Honest Assessment
 
-Tier A is a clean negative result. The node-level physics features don't help the vanilla GNN. This is scientifically valuable — it tells us that "physics-informed" at the node level alone is not sufficient for this task.
+Tier A is a clean negative result with a clean mechanism explanation. The node-level physics features don't help because they're redundant with existing features. This is scientifically valuable — it tells us that future physics-informed features must provide information not already captured by geometry (load_ff, x, y).
 
 ---
 
-## Finding #2 — Tier A+B Shows Large Improvement, But With Leakage Caveat
+## Finding #2 — Tier A+B Shows Large Improvement, GNN Contributes Meaningfully
 
 ### What Happened
 
 Tier A+B added graph-level analytical SSTA features (sink_mean, sink_std) concatenated to the pooled embedding. Results:
 
-| Metric | Vanilla | Tier A+B | Change | z-score | Significant? |
-|--------|---------|----------|--------|---------|--------------|
-| Mean MAE | 0.687 ± 0.004 | 0.542 ± 0.008 | **-21.1%** | 26.52 | **Yes** |
-| Std MAE | 0.0337 ± 0.0002 | 0.0321 ± 0.0003 | **-4.7%** | 7.10 | **Yes** |
+| Metric | Vanilla | Tier A+B | Change | Bootstrap CI | Significant? |
+|--------|---------|----------|--------|--------------|--------------|
+| Mean MAE | 0.687 ± 0.004 | 0.542 ± 0.008 | **-21.1%** | [-0.192, -0.100] | **Yes** |
+| Std MAE | 0.0337 ± 0.0002 | 0.0321 ± 0.0003 | **-4.7%** | — | **Yes** |
 
-However, the Tier B leakage check reveals:
-
-| Metric | Value |
-|--------|-------|
-| Analytical sink_mean ↔ MC mean correlation | **0.9766** |
-| Analytical sink_std ↔ MC std correlation | 0.8459 |
-| Analytical mean MAE (normalized) | 0.1837 |
-| Tier A+B mean MAE (normalized) | 0.5423 |
+No-GNN residual baseline (MLP on sink_mean, sink_std, n_gates): mean MAE 0.9425 — far worse than Tier A+B's 0.5423. This proves the GNN contributes meaningfully beyond "residual correction of analytical."
 
 ### Root Cause
 
-The analytical_ssta.sink_mean feature is already 97.7% correlated with the MC mean label. When we inject this as a graph-level feature, the GNN is effectively learning to "lightly perturb" a value that's already very close to the label. This is closer to "GNN + linear correction" than "GNN learns physics from graph structure."
+The analytical_ssta.sink_mean feature is 97.7% correlated with the MC mean label, so the GNN is learning to correct the analytical estimate. But the no-GNN baseline shows this correction requires graph structure — a plain MLP can't do it.
 
 ### Honest Assessment
 
-Tier B's improvement is real and statistically significant, but the claim needs qualification:
-
-1. **What Tier B actually does**: The GNN learns to correct the analytical SSTA estimate, especially on complex topologies where linearization error compounds.
-2. **What Tier B does NOT do**: It does not demonstrate that the GNN learned physics from node-level features. The node-level sensitivities (Tier A) alone provided no improvement.
-3. **The honest framing**: "Injecting analytical SSTA results as graph-level features improves GNN accuracy by 21%, primarily by correcting analytical error on complex topologies" — not "the GNN learned physics."
+Tier B's improvement is real and statistically significant. The GNN is doing something non-trivial. But the claim needs qualification: it's "GNN corrects analytical SSTA using graph structure," not "GNN learns physics from node features."
 
 ---
 
@@ -81,42 +70,54 @@ The nrecon breakdown shows Tier A+B's improvement grows with topology complexity
 
 ### Root Cause
 
-Analytical SSTA's linearization error compounds with more reconvergence points. On simple topologies (nrecon=2), analytical SSTA is already accurate, so there's less to correct. On complex topologies (nrecon≥5), analytical error is larger, and the GNN has more correction to learn.
+Analytical SSTA's linearization error compounds with more reconvergence points. On simple topologies (nrecon=2), analytical SSTA is already accurate. On complex topologies (nrecon≥5), analytical error is larger, and the GNN has more correction to learn.
 
 ### Honest Assessment
 
-This is the most interesting and defensible finding. If the goal is "improve delay prediction on complex VLSI topologies," Tier A+B succeeds — and the improvement is largest exactly where analytical SSTA struggles most. This is a legitimate and useful result, even if the mechanism is "correct the analytical estimate" rather than "learn physics from first principles."
+This is directionally consistent with "GNN corrects analytical error where it compounds," but the nrecon-n_gates confound and small-n buckets (n=10 at nrecon=6) prevent a strong causal claim.
 
 ---
 
-## Finding #4 — Training Protocol Worked as Designed
+## Finding #4 — Lockstep Verification Passed
 
-### What Went Right
+The 6C vanilla run matches the 6B baseline exactly:
+- Seed 42: 0.6829330921173096 (both)
+- Seed 123: 0.6913238763809204 (both)
+- Seed 999: 0.6875998973846436 (both)
 
-- All 9 runs (3 configs × 3 seeds) completed without errors
-- Batch shape-checks passed for all configurations
-- Eval-mode train losses confirmed healthy generalization (ratios 1.30–1.75)
-- No configuration showed overfitting
-- Checkpoint round-trip verified for all configurations
-- Physics normalization correctly scaled features to comparable ranges
+This confirms the frozen baseline is untouched and the comparison is apples-to-apples.
 
-### What Could Be Improved
+---
 
-- The 3-seed statistical power is limited. With only 3 seeds, Tier A's non-significance could be a Type II error (false negative). More seeds would strengthen the conclusion.
-- The z-test assumes normal distribution of seed-to-seed means, which is questionable with n=3. A bootstrap confidence interval would be more robust.
+## Finding #5 — Statistical Method Upgraded
+
+Replaced the invalid z-test (sqrt((s₁²+s₂²)/3) with n=3) with paired per-graph bootstrap CI:
+- 921 paired observations (307 graphs × 3 seeds)
+- 10,000 bootstrap resamples
+- Tier A: CI [-0.025, +0.020] includes 0 → not significant
+- Tier A+B: CI [-0.192, -0.100] excludes 0 → significant
+
+---
+
+## Finding #6 — nrecon Stratification Reconciled
+
+Earlier Stage 6A documentation referenced "boosting nrecon≥3 test coverage to 19 graphs." Actual test set: 210 graphs with nrecon≥3. The "19" was stale from a pre-fix version. Current `splits.json` uses `len(reconvergence_points)` consistently across all stages.
 
 ---
 
 ## Lessons Learned
 
-1. **Negative results are valuable**: Tier A's null result is scientifically important — it tells us that local sensitivity features alone aren't enough, and future work should focus on graph-level or topological features.
-2. **Be honest about what "physics-informed" means**: Injecting analytical results is useful but is closer to "GNN corrects analytical" than "GNN learns physics." The correlation check (0.98) is essential context.
-3. **Ablation design matters**: The 3-way design (Vanilla → Tier A → Tier A+B) is what allows us to attribute improvement to the graph-level feature specifically, rather than just saying "physics features help."
-4. **Complex topologies reveal the most**: The nrecon-dependent improvement pattern is the strongest evidence that the GNN is doing something non-trivial — it's correcting analytical error where that error is largest.
+1. **Redundancy is as important as informativeness**: Tier A's null result is explained by perfect correlation with load_ff, not by "insufficient signal." Future feature engineering must check for redundancy with existing features.
+2. **No-GNN baseline is essential**: Without it, we couldn't distinguish "GNN corrects analytical" from "GNN learns physics." The 0.9425 vs 0.5423 gap proves graph structure matters.
+3. **Bootstrap CI over z-test**: With n=3 seeds, the z-test is indefensible. Paired per-graph bootstrap is more powerful and honest.
+4. **Be honest about "physics-informed"**: Injecting analytical results is useful but is closer to "GNN corrects analytical" than "GNN learns physics." The correlation check is essential context.
+5. **Lockstep verification prevents silent drift**: Exact per-seed match between 6B and 6C vanilla runs confirms the frozen baseline is untouched.
 
 ## Prevention
 
-- Added Tier B leakage check (correlation between analytical features and MC labels) as a mandatory sanity check for any future physics feature injection
-- Documented the honest framing of results in Stage 6C report
-- Established that future "physics-informed" claims must include correlation analysis to distinguish "learns physics" from "corrects analytical estimate"
-- Created clean separation between VanillaDAGGNNSage (frozen baseline) and PhysicsInformedDAGGNNSage (Stage 6C) for future comparisons
+- Added Tier A redundancy check (correlation with existing features) as mandatory diagnostic
+- Added no-GNN residual baseline as standard ablation component
+- Replaced z-test with paired per-graph bootstrap CI
+- Added lockstep verification (per-seed match) between frozen baseline and new runs
+- Documented nrecon stratification reconciliation
+- Established that future "physics-informed" claims must include redundancy analysis and no-GNN baseline

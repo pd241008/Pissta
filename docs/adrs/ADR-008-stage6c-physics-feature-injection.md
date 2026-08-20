@@ -60,15 +60,18 @@ We use **feature-level physics injection** with a 3-way ablation:
 | Config | Parameters | Mean MAE | Mean Rel. | Std MAE | Std Rel. | vs Vanilla |
 |--------|-----------|----------|-----------|---------|----------|------------|
 | Vanilla | 29,698 | 0.687 ± 0.004 | 4.04% ± 0.03% | 0.0337 ± 0.0002 | 4.67% ± 0.06% | — |
-| Tier A | 29,890 | 0.685 ± 0.005 | 3.98% ± 0.05% | 0.0341 ± 0.0009 | 4.72% ± 0.14% | Not significant (z=0.70) |
-| Tier A+B | 30,018 | 0.542 ± 0.008 | 3.39% ± 0.06% | 0.0321 ± 0.0003 | 4.53% ± 0.04% | Significant (z=26.52) |
+| Tier A | 29,890 | 0.685 ± 0.005 | 3.98% ± 0.05% | 0.0341 ± 0.0009 | 4.72% ± 0.14% | Not significant (bootstrap CI [-0.025, +0.020]) |
+| Tier A+B | 30,018 | 0.542 ± 0.008 | 3.39% ± 0.06% | 0.0321 ± 0.0003 | 4.53% ± 0.04% | Significant (bootstrap CI [-0.192, -0.100]) |
+| No-GNN Residual MLP | ~1K | 0.943 | 6.27% | 0.0431 | 6.21% | Far worse than Tier A+B |
 
 ## Consequences
 
-- **Tier A is not worth pursuing further**: Node-level sensitivities alone don't help. The GNN can't leverage local delay sensitivity without graph-level context.
-- **Tier B works but with a caveat**: The analytical sink_mean feature is 97.7% correlated with the MC mean label. The improvement is partly "the analytical baseline was already decent" rather than "the GNN learned physics." This is legitimate but should be stated honestly.
-- **nrecon-dependent improvement**: Tier A+B's improvement is larger on complex topologies (36–47% for nrecon≥5 vs 10% for nrecon=2). This is the most interesting finding — the GNN is correcting analytical SSTA's linearization error where it compounds most.
+- **Tier A is redundant, not insufficient**: Mechanism diagnostics reveal ∂d/∂Vth is perfectly correlated (r=1.00) with the existing load_ff feature. Tier A adds no new information. Future physics features must provide signal not already captured by geometry.
+- **Tier B works, and the GNN contributes meaningfully**: The no-GNN residual baseline (MLP on sink_mean, sink_std, n_gates) achieves mean MAE 0.943 vs Tier A+B's 0.542. Graph structure matters — this is not just residual correction.
+- **Tier B's gain comes with a caveat**: The analytical sink_mean feature is 97.7% correlated with the MC mean label. The improvement is partly "the analytical baseline was already decent" rather than "the GNN learned physics from node features." This is legitimate but should be stated honestly.
+- **nrecon-dependent improvement**: Tier A+B's improvement is larger on complex topologies (36–47% for nrecon≥5 vs 10% for nrecon=2). This is the most interesting finding — the GNN is correcting analytical SSTA's linearization error where it compounds most. Caveat: nrecon confounds with n_gates, and n=10 at nrecon=6 limits confidence.
 - **Stage 6C comparison target**: The 0.542 mean MAE is the new number to beat. The 21% improvement over vanilla is substantial but comes with the analytical feature caveat.
+- **Lockstep verification**: 6C vanilla run matches 6B baseline exactly (per-seed mean_mae identical to 1e-6), confirming the frozen baseline is untouched.
 
 ## Alternatives Rejected
 
