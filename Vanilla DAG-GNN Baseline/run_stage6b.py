@@ -10,7 +10,7 @@ import json
 import random
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 import numpy as np
 import torch
@@ -83,7 +83,6 @@ def run_single_seed(
     train_loader: DataLoader,
     val_loader: DataLoader,
     test_loader: DataLoader,
-    test_data: List,
     test_dataset: GraphDataset,
     feature_stats: Dict,
     target_stats: Dict,
@@ -132,7 +131,7 @@ def run_single_seed(
 
     # Evaluate on test set
     print("\n--- Test Set Evaluation ---")
-    test_metrics = evaluate_model(model, test_loader, device, target_stats, dataset=test_data)
+    test_metrics = evaluate_model(model, test_loader, device, target_stats, dataset=test_loader.dataset)
     print(f"Test graphs: {test_metrics['n_graphs']}")
     print(f"Mean delay MAE: {test_metrics['mean_mae']:.4f}")
     print(f"Mean delay relative error: {test_metrics['mean_relative']:.2%}")
@@ -247,7 +246,6 @@ def main():
 
     train_dataset = GraphDataset(split="train")
     test_dataset = GraphDataset(split="test")
-    test_data = test_dataset.get_data(feature_stats, target_stats)
 
     print(f"Train: {len(train_loader.dataset)} graphs, Val: {len(val_loader.dataset)}, Test: {len(test_loader.dataset)}")
     print(f"Feature stats: {feature_stats}")
@@ -278,7 +276,6 @@ def main():
             train_loader=train_loader,
             val_loader=val_loader,
             test_loader=test_loader,
-            test_data=test_data,
             test_dataset=test_dataset,
             feature_stats=feature_stats,
             target_stats=target_stats,
