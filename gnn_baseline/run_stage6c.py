@@ -11,6 +11,7 @@ import os
 import sys
 import time
 from collections import defaultdict
+from dataclasses import replace
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -30,7 +31,6 @@ from train import train_model
 from eval import evaluate_model, compute_analytical_baseline_metrics, compare_model_vs_analytical
 from timing.graph import TimingGraph, Gate
 from timing.delay import delay_partials
-from variation.analytical import compute_process_moments
 from data_generation.analytical_ssta_arbitrary import compute_analytical_ssta_arbitrary
 
 
@@ -300,14 +300,11 @@ def measure_physics_feature_time(dataset: GraphDataset, config: str = "tier_ab",
     from foundations.config_loader import TimingParams, load_config
     from timing.graph import TimingGraph, Gate
     from timing.delay import delay_partials
-    from variation.analytical import compute_process_moments
     from data_generation.analytical_ssta_arbitrary import compute_analytical_ssta_arbitrary
 
     config_obj = load_config(str(REPO_ROOT / "foundations" / "stage3_config.json"))
     timing_params = config_obj.timing_params
     variation_params = config_obj.variation_params
-
-    process_moments = compute_process_moments(variation_params)
 
     graph_ids = dataset.graph_ids[:n_samples]
     times = []
@@ -328,6 +325,10 @@ def measure_physics_feature_time(dataset: GraphDataset, config: str = "tier_ab",
             vdd_v=timing_params.vdd_v,
             gate_loads=gate_loads,
         )
+        graph_variation_params = replace(
+            variation_params,
+            gate_coords={name: (gate_data["x"], gate_data["y"]) for name, gate_data in graph["gates"].items()},
+        )
 
         start = time.perf_counter()
 
@@ -342,12 +343,9 @@ def measure_physics_feature_time(dataset: GraphDataset, config: str = "tier_ab",
                     w_nom=variation_params.w_nom_nm,
                 )
         else:
-            try:
-                compute_analytical_ssta_arbitrary(
-                    timing_graph, graph_timing_params, variation_params
-                )
-            except KeyError:
-                pass
+            compute_analytical_ssta_arbitrary(
+                timing_graph, graph_timing_params, graph_variation_params
+            )
             for name in timing_graph.topological_order():
                 gate = timing_graph.gates[name]
                 delay_partials(
