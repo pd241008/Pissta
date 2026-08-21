@@ -40,6 +40,9 @@ This is not a generic list of "best practices." If a pattern or architecture cho
 | Stage 4 | Complete | Analytical SSTA with Clark MAX approximation |
 | Stage 4b | Complete | Hybrid empirical+Clark gap decomposition |
 | Stage 5 | Complete | Tail-aware SSTA with skew-normal 3-moment MAX |
+| Stage 6A | Complete | Arbitrary-DAG dataset generation (2,000 graphs, MC labels via name-aligned sampling) |
+| Stage 6B | Complete | Vanilla DAG-GNN baseline (beats analytical SSTA 3/3 seeds; lockstep-frozen) |
+| Stage 6C | Complete | Physics-informed ablation — Tier A and Tier A+B significantly *worse* than vanilla on corrected labels; see `results/stage6c_report.md` banner |
 
 ---
 
@@ -100,7 +103,6 @@ project-root/
 │   ├── analytical_ssta_arbitrary.py  # Arbitrary-DAG analytical SSTA
 │   └── data/
 ├── gnn_baseline/              # Stage 6B/6C GNN surrogate modeling
-│   ├── README.md
 │   ├── run_stage6b.py         # Vanilla DAG-GNN baseline
 │   ├── run_stage6c.py         # Physics-informed ablation
 │   ├── model.py               # GraphSAGE + physics-informed models
@@ -108,7 +110,7 @@ project-root/
 │   ├── eval.py                # Metrics + analytical comparison
 │   ├── dataset.py             # PyG Data loaders
 │   └── results/
-├── tests/                     # Unit tests (pending)
+├── tests/                       # Unit tests (pytest, 11 tests)
 ├── CHANGELOG.md
 └── README.md
 ```

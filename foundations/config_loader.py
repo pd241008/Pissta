@@ -94,7 +94,7 @@ def _coords_to_tuples(raw: dict) -> Dict[str, tuple[float, float]]:
     return {name: (float(v["x"]), float(v["y"])) for name, v in raw.items()}
 
 
-def load_config(path: str | Path = "stage3_config.json") -> Stage3Config:
+def load_config(path: str | Path = Path(__file__).resolve().parent / "stage3_config.json") -> Stage3Config:
     with open(path, "r") as f:
         data = json.load(f)
 

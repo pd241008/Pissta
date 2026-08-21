@@ -1,7 +1,18 @@
 # Stage 6C — Physics-Informed DAG-GNN: Final Report
 
 > **Date:** August 20, 2026  
-> **Status:** Complete
+> **Status:** SUPERSEDED — see banner below
+
+> [!WARNING]
+> **SUPERSEDED August 21, 2026.** This report was produced from a Stage 6A dataset whose Monte Carlo labels were misaligned with gate names (`ssta/monte_carlo.py` indexed sample columns by topological position instead of `gate_coords` order), and from a graph-complexity mix that no longer matches the regenerated dataset. After fixing the label bug, regenerating the data, and re-running the full ablation with deterministic CUDA kernels:
+>
+> | Model | Mean MAE | vs Vanilla |
+> |-------|----------|------------|
+> | Vanilla DAG-GNN (6B) | **0.408 ± 0.006** | — |
+> | Tier A (node sensitivities) | 0.448 ± 0.022 | +0.040, CI [+0.024, +0.056] — significantly **worse** |
+> | Tier A+B (+ graph-level analytical) | 0.471 ± 0.010 | +0.063, CI [+0.015, +0.112] — significantly **worse** |
+>
+> The headline claim below ("Tier A+B provides a large, statistically significant improvement of 21%") **does not reproduce** on corrected labels — it was an artifact of the mislabeled dataset. Lockstep verification now passes exactly (max diff 0.0). Current numbers: `gnn_baseline/results/stage6c_results.json` and `gnn_baseline/results/vanilla_dag_gnn_results.json`. The body below is retained as a historical record only.
 
 ## Summary
 

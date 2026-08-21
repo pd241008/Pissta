@@ -4,6 +4,16 @@
 
 ---
 
+### August 21, 2026 — Bug-Fix Sweep + Verified Stage 6B/6C Re-run
+
+- 🐛 **Fixed MC column misalignment** (`ssta/monte_carlo.py`): sample columns (ordered by `gate_coords`) were indexed by *topological* position, so arbitrary Stage 6A DAGs received other gates' variation samples; also made labels depend on process-level set-iteration order. Now mapped by NAME. Verified no-op for the locked Stage 3 reference (exact match to 4 decimals).
+- 🐛 **Fixed physics timing measurement** (`gnn_baseline/run_stage6c.py`): default-config `variation_params` (G1–G6) vs generated gate names caused `compute_analytical_ssta_arbitrary` to raise KeyError, silently swallowed — tier_ab timing never measured the analytical SSTA. Now builds per-graph variation params; silent except removed.
+- 🐛 **Fixed CUDA non-determinism** (both runners): `set_seed` now calls `torch.use_deterministic_algorithms(True)` + `CUBLAS_WORKSPACE_CONFIG=:4096:8`. Previously 6B-vs-6C lockstep could not reproduce bit-exact on GPU.
+- 🐛 **Fixed latent NameError** in `run_branching_monte_carlo` default-graph path (`build_branching_graph` was never imported) and CWD-dependent default path in `load_config` / `run_stage6a.py`.
+- 🧪 **Wired up dead `preflight()`** validation in Stage 6C runner.
+- 🔁 **Re-ran end-to-end**: regenerated 6A dataset (2000 graphs), re-trained 6B and full 6C 3-way ablation. Lockstep verification now exact (max diff 0.0).
+- ⚠️ **Revised conclusions**: on corrected labels, Tier A (+0.040 MAE, CI [+0.024,+0.056]) and Tier A+B (+0.063, CI [+0.015,+0.112]) are significantly **worse** than vanilla (0.408 ± 0.006). The previously reported "Tier A+B −21%" improvement does not reproduce — it was an artifact of the misaligned-label dataset and its different graph-complexity mix. Vanilla GNN remains the best model (analytical baseline: 0.661).
+
 ### August 16, 2026 — Stage 5 Tail-Aware SSTA (reporting tightened)
 
 - ✨ **Implemented** skew-normal 3-moment MAX approximation (`timing/tail_aware_max.py`)
