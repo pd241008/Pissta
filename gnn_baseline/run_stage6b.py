@@ -7,6 +7,7 @@ Trains and evaluates a GraphSAGE-based GNN on the Stage 6A dataset.
 from __future__ import annotations
 
 import json
+import os
 import random
 import sys
 from pathlib import Path
@@ -15,6 +16,8 @@ from typing import Any, Dict
 import numpy as np
 import torch
 from torch_geometric.loader import DataLoader
+
+os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 
 
 def _to_serializable(obj: Any) -> Any:
@@ -49,6 +52,7 @@ def set_seed(seed: int):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+    torch.use_deterministic_algorithms(True)
 
 
 def check_batch_shape(batch: Any, batch_size: int) -> None:
