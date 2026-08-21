@@ -1,5 +1,5 @@
 """
-Stage 6B — Vanilla DAG-GNN Baseline
+Stage 6B — GNN Baseline
 
 Trains and evaluates a GraphSAGE-based GNN on the Stage 6A dataset.
 """
@@ -10,7 +10,7 @@ import json
 import random
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 import numpy as np
 import torch
@@ -83,7 +83,6 @@ def run_single_seed(
     train_loader: DataLoader,
     val_loader: DataLoader,
     test_loader: DataLoader,
-    test_data: List,
     test_dataset: GraphDataset,
     feature_stats: Dict,
     target_stats: Dict,
@@ -132,7 +131,7 @@ def run_single_seed(
 
     # Evaluate on test set
     print("\n--- Test Set Evaluation ---")
-    test_metrics = evaluate_model(model, test_loader, device, target_stats, dataset=test_data)
+    test_metrics = evaluate_model(model, test_loader, device, target_stats, dataset=test_loader.dataset)
     print(f"Test graphs: {test_metrics['n_graphs']}")
     print(f"Mean delay MAE: {test_metrics['mean_mae']:.4f}")
     print(f"Mean delay relative error: {test_metrics['mean_relative']:.2%}")
@@ -232,10 +231,13 @@ def main():
     results_dir.mkdir(parents=True, exist_ok=True)
 
     # Create data loaders
+    # Note: create_dataloaders was extended by Stage 6C to return physics_stats as a 6th value.
+    # For vanilla mode, physics_stats is an empty dict and is ignored here.
     print("Loading data...")
-    train_loader, val_loader, test_loader, feature_stats, target_stats = create_dataloaders(
+    train_loader, val_loader, test_loader, feature_stats, target_stats, physics_stats = create_dataloaders(
         data_dir=data_dir,
         batch_size=32,
+        physics_mode="vanilla",
     )
 
     # Batch shape check
@@ -245,9 +247,8 @@ def main():
     print(f"Batch OK: x={sample_batch.x.shape}, y={sample_batch.y.shape}, "
           f"num_graphs={sample_batch.num_graphs if hasattr(sample_batch, 'num_graphs') else sample_batch.batch.max().item()+1}")
 
-    train_dataset = GraphDataset(split="train")
-    test_dataset = GraphDataset(split="test")
-    test_data = test_dataset.get_data(feature_stats, target_stats)
+    train_dataset = GraphDataset(split="train", data_dir=data_dir)
+    test_dataset = GraphDataset(split="test", data_dir=data_dir)
 
     print(f"Train: {len(train_loader.dataset)} graphs, Val: {len(val_loader.dataset)}, Test: {len(test_loader.dataset)}")
     print(f"Feature stats: {feature_stats}")
@@ -278,7 +279,6 @@ def main():
             train_loader=train_loader,
             val_loader=val_loader,
             test_loader=test_loader,
-            test_data=test_data,
             test_dataset=test_dataset,
             feature_stats=feature_stats,
             target_stats=target_stats,
@@ -399,7 +399,12 @@ def main():
         },
     }
 
-    output_path = results_dir / "vanilla_dag_gnn_results.json"
+    output_name = "vanilla_dag_gnn_results.json"
+    locked_path = results_dir / output_name
+    if locked_path.exists():
+        output_name = "vanilla_dag_gnn_results_rerun.json"
+
+    output_path = results_dir / output_name
     with open(output_path, "w") as f:
         json.dump(_to_serializable(output), f, indent=2)
 

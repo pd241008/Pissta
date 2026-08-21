@@ -50,7 +50,6 @@ project-root/
 ├── foundations/               # Theory, configs, frozen parameters
 │   ├── README.md
 │   ├── config_loader.py
-│   ├── physics_informed_ssta_baseline.py
 │   ├── stage3_config.json
 │   └── stage3_config_asymmetric.json
 ├── variation/                 # Process variation modeling
@@ -76,7 +75,6 @@ project-root/
 │   ├── README.md
 │   ├── __init__.py
 │   ├── run_stage3.py          # Reference MC run (N=100k)
-│   ├── run_stage4.py          # Analytical SSTA pipeline
 │   ├── run_stage4b_hybrid.py  # Empirical+Clark gap decomposition
 │   ├── run_stage5.py          # Tail-aware skew-normal SSTA
 │   ├── reproducibility_check.py
@@ -95,7 +93,22 @@ project-root/
 ├── docs/
 │   ├── adrs/                  # Architecture Decision Records
 │   └── postmortems/           # Lessons learned
-├── tests/                     # Unit tests
+├── data_generation/           # Stage 6A training data generation
+│   ├── README.md
+│   ├── run_stage6a.py         # DAG dataset generator
+│   ├── graph_generator.py     # Random valid DAG generator
+│   ├── analytical_ssta_arbitrary.py  # Arbitrary-DAG analytical SSTA
+│   └── data/
+├── gnn_baseline/              # Stage 6B/6C GNN surrogate modeling
+│   ├── README.md
+│   ├── run_stage6b.py         # Vanilla DAG-GNN baseline
+│   ├── run_stage6c.py         # Physics-informed ablation
+│   ├── model.py               # GraphSAGE + physics-informed models
+│   ├── train.py               # Training loop + EarlyStopping
+│   ├── eval.py                # Metrics + analytical comparison
+│   ├── dataset.py             # PyG Data loaders
+│   └── results/
+├── tests/                     # Unit tests (pending)
 ├── CHANGELOG.md
 └── README.md
 ```

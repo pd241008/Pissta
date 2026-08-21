@@ -1,8 +1,9 @@
 """
-Stage 6B — Data loading pipeline for vanilla DAG-GNN baseline.
+Stage 6C — Data loading pipeline for physics-informed DAG-GNN baseline.
 
-Converts Stage 6A dataset entries into PyTorch Geometric Data objects
-with raw features only (load_ff, x, y) and normalized targets.
+Extends Stage 6B dataset with physics features:
+- Tier A: per-node sensitivities (vth, l, w) appended to node features
+- Tier B: graph-level analytical SSTA (sink_mean, sink_std) concatenated to pooled embedding
 """
 
 from __future__ import annotations
@@ -25,9 +26,11 @@ class GraphDataset:
         self,
         data_dir: str | Path = "data_generation/data",
         split: str = "train",
+        physics_mode: str = "vanilla",
     ):
         self.data_dir = Path(data_dir)
         self.split = split
+        self.physics_mode = physics_mode
 
         # Load dataset and splits
         with open(self.data_dir / "dataset.pkl", "rb") as f:
@@ -39,7 +42,6 @@ class GraphDataset:
 
     def _compute_normalization(self) -> Tuple[Dict[str, float], Dict[str, float]]:
         """Compute mean/std for features and targets from train set only."""
-        # Collect all node features and targets from train set
         all_load = []
         all_x = []
         all_y = []
@@ -74,29 +76,94 @@ class GraphDataset:
 
         return feature_stats, target_stats
 
+    def _compute_physics_normalization(self) -> Dict[str, float]:
+        """Compute mean/std for physics features from train set only."""
+        if self.physics_mode == "vanilla":
+            return {}
+
+        all_vth = []
+        all_l = []
+        all_w = []
+        all_sink_mean = []
+        all_sink_std = []
+
+        for gid in self.graph_ids:
+            entry = self.dataset[gid]
+            sensitivities = entry["physics_features"]["sensitivities"]
+            analytical = entry["physics_features"]["analytical_ssta"]
+
+            for gate_data in sensitivities.values():
+                all_vth.append(gate_data["vth"])
+                all_l.append(gate_data["l"])
+                all_w.append(gate_data["w"])
+
+            all_sink_mean.append(analytical["sink_mean"])
+            all_sink_std.append(analytical["sink_std"])
+
+        physics_stats = {
+            "vth_mean": float(np.mean(all_vth)),
+            "vth_std": float(np.std(all_vth, ddof=0) + 1e-8),
+            "l_mean": float(np.mean(all_l)),
+            "l_std": float(np.std(all_l, ddof=0) + 1e-8),
+            "w_mean": float(np.mean(all_w)),
+            "w_std": float(np.std(all_w, ddof=0) + 1e-8),
+            "sink_mean_mean": float(np.mean(all_sink_mean)),
+            "sink_mean_std": float(np.std(all_sink_mean, ddof=0) + 1e-8),
+            "sink_std_mean": float(np.mean(all_sink_std)),
+            "sink_std_std": float(np.std(all_sink_std, ddof=0) + 1e-8),
+        }
+
+        return physics_stats
+
     def _create_data_object(
         self,
         gid: str,
         entry: dict,
         feature_stats: Dict[str, float],
         target_stats: Dict[str, float],
+        physics_stats: Dict[str, float] | None = None,
     ) -> Data:
         """Create a PyG Data object from a dataset entry."""
         gates = entry["graph"]["gates"]
         successors = entry["graph"]["successors"]
 
-        # Node features: [load_ff, x, y]
         node_names = sorted(gates.keys())
         n_nodes = len(node_names)
         name_to_idx = {name: i for i, name in enumerate(node_names)}
 
-        x = np.zeros((n_nodes, 3), dtype=np.float32)
-        for name in node_names:
-            gate = gates[name]
-            idx = name_to_idx[name]
-            x[idx, 0] = (gate["load_ff"] - feature_stats["load_mean"]) / feature_stats["load_std"]
-            x[idx, 1] = (gate["x"] - feature_stats["x_mean"]) / feature_stats["x_std"]
-            x[idx, 2] = (gate["y"] - feature_stats["y_mean"]) / feature_stats["y_std"]
+        if self.physics_mode == "vanilla":
+            num_node_features = 3
+            x = np.zeros((n_nodes, num_node_features), dtype=np.float32)
+            for name in node_names:
+                gate = gates[name]
+                idx = name_to_idx[name]
+                x[idx, 0] = (gate["load_ff"] - feature_stats["load_mean"]) / feature_stats["load_std"]
+                x[idx, 1] = (gate["x"] - feature_stats["x_mean"]) / feature_stats["x_std"]
+                x[idx, 2] = (gate["y"] - feature_stats["y_mean"]) / feature_stats["y_std"]
+            graph_physics = None
+        else:
+            num_node_features = 6
+            x = np.zeros((n_nodes, num_node_features), dtype=np.float32)
+            sensitivities = entry["physics_features"]["sensitivities"]
+            for name in node_names:
+                gate = gates[name]
+                idx = name_to_idx[name]
+                sens = sensitivities[name]
+                x[idx, 0] = (gate["load_ff"] - feature_stats["load_mean"]) / feature_stats["load_std"]
+                x[idx, 1] = (gate["x"] - feature_stats["x_mean"]) / feature_stats["x_std"]
+                x[idx, 2] = (gate["y"] - feature_stats["y_mean"]) / feature_stats["y_std"]
+                x[idx, 3] = (sens["vth"] - physics_stats["vth_mean"]) / physics_stats["vth_std"]
+                x[idx, 4] = (sens["l"] - physics_stats["l_mean"]) / physics_stats["l_std"]
+                x[idx, 5] = (sens["w"] - physics_stats["w_mean"]) / physics_stats["w_std"]
+
+            if self.physics_mode == "tier_ab":
+                analytical = entry["physics_features"]["analytical_ssta"]
+                graph_physics = torch.tensor([
+                    (analytical["sink_mean"] - physics_stats["sink_mean_mean"]) / physics_stats["sink_mean_std"],
+                    (analytical["sink_std"] - physics_stats["sink_std_mean"]) / physics_stats["sink_std_std"],
+                ], dtype=torch.float32).unsqueeze(0)  # Shape [1, 2] so batching gives [batch_size, 2]
+            else:
+                graph_physics = None
 
         # Edge index from successors (directed)
         edge_list = []
@@ -115,12 +182,12 @@ class GraphDataset:
         y = torch.tensor([
             (mean_val - target_stats["mean_mean"]) / target_stats["mean_std"],
             (std_val - target_stats["std_mean"]) / target_stats["std_std"],
-        ], dtype=torch.float32).unsqueeze(0)  # Shape [1, 2] so batching gives [batch_size, 2]
+        ], dtype=torch.float32).unsqueeze(0)
 
         # Store graph-level info for evaluation
         nrecon = len(entry["graph"]["reconvergence_points"])
 
-        return Data(
+        data = Data(
             x=torch.tensor(x, dtype=torch.float32),
             edge_index=edge_index,
             y=y,
@@ -131,16 +198,22 @@ class GraphDataset:
             original_std=std_val,
         )
 
+        if graph_physics is not None:
+            data.graph_physics = graph_physics
+
+        return data
+
     def get_data(
         self,
         feature_stats: Dict[str, float],
         target_stats: Dict[str, float],
+        physics_stats: Dict[str, float] | None = None,
     ) -> List[Data]:
         """Get list of PyG Data objects for this split."""
         data_list = []
         for gid in self.graph_ids:
             entry = self.dataset[gid]
-            data = self._create_data_object(gid, entry, feature_stats, target_stats)
+            data = self._create_data_object(gid, entry, feature_stats, target_stats, physics_stats)
             data_list.append(data)
 
         return data_list
@@ -174,19 +247,28 @@ class GraphDataset:
 def create_dataloaders(
     data_dir: str | Path = "data_generation/data",
     batch_size: int = 32,
-) -> Tuple[DataLoader, DataLoader, DataLoader, Dict, Dict]:
-    """Create train/val/test DataLoaders with proper normalization."""
-    # Train dataset computes normalization stats
-    train_dataset = GraphDataset(data_dir=data_dir, split="train")
-    feature_stats, target_stats = train_dataset._compute_normalization()
+    physics_mode: str = "vanilla",
+) -> Tuple[DataLoader, DataLoader, DataLoader, Dict, Dict, Dict]:
+    """Create train/val/test DataLoaders with proper normalization.
 
-    # Create all datasets with shared stats
-    train_data = train_dataset.get_data(feature_stats, target_stats)
-    val_data = GraphDataset(data_dir=data_dir, split="val").get_data(feature_stats, target_stats)
-    test_data = GraphDataset(data_dir=data_dir, split="test").get_data(feature_stats, target_stats)
+    Args:
+        data_dir: Path to Stage 6A dataset
+        batch_size: Batch size for DataLoaders
+        physics_mode: 'vanilla' (3 features), 'tier_a' (6 node features), or 'tier_ab' (6 node + 2 graph features)
+
+    Returns:
+        train_loader, val_loader, test_loader, feature_stats, target_stats, physics_stats
+    """
+    train_dataset = GraphDataset(data_dir=data_dir, split="train", physics_mode=physics_mode)
+    feature_stats, target_stats = train_dataset._compute_normalization()
+    physics_stats = train_dataset._compute_physics_normalization()
+
+    train_data = train_dataset.get_data(feature_stats, target_stats, physics_stats)
+    val_data = GraphDataset(data_dir=data_dir, split="val", physics_mode=physics_mode).get_data(feature_stats, target_stats, physics_stats)
+    test_data = GraphDataset(data_dir=data_dir, split="test", physics_mode=physics_mode).get_data(feature_stats, target_stats, physics_stats)
 
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_data, batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
 
-    return train_loader, val_loader, test_loader, feature_stats, target_stats
+    return train_loader, val_loader, test_loader, feature_stats, target_stats, physics_stats

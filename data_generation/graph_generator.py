@@ -150,13 +150,6 @@ def _build_dag(
     all_nodes = {source, sink}
     next_idx = 2
 
-    attempts = 0
-    while len(all_nodes) < n_gates and attempts < 1000:
-        attempts += 1
-        edges = [(g, s) for g, succs in graph.items() for s in succs]
-        if not edges:
-            break
-
     # Ensure sink has >= 2 predecessors by construction: force first
     # operation to split source->sink, then allow any subsequent operations
     first_split_done = False
@@ -230,13 +223,6 @@ def _build_dag(
             graph[g].append(a)
             prev = a
             for node in path_a[1:]:
-                graph[prev] = [node]
-                prev = node
-            graph[prev] = [s]
-
-            graph[g].append(b)
-            prev = b
-            for node in path_b[1:]:
                 graph[prev] = [node]
                 prev = node
             graph[prev] = [s]

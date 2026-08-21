@@ -9,7 +9,6 @@ Experiment orchestration scripts, reproducibility checks, and sanity tests.
 | `README.md` | This file — overview of experiments |
 | `__init__.py` | Package exports |
 | `run_stage3.py` | Reference MC run (N=100k, seed 42) |
-| `run_stage4.py` | Analytical SSTA pipeline execution |
 | `run_stage4b_hybrid.py` | Empirical+Clark gap decomposition |
 | `reproducibility_check.py` | Multi-seed stability validation |
 | `asymmetric_sanity_check.py` | AT/argmax logic validation |
@@ -22,7 +21,7 @@ Experiment orchestration scripts, reproducibility checks, and sanity tests.
 python -m experiments.run_stage3
 
 # Analytical SSTA (Stage 4)
-python -m experiments.run_stage4
+python -m ssta.analytical_ssta
 
 # Hybrid empirical+Clark decomposition (Stage 4b)
 python -m experiments.run_stage4b_hybrid
@@ -50,3 +49,4 @@ python -m experiments.sanity_checks
 - `variation` — Variation models
 - `timing` — Timing graph and delay
 - `config_loader` — Configuration loading
+- `data_generation` — DAG generation and analytical SSTA for arbitrary graphs

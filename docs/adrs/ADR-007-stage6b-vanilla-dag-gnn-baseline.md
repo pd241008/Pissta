@@ -1,4 +1,4 @@
-# ADR-007: Stage 6B Vanilla DAG-GNN Baseline Architecture
+# ADR-007: Stage 6B GNN Baseline Architecture
 
 > **Status:** Decided  
 > **Date:** August 19, 2026  
@@ -92,6 +92,7 @@ We use **GraphSAGE** as the backbone with the following architecture:
 - **Physics feature gap**: Error degrades on high-nrecon graphs (nrecon≥5), suggesting physics-informed features (Stage 6C) could help with complex multi-reconvergence topologies.
 - **Reproducibility**: All hyperparameters, normalization stats, and environment versions are frozen in `protocol` and `environment` fields of the results JSON.
 - **Checkpoint provenance**: Checkpoints contain `.module.` BN keys from DataParallel-style training. The current model.py produces identical keys by design (BatchNorm wrapped in ModuleList). Round-trip verified.
+- **Metadata provenance**: Per-graph metadata (nrecon, graph_id, mc_mean, mc_std) is read directly from `test_loader.dataset` inside `evaluate_model()`, not from a separately-constructed list. This eliminates the risk of silent misalignment between predictions and metadata if construction paths diverge.
 
 ## Alternatives Rejected
 

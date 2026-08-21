@@ -56,7 +56,10 @@ def train_epoch(
         batch = batch.to(device)
         optimizer.zero_grad()
 
-        pred = model(batch.x, batch.edge_index, batch.batch)
+        kwargs = {"x": batch.x, "edge_index": batch.edge_index, "batch": batch.batch}
+        if hasattr(batch, "graph_physics"):
+            kwargs["graph_physics"] = batch.graph_physics
+        pred = model(**kwargs)
         loss = F.mse_loss(pred, batch.y)
 
         loss.backward()
@@ -84,7 +87,10 @@ def eval_epoch(
 
     for batch in loader:
         batch = batch.to(device)
-        pred = model(batch.x, batch.edge_index, batch.batch)
+        kwargs = {"x": batch.x, "edge_index": batch.edge_index, "batch": batch.batch}
+        if hasattr(batch, "graph_physics"):
+            kwargs["graph_physics"] = batch.graph_physics
+        pred = model(**kwargs)
         loss = F.mse_loss(pred, batch.y)
 
         total_loss += loss.item()

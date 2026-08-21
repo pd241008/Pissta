@@ -7,7 +7,6 @@ Core theory, parameters, and frozen configuration for the VLSI SSTA project.
 | File | Description |
 |------|-------------|
 | `README.md` | This file — overview of foundations |
-| `model-parameters.md` | Detailed documentation of all numerical parameters |
 | `stage3_config.json` | Frozen config: DAG topology, variation params, timing constants |
 | `stage3_config_asymmetric.json` | Asymmetric DAG config for sanity checks |
 
