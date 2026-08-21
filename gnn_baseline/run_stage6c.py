@@ -825,6 +825,14 @@ def main():
         print(f"# Configuration: {config}")
         print(f"{'#'*60}")
 
+        checks = preflight(data_dir, config)
+        if not checks["ok"]:
+            print(f"Preflight failed for {config}: {checks['errors']}")
+            sys.exit(1)
+        if checks["warnings"]:
+            for w in checks["warnings"]:
+                print(f"Preflight warning: {w}")
+
         train_loader, val_loader, test_loader, feature_stats, target_stats, physics_stats = create_dataloaders(
             data_dir=data_dir,
             batch_size=32,
