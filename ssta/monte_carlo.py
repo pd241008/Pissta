@@ -3,6 +3,10 @@ Vectorized Monte Carlo timing analysis for a branching timing graph.
 
 Computes per-gate delays, propagates arrival times, tracks the critical path,
 and returns the critical-path delay distribution plus per-sample labels.
+
+Sample columns are ordered by variation_params.gate_coords key order and are
+mapped to gates by NAME, not by topological position (the two orders differ
+for arbitrary Stage 6A DAGs).
 """
 
 from __future__ import annotations
@@ -12,7 +16,7 @@ from typing import Dict, Tuple
 import numpy as np
 
 from foundations.config_loader import VariationParams
-from timing.graph import TimingGraph, GateParams, build_branching_graph_from_config, alpha_power_delay
+from timing.graph import TimingGraph, GateParams, build_branching_graph, build_branching_graph_from_config, alpha_power_delay
 from variation.sampler import sample_correlated_process
 
 
@@ -35,22 +39,27 @@ def run_branching_monte_carlo(
 
     order = graph.topological_order()
     n_gates = len(graph.gates)
-    gate_names = order
 
-    l_idx = {name: idx for idx, name in enumerate(gate_names)}
+    sample_names = list(variation_params.gate_coords.keys())
+    missing = set(graph.gates) - set(sample_names)
+    if missing:
+        raise KeyError(f"Gates missing from variation_params.gate_coords: {sorted(missing)}")
+    col_idx = {name: i for i, name in enumerate(sample_names)}
+
+    l_idx = {name: idx for idx, name in enumerate(order)}
     L = samples["L_nm"]
     W = samples["W_nm"]
     Vth = samples["Vth_v"]
 
     delays = np.zeros((n_samples, n_gates))
-    for name in gate_names:
+    for name in order:
         gate = graph.gates[name]
         delays[:, l_idx[name]] = alpha_power_delay(
-            Vth[:, l_idx[name]],
+            Vth[:, col_idx[name]],
             np.full(n_samples, gate.load_ff),
             gate_params,
-            L[:, l_idx[name]],
-            W[:, l_idx[name]],
+            L[:, col_idx[name]],
+            W[:, col_idx[name]],
             variation_params.l_nom_nm,
             variation_params.w_nom_nm,
         )
@@ -93,5 +102,5 @@ def run_branching_monte_carlo(
         "sink": sink,
         "sink_predecessors": sink_preds,
         "path_labels": path_labels,
-        "gate_names": gate_names,
+        "gate_names": order,
     }
