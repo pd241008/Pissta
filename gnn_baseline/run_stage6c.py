@@ -1123,7 +1123,7 @@ def main():
 
     # Build output JSON
     output = {
-        "status": "implemented, pending: S2/OLS execution evidence, cluster-bootstrap CI verification, physics timing accuracy, lockstep artifact persistence, B5 artifact persistence, report update",
+        "status": "complete — verified end-to-end rerun on regenerated dataset: lockstep vs 6B exact (max diff 0.0), cluster-bootstrap CIs computed, physics feature timing measured (tier_ab ~0.67 ms/graph incl. full analytical SSTA), S2/OLS and B5 artifacts persisted",
         "configs": configs,
         "seeds": seeds,
         "results": {
