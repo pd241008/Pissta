@@ -24,6 +24,8 @@ from ssta.monte_carlo import run_branching_monte_carlo
 from data_generation.graph_generator import generate_dataset, print_graph_summary, GeneratedGraph
 from data_generation.analytical_ssta_arbitrary import compute_analytical_ssta_arbitrary
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
 
 def graph_to_dict(graph: GeneratedGraph) -> dict:
     """Convert GeneratedGraph to a JSON-serializable dict."""
@@ -153,7 +155,7 @@ def _to_timing_graph(graph: GeneratedGraph) -> TimingGraph:
 
 
 def main() -> None:
-    config = load_config("foundations/stage3_config.json")
+    config = load_config(str(REPO_ROOT / "foundations" / "stage3_config.json"))
 
     # Step 1: Generate graphs
     print("=== Generating random DAGs ===")
@@ -289,7 +291,7 @@ def main() -> None:
 
     # Step 8: Save to disk
     print("\n=== Saving dataset ===")
-    output_dir = Path("data_generation/data")
+    output_dir = REPO_ROOT / "data_generation" / "data"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Save full dataset
