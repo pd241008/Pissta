@@ -60,10 +60,11 @@ def compute_process_moments(
         d_um = float(np.sqrt(
             params.gate_coords[names[i]][0] ** 2 + params.gate_coords[names[i]][1] ** 2
         ))
+        d_eff = min(d_um, 5.0)
         w_um = params.w_nom_nm * 1e-3
         l_um = params.l_nom_nm * 1e-3
         vth_random_sigma = float(np.sqrt(
-            (params.vth_pelgrom_A_v_um ** 2) / (w_um * l_um) + (params.vth_pelgrom_S_v_um * d_um) ** 2
+            (params.vth_pelgrom_A_v_um ** 2) / (w_um * l_um) + (params.vth_pelgrom_S_v_um * d_eff) ** 2
         ))
         var_vth[i] = params.inter_die_sigma_vth ** 2 + cov_vth[i, i] + vth_random_sigma ** 2
 
