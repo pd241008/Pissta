@@ -4,6 +4,23 @@
 
 ---
 
+### August 21, 2026 — Stage 6C Runner Hardening (audit follow-up)
+
+- 🛡️ **Status string now derived from computed blocks** (`gnn_baseline/run_stage6c.py`): the hardcoded "complete — verified end-to-end…" claim (which had been edited into the source after the verified re-run, leaving artifact/source vintages out of sync) is replaced by a status assembled at runtime from the lockstep result, CI computation, physics timing, S2 verdict, convergence gate, and B5 persistence.
+- 🛡️ **Smoke/full artifacts separated by construction**: in `VLSI_SMOKE=1` mode the runner writes `stage6c_results_smoke.json` / `stage6c_results_interim_smoke.json` and checkpoints into `checkpoints_smoke/`, and tags the status `SMOKE run | …`. A smoke run can no longer overwrite full-run artifacts or inherit their claims.
+- 🐛 **No-GNN MLP loader** now uses `torch.utils.data.DataLoader` for its `TensorDataset` (was PyG's DataLoader — worked on PyG 2.8, latent portability hazard).
+- 🐛 **MLP smoke ternary fixed** (`50 if SMOKE else 1000`): smoke MLP epochs are now reduced like the GNNs' instead of inflated.
+- ✨ **OLS slope (β) gate added**: OLS coefficient of normalized `sink_mean` persisted in `ols_floor` / `convergence_gates` / `s2_convergence_decision`, with gate |β−1| ≤ 0.1 (expected ≈ corr(analytical, MC) ≈ 0.97).
+- ✨ **sW/sL cross-ratio added** to Tier A diagnostics: expected −L_nom/(2·W_nom) = −0.25; observed −0.2500 ± 0.0 exactly.
+- ✨ **k-placement honesty**: identities now persist `k_value` and whether the test can discriminate placement at all (non-discriminative at k=1.0 — reported, not tuned).
+- 🐛 **vdd single-sourcing**: `preflight()` and Tier A magnitude identities read `timing_params.vdd_v` (the source `delay_partials` consumes) instead of the unused `variation_params.vdd_v` default.
+- ✨ **Training histories persisted** in the final results JSON (previously only in interim saves).
+- 🐛 **Pelgrom effective-dimension cap unified**: `variation/analytical.py` now applies the same `min(d_um, 5.0)` cap as `variation/sampler.py`. Verified numerically inert on current parameters (max d ≈ 4.12 < 5).
+- ➕ **`verify_stage6c.py` committed** to the repo root: recomputes all aggregates + sha256 digests from per-graph arrays without bulk transmission; accepts an artifact path argument (works on interim/smoke files).
+- 🧪 Smoke run of the hardened runner passes end-to-end (exit 0); protected full-run artifacts and checkpoints verified byte-identical (md5) after the smoke run; 11/11 tests pass; Stage 3 locked reference still reproduces exactly.
+- 🔁 **Full re-run on hardened code**: all 9 per-graph sha256 digests bit-identical to the pre-hardening run (hardening provably training-neutral); derived status reports `lockstep=exact`, S2 rel +39.0%, physics timing 0.68 ms/graph; new fields persisted (histories, OLS β = 0.9267 with gate PASS, sW/sL = −0.25, k-placement flag). Prior artifacts backed up to `gnn_baseline/{results,checkpoints}_backup_pre-hardening/` (gitignored).
+- 📄 Session report relocated to `docs/postmortems/postmortem-stage6c-label-misalignment-and-verified-rerun.md`; audit + hardening documented in `docs/postmortems/postmortem-stage6c-runner-hardening.md`.
+
 ### August 21, 2026 — Bug-Fix Sweep + Verified Stage 6B/6C Re-run
 
 - 🐛 **Fixed MC column misalignment** (`ssta/monte_carlo.py`): sample columns (ordered by `gate_coords`) were indexed by *topological* position, so arbitrary Stage 6A DAGs received other gates' variation samples; also made labels depend on process-level set-iteration order. Now mapped by NAME. Verified no-op for the locked Stage 3 reference (exact match to 4 decimals).

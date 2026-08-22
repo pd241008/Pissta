@@ -4,6 +4,7 @@
 > **Repo:** Pissta (VLSI Statistical Static Timing Analysis), branch `main`
 > **Starting point:** Unverified post-merge state from commits `d72f7b7` ("fixing bugs… in progress") and `4453b71` ("i give up look into this shit later")
 > **Environment:** Python 3.14.6 · torch 2.9.1 · numpy 2.4.0 · torch-geometric 2.8.0.post1 (installed via `pip install --break-system-packages`) · RTX 4050 Laptop GPU · 10 cores
+> **Relocated** from the repo root (`SESSION_REPORT_2026-08-21.md`) on August 21, 2026. Successor document: `postmortem-stage6c-runner-hardening.md`.
 
 ---
 
