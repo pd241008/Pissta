@@ -77,7 +77,7 @@ def preflight(data_dir: Path, config: str) -> Dict:
     if config != "vanilla":
         try:
             cfg = load_config(str(REPO_ROOT / "foundations" / "stage3_config.json"))
-            vdd = cfg.variation_params.vdd_v
+            vdd = cfg.timing_params.vdd_v
             vth = cfg.variation_params.vth_nom_v
             if vdd <= vth:
                 checks["errors"].append(f"Vdd ({vdd}) <= Vth ({vth})")
@@ -410,7 +410,7 @@ def compute_tier_a_diagnostics(train_dataset: GraphDataset) -> Dict:
 
     # Magnitude identities on every gate sample
     cfg = load_config(str(REPO_ROOT / "foundations" / "stage3_config.json"))
-    vdd = cfg.variation_params.vdd_v
+    vdd = cfg.timing_params.vdd_v
     k = cfg.timing_params.k
     alpha = cfg.timing_params.alpha
     l_nom = cfg.variation_params.l_nom_nm
@@ -421,6 +421,7 @@ def compute_tier_a_diagnostics(train_dataset: GraphDataset) -> Dict:
     l_ids = []
     w_ids = []
     cross_ratios = []
+    wl_cross_ratios = []
     for gid in train_dataset.graph_ids:
         entry = train_dataset.dataset[gid]
         sensitivities = entry["physics_features"]["sensitivities"]
@@ -433,6 +434,7 @@ def compute_tier_a_diagnostics(train_dataset: GraphDataset) -> Dict:
                 w_ids.append(sens["w"] * (2.0 * w_nom) / d_nom)
                 if abs(sens["l"]) > 1e-12:
                     cross_ratios.append(sens["vth"] / sens["l"])
+                    wl_cross_ratios.append(sens["w"] / sens["l"])
 
     magnitudes = {
         "vth_identity": {
@@ -460,6 +462,13 @@ def compute_tier_a_diagnostics(train_dataset: GraphDataset) -> Dict:
         "d_free_cross_ratio_vth_over_l_mean": float(np.mean(cross_ratios)) if cross_ratios else 0.0,
         "d_free_cross_ratio_vth_over_l_std": float(np.std(cross_ratios, ddof=1)) if len(cross_ratios) > 1 else 0.0,
         "d_free_cross_ratio_n_samples": len(cross_ratios),
+        "expected_vth_over_l_alpha_l_over_vdd_minus_vth": alpha * l_nom / (vdd - vth_nom),
+        "d_free_cross_ratio_w_over_l_mean": float(np.mean(wl_cross_ratios)) if wl_cross_ratios else 0.0,
+        "d_free_cross_ratio_w_over_l_std": float(np.std(wl_cross_ratios, ddof=1)) if len(wl_cross_ratios) > 1 else 0.0,
+        "d_free_cross_ratio_w_over_l_n_samples": len(wl_cross_ratios),
+        "expected_w_over_l_minus_l_over_2w": -l_nom / (2.0 * w_nom),
+        "k_value": k,
+        "k_placement_discriminative": bool(abs(k - 1.0) > 1e-12),
     }
 
     proportionality_ok = (
@@ -498,6 +507,7 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_dataset: GraphDataset, 
     """
     import torch.nn.functional as F
     from torch.utils.data import TensorDataset
+    from torch.utils.data import DataLoader as TorchDataLoader
 
     class ResidualMLP(torch.nn.Module):
         def __init__(self):
@@ -545,7 +555,7 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_dataset: GraphDataset, 
     test_std_orig = test_y[:, 1] * physics_stats["sink_std_std"] + physics_stats["sink_std_mean"]
 
     train_ds = TensorDataset(train_x, train_y)
-    train_loader_mlp = DataLoader(train_ds, batch_size=32, shuffle=True)
+    train_loader_mlp = TorchDataLoader(train_ds, batch_size=32, shuffle=True)
 
     # OLS floor (deterministic, seedless)
     Xtr_ols = torch.cat([train_x, torch.ones(len(train_x), 1)], dim=1).numpy()
@@ -556,6 +566,8 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_dataset: GraphDataset, 
     ols_pred_std = torch.tensor(ols_pred[:, 1]) * physics_stats["sink_std_std"] + physics_stats["sink_std_mean"]
     ols_mean_mae = float(torch.mean(torch.abs(ols_pred_mean - test_mean_orig)).item())
     ols_std_mae = float(torch.mean(torch.abs(ols_pred_std - test_std_orig)).item())
+    ols_slope_mean = float(beta[0, 0])
+    ols_slope_std = float(beta[0, 1])
 
     seed_results = []
     for seed in seeds:
@@ -567,7 +579,7 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_dataset: GraphDataset, 
         best_state = None
         patience_counter = 0
 
-        max_epochs = 200 if SMOKE else 1000
+        max_epochs = 50 if SMOKE else 1000
         for epoch in range(max_epochs):
             model.train()
             for xb, yb in train_loader_mlp:
@@ -636,6 +648,7 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_dataset: GraphDataset, 
     mlp_mean = float(np.mean(mean_maes))
     ols_mean = ols_mean_mae
     mlp_le_ols = mlp_mean <= ols_mean + 0.01
+    slope_near_1 = abs(ols_slope_mean - 1.0) <= 0.1
 
     return {
         "seeds": seeds,
@@ -654,11 +667,15 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_dataset: GraphDataset, 
         "ols_floor": {
             "mean_mae": ols_mean_mae,
             "std_mae": ols_std_mae,
+            "slope_sink_mean": ols_slope_mean,
+            "slope_sink_std": ols_slope_std,
         },
         "convergence_gates": {
             "mlp_le_ols_plus_001": mlp_le_ols,
             "mlp_mean": mlp_mean,
             "ols_mean": ols_mean,
+            "ols_slope_within_0p1_of_1": slope_near_1,
+            "ols_slope_sink_mean": ols_slope_mean,
         },
     }
 
@@ -803,8 +820,10 @@ def compute_analytical_mae_per_nrecon(test_dataset: GraphDataset, physics_stats:
 
 def main():
     script_dir = Path(__file__).resolve().parent
-    checkpoint_dir = script_dir / "checkpoints"
+    checkpoint_dir = script_dir / ("checkpoints_smoke" if SMOKE else "checkpoints")
     results_dir = script_dir / "results"
+    interim_name = "stage6c_results_interim_smoke.json" if SMOKE else "stage6c_results_interim.json"
+    final_name = "stage6c_results_smoke.json" if SMOKE else "stage6c_results.json"
     data_dir = script_dir.parent / "data_generation" / "data"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -881,7 +900,7 @@ def main():
             "completed_config": config,
             "results": {c: all_results[c] for c in all_results},
         }
-        with open(results_dir / "stage6c_results_interim.json", "w") as f:
+        with open(results_dir / interim_name, "w") as f:
             json.dump(_to_serializable(interim), f, indent=2)
 
     physics_stats = per_config_stats["tier_ab"]["physics_stats"]
@@ -903,6 +922,13 @@ def main():
     print(f"    vth_identity: {tier_a_diag['magnitude_identities']['vth_identity']['mean']:.4f} ± {tier_a_diag['magnitude_identities']['vth_identity']['std']:.4f}  (expected +1.0)")
     print(f"    l_identity:   {tier_a_diag['magnitude_identities']['l_identity']['mean']:.4f} ± {tier_a_diag['magnitude_identities']['l_identity']['std']:.4f}  (expected +1.0)")
     print(f"    w_identity:   {tier_a_diag['magnitude_identities']['w_identity']['mean']:.4f} ± {tier_a_diag['magnitude_identities']['w_identity']['std']:.4f}  (expected -1.0)")
+    mid = tier_a_diag["magnitude_identities"]
+    print(f"    cross-ratio vth/l: {mid['d_free_cross_ratio_vth_over_l_mean']:.4f} ± {mid['d_free_cross_ratio_vth_over_l_std']:.2e}  (expected {mid['expected_vth_over_l_alpha_l_over_vdd_minus_vth']:.4f} = alpha*L_nom/(Vdd-Vth))")
+    print(f"    cross-ratio w/l:   {mid['d_free_cross_ratio_w_over_l_mean']:.4f} ± {mid['d_free_cross_ratio_w_over_l_std']:.2e}  (expected {mid['expected_w_over_l_minus_l_over_2w']:.4f} = -L_nom/(2*W_nom))")
+    if mid["k_placement_discriminative"]:
+        print(f"    k-placement test DISCRIMINATIVE (k={mid['k_value']}): identities=1 confirms k sits in the delay denominator")
+    else:
+        print(f"    k-placement test non-discriminative at k={mid['k_value']} (identities=1 consistent with either placement)")
     print(f"  {tier_a_diag['proportionality_statement']}")
 
     # No-GNN residual baseline (Tier B-only, no graph structure)
@@ -920,6 +946,9 @@ def main():
     print(f"  ResidualMLP std relative: {no_gnn['std_relative_mean']:.2%} ± {no_gnn['std_relative_std']:.2%}")
     print(f"  ResidualMLP params: {no_gnn['n_params']}")
     print(f"  n_gates mean/std (normalizer): {no_gnn['n_gates_mean']:.2f} / {no_gnn['n_gates_std']:.2f}")
+    print(f"  OLS slope beta on normalized sink_mean: {no_gnn['ols_floor']['slope_sink_mean']:.4f} "
+          f"(gate |beta-1|<=0.1: {'PASS' if no_gnn['convergence_gates']['ols_slope_within_0p1_of_1'] else 'FAIL'}; "
+          f"expected ~ corr(analytical, MC) ~ 0.97)")
 
     tier_ab_mean_mae = float(np.mean([r["test_metrics"]["mean_mae"] for r in all_results["tier_ab"]]))
     print(f"  Tier A+B GNN mean MAE: {tier_ab_mean_mae:.4f}")
@@ -1122,8 +1151,26 @@ def main():
     print("  Note: _norm columns are normalized units; _orig columns are original (toy) units.")
 
     # Build output JSON
+    ls_verified = lockstep.get("status") == "verified"
+    ls_exact = bool(lockstep.get("all_match")) if ls_verified else False
+    phys_t = tier_ab_results[0].get("physics_feature_time_ms")
+    phys_str = f"{phys_t:.2f} ms/graph" if isinstance(phys_t, (int, float)) else "not_measured"
+    s2_word = ("gnn_beyond_scalar_residual" if rel > 0.05
+               else ("residual_correction" if rel >= -0.05 else "mlp_beats_tier_ab"))
+    mode_tag = "SMOKE" if SMOKE else "full"
+    status = (
+        f"{mode_tag} run | "
+        f"lockstep={'exact' if ls_exact else ('mismatch' if ls_verified else 'skipped')} "
+        f"(max_mean_diff={lockstep.get('max_mean_diff')}) | "
+        f"cluster-bootstrap CIs computed (n={significance_results['tier_a']['n_graphs']}) | "
+        f"physics timing tier_ab={phys_str} | "
+        f"S2 rel={rel:+.1%} -> {s2_word} | "
+        f"s2_convergence mlp_le_ols_plus_001={no_gnn['convergence_gates']['mlp_le_ols_plus_001']} | "
+        f"B5 reconciliation persisted"
+    )
+
     output = {
-        "status": "complete — verified end-to-end rerun on regenerated dataset: lockstep vs 6B exact (max diff 0.0), cluster-bootstrap CIs computed, physics feature timing measured (tier_ab ~0.67 ms/graph incl. full analytical SSTA), S2/OLS and B5 artifacts persisted",
+        "status": status,
         "configs": configs,
         "seeds": seeds,
         "results": {
@@ -1135,6 +1182,7 @@ def main():
                     "best_epoch": r["train_result"]["best_epoch"],
                     "best_val_loss": float(r["train_result"]["best_val_loss"]),
                     "train_time": float(r["train_result"]["train_time"]),
+                    "history": r["train_result"].get("history", {}),
                     "eval_train_loss": float(r["eval_train_loss"]),
                     "test_metrics": r["test_metrics"],
                     "analytical_metrics": r["analytical_metrics"],
@@ -1152,6 +1200,8 @@ def main():
             "mlp_mean_mae": no_gnn.get("mean_mae_mean", float("nan")),
             "ols_mean_mae": no_gnn.get("ols_floor", {}).get("mean_mae", float("nan")),
             "decision": "MLP beats OLS within 1%" if no_gnn.get("convergence_gates", {}).get("mlp_le_ols_plus_001", False) else "OLS competitive or better",
+            "ols_slope_sink_mean": no_gnn.get("ols_floor", {}).get("slope_sink_mean", float("nan")),
+            "ols_slope_within_0p1_of_1": no_gnn.get("convergence_gates", {}).get("ols_slope_within_0p1_of_1", False),
         },
         "stability_summary": {
             config: {
@@ -1201,7 +1251,7 @@ def main():
         },
     }
 
-    output_path = results_dir / "stage6c_results.json"
+    output_path = results_dir / final_name
     with open(output_path, "w") as f:
         json.dump(_to_serializable(output), f, indent=2)
 

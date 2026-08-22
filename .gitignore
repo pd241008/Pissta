@@ -58,3 +58,10 @@ data_generation/data/
 # Stage 6B generated artifacts (regeneratable)
 gnn_baseline/checkpoints/
 gnn_baseline/results/*.json
+
+# Stage 6C smoke-mode artifacts (non-citable by construction)
+gnn_baseline/checkpoints_smoke/
+
+# Local backups of pre-rerun artifacts
+gnn_baseline/results_backup_*/
+gnn_baseline/checkpoints_backup_*/
