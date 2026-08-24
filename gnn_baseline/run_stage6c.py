@@ -1080,9 +1080,22 @@ def main():
         print(f"    Per-seed mean deltas: {[f'{d:+.4f}' for d in per_seed_mean]}")
         print(f"    Per-seed std deltas:  {[f'{d:+.4f}' for d in per_seed_std]}")
 
-    print("\n  Headline: Neither Tier A nor Tier A+B is statistically distinguishable from vanilla.")
-    print("  Point estimates slightly favor vanilla (Tier A +0.0077, Tier A+B +0.0044 mean MAE delta),")
-    print("  but both CIs cross zero — physics feature injection has no significant effect in either direction.")
+    tier_a_sig = significance_results["tier_a"]["mean_ci_low"] > 0 or significance_results["tier_a"]["mean_ci_high"] < 0
+    tier_ab_sig = significance_results["tier_ab"]["mean_ci_low"] > 0 or significance_results["tier_ab"]["mean_ci_high"] < 0
+
+    print("\n  Headline: ")
+    if not tier_a_sig and not tier_ab_sig:
+        print("  Neither Tier A nor Tier A+B is statistically distinguishable from vanilla.")
+        print(f"  Point estimates slightly favor vanilla (Tier A {significance_results['tier_a']['mean_delta']:+.4f}, Tier A+B {significance_results['tier_ab']['mean_delta']:+.4f} mean MAE delta),")
+        print("  but both CIs cross zero — physics feature injection has no significant effect in either direction.")
+    elif tier_ab_sig and significance_results["tier_ab"]["mean_delta"] < 0:
+        print("  Tier A+B is significantly BETTER than vanilla (CI excludes 0, delta < 0).")
+        print("  Physics features at Tier A+B level improve prediction accuracy.")
+    elif tier_ab_sig and significance_results["tier_ab"]["mean_delta"] > 0:
+        print("  Tier A+B is significantly WORSE than vanilla (CI excludes 0, delta > 0).")
+        print("  Physics features at Tier A+B level degrade prediction accuracy.")
+    else:
+        print("  Mixed significance results — inspect per-tier CIs above.")
 
     # Tier B leakage check
     print("\n--- Tier B Leakage Check ---")
@@ -1174,8 +1187,6 @@ def main():
     s2_word = ("gnn_beyond_scalar_residual" if rel > 0.05
                else ("residual_correction" if rel >= -0.05 else "mlp_beats_tier_ab"))
     mode_tag = "SMOKE" if SMOKE else "full"
-    tier_a_sig = significance_results["tier_a"]["mean_ci_low"] > 0 or significance_results["tier_a"]["mean_ci_high"] < 0
-    tier_ab_sig = significance_results["tier_ab"]["mean_ci_low"] > 0 or significance_results["tier_ab"]["mean_ci_high"] < 0
     vs_vanilla_str = (
         f"vs_vanilla: tier_a={'sig' if tier_a_sig else 'ns'} "
         f"(delta={significance_results['tier_a']['mean_delta']:+.4f}, "

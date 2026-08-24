@@ -69,35 +69,35 @@ Conclusion: GPU atomics, not code logic, caused the mismatch. Fix B4 resolves it
 ## 4. Re-runs & Final Numbers
 
 ### Stage 6A — dataset regenerated
-2,000 graphs in 102.5 s · splits 1398/298/304 · nrecon distribution {1: 693, 2: 594, 3: 109, 4: 2}.
-(`dataset.pkl` md5 `aa6e8edabbeb45322d575c46e9d0d1e3`; `splits.json` md5 `585cdcdf2f0bb6aca45ca92bb9d818e8`)
-Note: differs from the old dataset (old nrecon max 6) because the generator was reworked before the old data was deleted — old report numbers are not reproducible by design.
+2,000 graphs in ~40 s · splits 1398/298/304 · nrecon distribution {1: 693, 2: 594, 3: 109, 4: 2}.
+(`dataset.pkl` and `splits.json` regenerated with corrected MC labels and per-graph gate_coords)
 
 ### Stage 6B — vanilla DAG-GNN (deterministic re-run)
-| Seed | Mean delay MAE |
-|------|----------------|
-| 42   | 0.4116 |
-| 123  | 0.4018 |
-| 999  | 0.4111 |
-| **mean** | **0.4082 ± 0.0055** |
+| Seed | Best Epoch | Best Val Loss | Test Mean MAE | Test Std MAE |
+|------|-----------|--------------|--------------|--------------|
+| 42   | 69 | 0.031294 | 0.4208 | 0.0197 |
+| 123  | 112 | 0.029797 | 0.4331 | 0.0190 |
+| 999  | 105 | 0.029786 | 0.4249 | 0.0194 |
+| **mean** | — | — | **0.4263 ± 0.0063** | **0.0194 ± 0.0003** |
 
-Beats analytical SSTA baseline (MAE 0.6609) on 3/3 seeds. Saved to `gnn_baseline/results/vanilla_dag_gnn_results.json`.
+Beats analytical SSTA baseline (MAE 0.5911) on 3/3 seeds. Saved to `gnn_baseline/results/vanilla_dag_gnn_results.json`.
 
 ### Stage 6C — 3-way ablation (deterministic re-run)
-| Model | Mean MAE | Δ vs vanilla | 95% CI | Significant? |
-|-------|----------|--------------|--------|--------------|
-| Vanilla (6B) | **0.408 ± 0.006** | — | — | — |
-| Tier A (node sensitivities) | 0.448 ± 0.022 | +0.040 | [+0.024, +0.056] | Yes — **worse** |
-| Tier A+B (+ graph-level analytical) | 0.471 ± 0.010 | +0.063 | [+0.015, +0.112] | Yes — **worse** |
+| Model | Mean MAE | Mean Rel | Std MAE | Std Rel | Δ vs vanilla | 95% CI | Significant? |
+|-------|----------|----------|---------|---------|--------------|--------|--------------|
+| Vanilla (6B) | **0.4263 ± 0.0063** | 2.57% ± 0.04% | 0.0194 ± 0.0003 | 2.64% ± 0.04% | — | — | — |
+| Tier A (node sensitivities) | 0.4340 ± 0.0299 | 2.59% ± 0.17% | 0.0197 ± 0.0012 | 2.64% ± 0.14% | +0.0077 | [-0.0113, +0.0272] | **No** |
+| Tier A+B (+ graph-level analytical) | 0.4307 ± 0.0147 | 2.66% ± 0.10% | 0.0199 ± 0.0007 | 2.72% ± 0.10% | +0.0044 | [-0.0450, +0.0523] | **No** |
+| No-GNN Residual MLP | 0.5786 ± 0.0010 | 3.68% ± 0.01% | 0.0331 ± 0.0001 | 4.60% ± 0.01% | +0.1523 | — | — |
 
-Supporting checks: lockstep verification **exact** (max diff 0.0, all seeds) · ResidualMLP 0.6553 ± 0.0031 vs OLS floor 0.6494 · Tier-B leakage corr 0.9721 · Tier-A corr(vth, load_ff) = 1.0000 (redundancy mechanism confirmed) · physics timing now real: tier_a ≈ 0.01 ms/graph, tier_ab ≈ 0.67 ms/graph.
+Supporting checks: lockstep verification **exact** (max diff 0.0, all seeds) · ResidualMLP 0.5786 ± 0.0010 vs OLS floor 0.5775 · Tier-B leakage corr 0.9758 · Tier-A corr(vth, load_ff) = +1.0000 (redundancy mechanism confirmed) · physics timing now real: tier_a ≈ 0.01 ms/graph, tier_ab ≈ 0.42 ms/graph.
 
 ---
 
 ## 5. Revised Scientific Conclusion
 
-> On corrected labels, **neither physics tier helps — both are significantly worse than vanilla.**
-> The previous headline claim ("Tier A+B reduces mean MAE by 21%, significant") **does not reproduce**. It was an artifact of the mislabeled dataset (B1) plus its different graph-complexity mix. The redundancy diagnosis for Tier A stands (r = 1.00 with load_ff); Tier B's graph-level feature remains 97% correlated with the label.
+> On corrected labels, **neither physics tier helps — both are non-significantly different from vanilla.**
+> The previous headline claim ("Tier A+B reduces mean MAE by 21%, significant") **does not reproduce**. It was an artifact of the mislabeled dataset (B1) plus its different graph-complexity mix. The honest result is a null: vanilla DAG-GNN (0.4263 ± 0.0063) remains the best point estimate, and the physics tiers' CIs both cross zero. The redundancy diagnosis for Tier A stands (r = 1.00 with load_ff); Tier B's graph-level feature remains ~97.6% correlated with the label.
 
 ---
 

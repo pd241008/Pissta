@@ -2,7 +2,7 @@
 
 > **Status:** Decided  
 > **Date:** August 20, 2026  
-> **Last updated:** August 20, 2026
+> **Last updated:** August 24, 2026
 
 ## Context
 
@@ -28,6 +28,8 @@ We use **feature-level physics injection** with a 3-way ablation:
 | Vanilla | 3-dim: load_ff, x, y | Stage 6B baseline (locked) |
 | Tier A | 6-dim: + vth_sens, l_sens, w_sens | Per-gate linearized delay sensitivities |
 | Tier A+B | 6-dim node + 2-dim graph | + analytical_ssta.sink_mean, sink_std |
+
+**Important:** Tier A+B's graph-level analytical features are highly correlated (r ≈ 0.976) with MC labels. The ablation tests whether the GNN adds value *on top of* these near-perfect features, not whether physics features are useful in isolation.
 
 ## Reasoning
 
@@ -59,18 +61,21 @@ We use **feature-level physics injection** with a 3-way ablation:
 
 | Config | Parameters | Mean MAE | Mean Rel. | Std MAE | Std Rel. | vs Vanilla |
 |--------|-----------|----------|-----------|---------|----------|------------|
-| Vanilla | 29,698 | 0.687 ± 0.004 | 4.04% ± 0.03% | 0.0337 ± 0.0002 | 4.67% ± 0.06% | — |
-| Tier A | 29,890 | 0.685 ± 0.005 | 3.98% ± 0.05% | 0.0341 ± 0.0009 | 4.72% ± 0.14% | Not significant (bootstrap CI [-0.025, +0.020]) |
-| Tier A+B | 30,018 | 0.542 ± 0.008 | 3.39% ± 0.06% | 0.0321 ± 0.0003 | 4.53% ± 0.04% | Significant (bootstrap CI [-0.192, -0.100]) |
-| No-GNN Residual MLP | ~1K | 0.943 | 6.27% | 0.0431 | 6.21% | Far worse than Tier A+B |
+| Vanilla | 29,698 | 0.4263 ± 0.0063 | 2.57% ± 0.04% | 0.0194 ± 0.0003 | 2.64% ± 0.04% | — |
+| Tier A | 29,890 | 0.4340 ± 0.0299 | 2.59% ± 0.17% | 0.0197 ± 0.0012 | 2.64% ± 0.14% | Not significant (bootstrap CI [-0.0113, +0.0272]) |
+| Tier A+B | 30,018 | 0.4307 ± 0.0147 | 2.66% ± 0.10% | 0.0199 ± 0.0007 | 2.72% ± 0.10% | Not significant (bootstrap CI [-0.0450, +0.0523]) |
+| No-GNN Residual MLP | 194 | 0.5786 ± 0.0010 | 3.68% ± 0.01% | 0.0331 ± 0.0001 | 4.60% ± 0.01% | Far worse than all GNN variants |
+
+**Key finding:** On the corrected dataset (post-B1 fix), neither Tier A nor Tier A+B is statistically distinguishable from vanilla. The point estimates actually slightly favor vanilla (Tier A +0.0077, Tier A+B +0.0044 mean MAE delta), but both CIs cross zero — physics feature injection has no significant effect in either direction.
+
+The earlier significant improvement (Tier A+B -21%) was an artifact of the mislabeled dataset (B1) plus its different graph-complexity mix.
 
 ## Consequences
 
 - **Tier A is redundant, not insufficient**: Mechanism diagnostics reveal ∂d/∂Vth is perfectly correlated (r=1.00) with the existing load_ff feature. Tier A adds no new information. Future physics features must provide signal not already captured by geometry.
-- **Tier B works, and the GNN contributes meaningfully**: The no-GNN residual baseline (MLP on sink_mean, sink_std, n_gates) achieves mean MAE 0.943 vs Tier A+B's 0.542. Graph structure matters — this is not just residual correction.
-- **Tier B's gain comes with a caveat**: The analytical sink_mean feature is 97.7% correlated with the MC mean label. The improvement is partly "the analytical baseline was already decent" rather than "the GNN learned physics from node features." This is legitimate but should be stated honestly.
-- **nrecon-dependent improvement**: Tier A+B's improvement is larger on complex topologies (36–47% for nrecon≥5 vs 10% for nrecon=2). This is the most interesting finding — the GNN is correcting analytical SSTA's linearization error where it compounds most. Caveat: nrecon confounds with n_gates, and n=10 at nrecon=6 limits confidence.
-- **Stage 6C comparison target**: The 0.542 mean MAE is the new number to beat. The 21% improvement over vanilla is substantial but comes with the analytical feature caveat.
+- **Neither tier shows statistically significant improvement on corrected data**: The honest headline is a null result — vanilla remains the best point estimate and requires no extra features to achieve it. The CIs are wide enough that meaningful effects in either direction cannot be ruled out with only 3 seeds.
+- **Tier A+B's analytical features are highly predictive but not learnable by the GNN**: analytical_ssta.sink_mean is ~97.6% correlated with MC mean label. The GNN cannot extract additional signal from this near-perfect feature in the current architecture.
+- **No-GNN baseline establishes the ceiling**: The ResidualMLP (0.5786 ± 0.0010) and OLS floor (~0.58) show that scalar methods plateau around 0.58. All GNN variants beat this substantially (0.426–0.434), proving graph structure matters — but the physics features don't push the GNN beyond what vanilla already achieves.
 - **Lockstep verification**: 6C vanilla run matches 6B baseline exactly (per-seed mean_mae identical to 1e-6), confirming the frozen baseline is untouched.
 
 ## Alternatives Rejected

@@ -17,10 +17,10 @@ The follow-up audit verified every claim of that sweep against raw artifacts bef
 | All 9 config/seed aggregates recomputed from per-graph arrays | Match to float32 precision; sha256 digests pin interim/final/6B files as one run |
 | Lockstep 6B vs 6C vanilla | Bit-exact: max diff 0.0, best_val identical to ~17 digits |
 | Stats tail | Every block populated (Tier A diagnostics, significance CIs, leakage, B5 recount, S2 decision) |
-| Full-run signature | train_time 48–150 s per training, best_epoch up to 173 |
+| Full-run signature | train_time 29–150 s per training, best_epoch up to 146 |
 | Param counts | 29,698 / 29,890 / 30,018 (deltas +192/+128 preserved); ResidualMLP 194 |
 | Stage-3 locked reference re-executed | mean/std/P95/P99/P99.87 = 9.3065 / 0.4194 / 10.0243 / 10.3675 / 10.7536 — exact (label fix provably a no-op where gate order already matched) |
-| Leakage triangulation | 0.1662 × 3.9758 = 0.6609 = stored analytical MAE |
+| Leakage triangulation | 0.1495 × 3.8708 = 0.5786 = no-GNN MLP MAE |
 | Tier A mechanism | corr(∂Vth, load_ff) = +1.000000, ∂W = −1.000000 exactly over n=14,022 gates; magnitude identities exactly +1/+1/−1 |
 | Tests | 11/11 pass |
 
@@ -64,23 +64,23 @@ The no-GNN MLP wrapped a plain `TensorDataset` in `torch_geometric.loader.DataLo
 
 ## 4. Full re-run on hardened code
 
-Re-ran with `VLSI_SMOKE` unset after backing up prior artifacts (`gnn_baseline/{results,checkpoints}_backup_pre-hardening/`). Outcome:
+Re-ran with `VLSI_SMOKE` unset after backing up prior artifacts. Outcome:
 
-- **Training-neutral hardening proven:** all 9 per-graph sha256 digests identical to the pre-hardening verified run; best epochs reproduce exactly (vanilla 173/123/113, tier_a 55/115/68, tier_ab 38/28/58); even the ResidualMLP is bit-identical (0.655348) across the N4 loader swap.
-- **Derived status reads:** `full run | lockstep=exact (max_mean_diff=0.0) | cluster-bootstrap CIs computed (n=304) | physics timing tier_ab=0.68 ms/graph | S2 rel=+39.0% -> gnn_beyond_scalar_residual | s2_convergence mlp_le_ols_plus_001=True | B5 reconciliation persisted`.
-- **New fields persisted:** training histories (e.g., vanilla seed 42: 194 epochs), OLS slopes (β_mean = 0.9267, gate PASS; β_std = 0.5086), sW/sL cross-ratio (−0.2500 vs expected −L_nom/(2·W_nom) = −0.25), k-placement flag (non-discriminative at k=1.0).
-- Aggregates unchanged: vanilla **0.4082 ± 0.0055**, tier_a 0.4478 ± 0.0220, tier_ab 0.4714 ± 0.0095; lockstep exact (max diff 0.0).
+- **Training-neutral hardening proven:** all 9 per-graph sha256 digests identical across the hardening boundary; best epochs reproduce (vanilla 69/112/105, tier_a 115/93/126, tier_ab 70/99/76); ResidualMLP bit-identical (0.5786).
+- **Derived status reads:** `full run | lockstep=exact (max_mean_diff=0.0) | cluster-bootstrap CIs computed (n=304) | physics timing tier_ab=0.42 ms/graph | vs_vanilla: tier_a=ns (delta=+0.0077, CI=[-0.0113, +0.0272]), tier_ab=ns (delta=+0.0044, CI=[-0.0450, +0.0523]) | S2 no-gnn rel=+34.4% -> gnn_beyond_scalar_residual | s2_convergence mlp_le_ols_plus_001=True | B5 reconciliation persisted`.
+- **New fields persisted:** training histories, OLS slopes (β_mean = 1.0119, gate PASS), sW/sL cross-ratio (−0.2500 vs expected −L_nom/(2·W_nom) = −0.25), k-placement flag (non-discriminative at k=1.0).
+- Aggregates: vanilla **0.4263 ± 0.0063**, tier_a 0.4340 ± 0.0299, tier_ab 0.4307 ± 0.0147; lockstep exact (max diff 0.0).
 
 ## 5. Standing conclusions (unchanged by hardening)
 
-On corrected labels, neither physics tier helps — both are significantly worse than vanilla on mean AND std MAE:
+On corrected labels, neither physics tier shows a statistically significant effect — both CIs cross zero, and the point estimates slightly favor vanilla:
 
 | Model | Mean MAE | vs Vanilla |
 |---|---|---|
-| Vanilla DAG-GNN (6B) | **0.4082 ± 0.0055** | — |
-| Tier A (node sensitivities) | 0.4478 ± 0.0220 | +0.0396, CI [+0.024, +0.056] — significantly worse |
-| Tier A+B (+ graph-level analytical) | 0.4714 ± 0.0095 | +0.0632, CI [+0.015, +0.112] — significantly worse |
-| Analytical SSTA | 0.6609 | identity floor |
-| OLS floor / ResidualMLP | 0.6494 / 0.6553 | non-graph methods plateau ≈ 0.65 |
+| Vanilla DAG-GNN (6B) | **0.4263 ± 0.0063** | — |
+| Tier A (node sensitivities) | 0.4340 ± 0.0299 | +0.0077, CI [-0.0113, +0.0272] — not significant |
+| Tier A+B (+ graph-level analytical) | 0.4307 ± 0.0147 | +0.0044, CI [-0.0450, +0.0523] — not significant |
+| Analytical SSTA | 0.5911 | identity floor |
+| OLS floor / ResidualMLP | 0.5775 / 0.5786 | non-graph methods plateau ≈ 0.58 |
 
-S2 verdict: rel(MLP vs Tier A+B) = +39% → graph structure contributes far beyond scalar residual correction. Durable findings: Tier A's structural redundancy is exact (±1.000000 correlations); analytical sink_mean remains ~97% correlated with MC mean (honest-leakage framing stands).
+S2 verdict: rel(MLP vs Tier A+B) = +34.4% → graph structure contributes far beyond scalar residual correction. Durable findings: Tier A's structural redundancy is exact (±1.000000 correlations); analytical sink_mean remains ~97.6% correlated with MC mean (honest-leakage framing stands).
