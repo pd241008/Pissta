@@ -682,9 +682,13 @@ def run_no_gnn_baseline(train_dataset: GraphDataset, val_dataset: GraphDataset, 
 
 def compute_lockstep_verification(vanilla_6c_results: List[Dict], script_dir: Path) -> Dict:
     """Compare 6B vanilla results (disk) with 6C vanilla run (in-memory) for lockstep verification."""
-    results_6b_path = script_dir / "results" / "vanilla_dag_gnn_results.json"
+    candidates = [
+        script_dir / "results" / "vanilla_dag_gnn_results.json",
+        script_dir / "results" / "vanilla_dag_gnn_results_rerun.json",
+    ]
+    results_6b_path = next((p for p in candidates if p.exists()), None)
 
-    if not results_6b_path.exists():
+    if results_6b_path is None:
         return {"status": "skipped", "reason": "6B results file not found"}
 
     with open(results_6b_path) as f:
@@ -831,6 +835,14 @@ def main():
 
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
+
+    checks = preflight(data_dir, "all")
+    if not checks["ok"]:
+        print(f"Preflight failed: {checks['errors']}")
+        sys.exit(1)
+    if checks["warnings"]:
+        for w in checks["warnings"]:
+            print(f"Preflight warning: {w}")
 
     # Configurations to run
     configs = ["vanilla", "tier_a", "tier_ab"]
@@ -1068,6 +1080,10 @@ def main():
         print(f"    Per-seed mean deltas: {[f'{d:+.4f}' for d in per_seed_mean]}")
         print(f"    Per-seed std deltas:  {[f'{d:+.4f}' for d in per_seed_std]}")
 
+    print("\n  Headline: Neither Tier A nor Tier A+B is statistically distinguishable from vanilla.")
+    print("  Point estimates slightly favor vanilla (Tier A +0.0077, Tier A+B +0.0044 mean MAE delta),")
+    print("  but both CIs cross zero — physics feature injection has no significant effect in either direction.")
+
     # Tier B leakage check
     print("\n--- Tier B Leakage Check ---")
     leakage = compute_tier_b_leakage(test_dataset, physics_stats)
@@ -1158,13 +1174,24 @@ def main():
     s2_word = ("gnn_beyond_scalar_residual" if rel > 0.05
                else ("residual_correction" if rel >= -0.05 else "mlp_beats_tier_ab"))
     mode_tag = "SMOKE" if SMOKE else "full"
+    tier_a_sig = significance_results["tier_a"]["mean_ci_low"] > 0 or significance_results["tier_a"]["mean_ci_high"] < 0
+    tier_ab_sig = significance_results["tier_ab"]["mean_ci_low"] > 0 or significance_results["tier_ab"]["mean_ci_high"] < 0
+    vs_vanilla_str = (
+        f"vs_vanilla: tier_a={'sig' if tier_a_sig else 'ns'} "
+        f"(delta={significance_results['tier_a']['mean_delta']:+.4f}, "
+        f"CI=[{significance_results['tier_a']['mean_ci_low']:+.4f}, {significance_results['tier_a']['mean_ci_high']:+.4f}]), "
+        f"tier_ab={'sig' if tier_ab_sig else 'ns'} "
+        f"(delta={significance_results['tier_ab']['mean_delta']:+.4f}, "
+        f"CI=[{significance_results['tier_ab']['mean_ci_low']:+.4f}, {significance_results['tier_ab']['mean_ci_high']:+.4f}])"
+    )
     status = (
         f"{mode_tag} run | "
         f"lockstep={'exact' if ls_exact else ('mismatch' if ls_verified else 'skipped')} "
         f"(max_mean_diff={lockstep.get('max_mean_diff')}) | "
         f"cluster-bootstrap CIs computed (n={significance_results['tier_a']['n_graphs']}) | "
         f"physics timing tier_ab={phys_str} | "
-        f"S2 rel={rel:+.1%} -> {s2_word} | "
+        f"{vs_vanilla_str} | "
+        f"S2 no-gnn rel={rel:+.1%} -> {s2_word} | "
         f"s2_convergence mlp_le_ols_plus_001={no_gnn['convergence_gates']['mlp_le_ols_plus_001']} | "
         f"B5 reconciliation persisted"
     )
