@@ -111,7 +111,7 @@ def validate_label_quality(
             graph_timing_params = replace(config.timing_params, gate_loads=graph_gate_loads)
 
             results = run_branching_monte_carlo(
-                n_samples=n_samples,
+                n_samples=10_000,
                 seed=seed,
                 variation_params=graph_variation_params,
                 gate_params=graph_timing_params,
@@ -192,6 +192,8 @@ def main() -> None:
         # Create variation params with this graph's coordinates
         graph_coords = {name: (gate.x, gate.y) for name, gate in graph.gates.items()}
         graph_variation_params = replace(config.variation_params, gate_coords=graph_coords)
+        graph_gate_loads = {name: gate.load_ff for name, gate in graph.gates.items()}
+        graph_timing_params = replace(config.timing_params, gate_loads=graph_gate_loads)
 
         try:
             # MC labels (N=10,000)
@@ -199,7 +201,7 @@ def main() -> None:
                 n_samples=10_000,
                 seed=42,
                 variation_params=graph_variation_params,
-                gate_params=config.timing_params,
+                gate_params=graph_timing_params,
                 graph=timing_graph,
             )
             cpd = mc_results["critical_path_delay"]
