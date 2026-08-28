@@ -154,6 +154,7 @@ def run_single_seed(
             num_layers=3,
             dropout=0.15,
             num_outputs=2,
+            num_node_features=4,
         ).to(device)
     elif config_name == "tier_ab":
         model = PhysicsInformedDAGGNNSage(
@@ -162,6 +163,7 @@ def run_single_seed(
             num_layers=3,
             dropout=0.15,
             num_outputs=2,
+            num_node_features=4,
         ).to(device)
     else:
         raise ValueError(f"Unknown config: {config_name}")
@@ -363,48 +365,56 @@ def measure_physics_feature_time(dataset: GraphDataset, config: str = "tier_ab",
 
 
 def compute_tier_a_diagnostics(train_dataset: GraphDataset) -> Dict:
-    """Compute diagnostics for Tier A (node-level sensitivities) null result.
+    """Compute diagnostics for Tier A (node-level var_d/load_ff²) feature.
 
     Checks:
-    (a) Sign sanity: d/dL>0, d/dW<0, d/dVth>0 across all gates
-    (b) Physics_stats spreads (std/mean)
-    (c) Correlation of d/dVth, d/dL, d/dW with load_ff (redundancy check)
-    (d) Magnitude identities on every gate sample
-    (e) Redundancy correlations for all three sensitivities vs load_ff
+    (a) Sign sanity of underlying raw sensitivities: d/dL>0, d/dW<0, d/dVth>0 across all gates
+    (b) Redundancy check: correlation of var_d/load_ff² with load_ff, x, y
+    (c) Physics_stats spreads (std/mean) of var_d/load_ff²
+    (d) Magnitude identities on every gate sample (using raw sensitivities)
+    (e) d-free cross-ratios
     """
     all_vth = []
     all_l = []
     all_w = []
     all_load = []
+    all_x = []
+    all_y = []
+    all_var_d = []
 
     for gid in train_dataset.graph_ids:
         entry = train_dataset.dataset[gid]
         gates = entry["graph"]["gates"]
         sensitivities = entry["physics_features"]["sensitivities"]
+        var_d_map = entry["physics_features"]["var_d_per_load_ff_sq"]
         for name, gate in gates.items():
             sens = sensitivities[name]
             all_vth.append(sens["vth"])
             all_l.append(sens["l"])
             all_w.append(sens["w"])
             all_load.append(gate["load_ff"])
+            all_x.append(gate["x"])
+            all_y.append(gate["y"])
+            all_var_d.append(var_d_map.get(name, 0.0))
 
     all_vth = np.array(all_vth)
     all_l = np.array(all_l)
     all_w = np.array(all_w)
     all_load = np.array(all_load)
+    all_x = np.array(all_x)
+    all_y = np.array(all_y)
+    all_var_d = np.array(all_var_d)
 
     sign_vth = float(np.mean(all_vth > 0))
     sign_l = float(np.mean(all_l > 0))
     sign_w = float(np.mean(all_w < 0))
 
-    corr_vth_load = float(np.corrcoef(all_vth, all_load)[0, 1]) if len(all_vth) > 1 else 0.0
-    corr_l_load = float(np.corrcoef(all_l, all_load)[0, 1]) if len(all_l) > 1 else 0.0
-    corr_w_load = float(np.corrcoef(all_w, all_load)[0, 1]) if len(all_w) > 1 else 0.0
+    corr_var_d_load = float(np.corrcoef(all_var_d, all_load)[0, 1]) if len(all_var_d) > 1 else 0.0
+    corr_var_d_x = float(np.corrcoef(all_var_d, all_x)[0, 1]) if len(all_var_d) > 1 else 0.0
+    corr_var_d_y = float(np.corrcoef(all_var_d, all_y)[0, 1]) if len(all_var_d) > 1 else 0.0
 
     spreads = {
-        "vth_spread": float(np.std(all_vth) / max(abs(np.mean(all_vth)), 1e-9)),
-        "l_spread": float(np.std(all_l) / max(abs(np.mean(all_l)), 1e-9)),
-        "w_spread": float(np.std(all_w) / max(abs(np.mean(all_w)), 1e-9)),
+        "var_d_spread": float(np.std(all_var_d) / max(abs(np.mean(all_var_d)), 1e-9)),
         "load_ff_spread": float(np.std(all_load) / max(abs(np.mean(all_load)), 1e-9)),
     }
 
@@ -471,20 +481,19 @@ def compute_tier_a_diagnostics(train_dataset: GraphDataset) -> Dict:
         "k_placement_discriminative": bool(abs(k - 1.0) > 1e-12),
     }
 
-    proportionality_ok = (
-        abs(spreads["vth_spread"] - spreads["load_ff_spread"]) < 1e-3 and
-        abs(spreads["l_spread"] - spreads["load_ff_spread"]) < 1e-3 and
-        abs(spreads["w_spread"] - spreads["load_ff_spread"]) < 1e-3
+    redundancy_ok = (
+        abs(corr_var_d_load) < 0.3 and
+        abs(corr_var_d_x) < 0.3 and
+        abs(corr_var_d_y) < 0.3
     )
-    proportionality_statement = (
-        f"All three spreads match load_ff_spread to 4 decimals ({spreads['load_ff_spread']:.4f}), "
-        "indicating exact proportionality between sensitivities and load_ff. This is structurally "
-        "guaranteed by the single-gate-type dataset with uniform nominal geometry, so Tier A's "
-        "null result is expected, not a failure."
-    ) if proportionality_ok else (
-        f"Spreads differ: vth={spreads['vth_spread']:.4f}, l={spreads['l_spread']:.4f}, "
-        f"w={spreads['w_spread']:.4f}, load_ff={spreads['load_ff_spread']:.4f}. "
-        "Proportionality not exact — investigate."
+    redundancy_statement = (
+        f"var_d/load_ff² is NOT redundant with existing features: "
+        f"corr(load_ff)={corr_var_d_load:.3f}, corr(x)={corr_var_d_x:.3f}, corr(y)={corr_var_d_y:.3f}. "
+        "This feature provides new position-dependent signal."
+    ) if redundancy_ok else (
+        f"WARNING: var_d/load_ff² is still correlated with existing features: "
+        f"corr(load_ff)={corr_var_d_load:.3f}, corr(x)={corr_var_d_x:.3f}, corr(y)={corr_var_d_y:.3f}. "
+        "Check if position-dependent variance is already captured."
     )
 
     return {
@@ -492,11 +501,11 @@ def compute_tier_a_diagnostics(train_dataset: GraphDataset) -> Dict:
         "sign_l_positive_rate": sign_l,
         "sign_w_negative_rate": sign_w,
         "spreads": spreads,
-        "corr_vth_load": corr_vth_load,
-        "corr_l_load": corr_l_load,
-        "corr_w_load": corr_w_load,
+        "corr_var_d_load": corr_var_d_load,
+        "corr_var_d_x": corr_var_d_x,
+        "corr_var_d_y": corr_var_d_y,
         "magnitude_identities": magnitudes,
-        "proportionality_statement": proportionality_statement,
+        "redundancy_statement": redundancy_statement,
     }
 
 
@@ -877,7 +886,7 @@ def main():
 
         # Batch shape check
         sample_batch = next(iter(train_loader))
-        expected_features = 3 if config == "vanilla" else 6
+        expected_features = 3 if config == "vanilla" else 4
         check_batch_shape(sample_batch, train_loader.batch_size, expected_features)
         print(f"Batch OK: x={sample_batch.x.shape}, y={sample_batch.y.shape}, "
               f"num_graphs={sample_batch.num_graphs if hasattr(sample_batch, 'num_graphs') else sample_batch.batch.max().item()+1}")
@@ -920,16 +929,17 @@ def main():
     # Tier A mechanism diagnostics
     print("\n--- Tier A Mechanism Diagnostics ---")
     tier_a_diag = compute_tier_a_diagnostics(train_dataset)
-    print(f"  Sign sanity:")
+    print(f"  Sign sanity (raw sensitivities):")
     print(f"    d/dVth > 0: {tier_a_diag['sign_vth_positive_rate']:.1%} of gates")
     print(f"    d/dL > 0: {tier_a_diag['sign_l_positive_rate']:.1%} of gates")
     print(f"    d/dW < 0: {tier_a_diag['sign_w_negative_rate']:.1%} of gates")
+    print(f"  Redundancy check (var_d/load_ff² vs existing features):")
+    print(f"    corr(var_d/load_ff², load_ff): {tier_a_diag['corr_var_d_load']:.4f}")
+    print(f"    corr(var_d/load_ff², x): {tier_a_diag['corr_var_d_x']:.4f}")
+    print(f"    corr(var_d/load_ff², y): {tier_a_diag['corr_var_d_y']:.4f}")
     print(f"  Physics spreads (std/mean):")
     for k, v in tier_a_diag["spreads"].items():
         print(f"    {k}: {v:.4f}")
-    print(f"  Correlation(dVth, load_ff): {tier_a_diag['corr_vth_load']:.4f}")
-    print(f"  Correlation(dL, load_ff): {tier_a_diag['corr_l_load']:.4f}")
-    print(f"  Correlation(dW, load_ff): {tier_a_diag['corr_w_load']:.4f}")
     print(f"  Magnitude identities (n={tier_a_diag['magnitude_identities']['n_samples']}):")
     print(f"    vth_identity: {tier_a_diag['magnitude_identities']['vth_identity']['mean']:.4f} ± {tier_a_diag['magnitude_identities']['vth_identity']['std']:.4f}  (expected +1.0)")
     print(f"    l_identity:   {tier_a_diag['magnitude_identities']['l_identity']['mean']:.4f} ± {tier_a_diag['magnitude_identities']['l_identity']['std']:.4f}  (expected +1.0)")
@@ -941,7 +951,7 @@ def main():
         print(f"    k-placement test DISCRIMINATIVE (k={mid['k_value']}): identities=1 confirms k sits in the delay denominator")
     else:
         print(f"    k-placement test non-discriminative at k={mid['k_value']} (identities=1 consistent with either placement)")
-    print(f"  {tier_a_diag['proportionality_statement']}")
+    print(f"  {tier_a_diag['redundancy_statement']}")
 
     # No-GNN residual baseline (Tier B-only, no graph structure)
     print("\n--- No-GNN Residual Baseline (MLP on analytical + n_gates) ---")

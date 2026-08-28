@@ -81,32 +81,24 @@ class GraphDataset:
         if self.physics_mode == "vanilla":
             return {}
 
-        all_vth = []
-        all_l = []
-        all_w = []
+        all_var_d = []
         all_sink_mean = []
         all_sink_std = []
 
         for gid in self.graph_ids:
             entry = self.dataset[gid]
-            sensitivities = entry["physics_features"]["sensitivities"]
+            var_d_map = entry["physics_features"]["var_d_per_load_ff_sq"]
             analytical = entry["physics_features"]["analytical_ssta"]
 
-            for gate_data in sensitivities.values():
-                all_vth.append(gate_data["vth"])
-                all_l.append(gate_data["l"])
-                all_w.append(gate_data["w"])
+            for val in var_d_map.values():
+                all_var_d.append(val)
 
             all_sink_mean.append(analytical["sink_mean"])
             all_sink_std.append(analytical["sink_std"])
 
         physics_stats = {
-            "vth_mean": float(np.mean(all_vth)),
-            "vth_std": float(np.std(all_vth, ddof=0) + 1e-8),
-            "l_mean": float(np.mean(all_l)),
-            "l_std": float(np.std(all_l, ddof=0) + 1e-8),
-            "w_mean": float(np.mean(all_w)),
-            "w_std": float(np.std(all_w, ddof=0) + 1e-8),
+            "var_d_mean": float(np.mean(all_var_d)),
+            "var_d_std": float(np.std(all_var_d, ddof=0) + 1e-8),
             "sink_mean_mean": float(np.mean(all_sink_mean)),
             "sink_mean_std": float(np.std(all_sink_mean, ddof=0) + 1e-8),
             "sink_std_mean": float(np.mean(all_sink_std)),
@@ -142,19 +134,17 @@ class GraphDataset:
                 x[idx, 2] = (gate["y"] - feature_stats["y_mean"]) / feature_stats["y_std"]
             graph_physics = None
         else:
-            num_node_features = 6
+            num_node_features = 4
             x = np.zeros((n_nodes, num_node_features), dtype=np.float32)
-            sensitivities = entry["physics_features"]["sensitivities"]
+            var_d_map = entry["physics_features"]["var_d_per_load_ff_sq"]
             for name in node_names:
                 gate = gates[name]
                 idx = name_to_idx[name]
-                sens = sensitivities[name]
+                var_d = var_d_map.get(name, 0.0)
                 x[idx, 0] = (gate["load_ff"] - feature_stats["load_mean"]) / feature_stats["load_std"]
                 x[idx, 1] = (gate["x"] - feature_stats["x_mean"]) / feature_stats["x_std"]
                 x[idx, 2] = (gate["y"] - feature_stats["y_mean"]) / feature_stats["y_std"]
-                x[idx, 3] = (sens["vth"] - physics_stats["vth_mean"]) / physics_stats["vth_std"]
-                x[idx, 4] = (sens["l"] - physics_stats["l_mean"]) / physics_stats["l_std"]
-                x[idx, 5] = (sens["w"] - physics_stats["w_mean"]) / physics_stats["w_std"]
+                x[idx, 3] = (var_d - physics_stats["var_d_mean"]) / physics_stats["var_d_std"]
 
             if self.physics_mode == "tier_ab":
                 analytical = entry["physics_features"]["analytical_ssta"]
