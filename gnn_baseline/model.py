@@ -74,11 +74,12 @@ class VanillaDAGGNNSage(torch.nn.Module):
 
 
 class PhysicsInformedDAGGNNSage(torch.nn.Module):
-    """Physics-informed DAG-GNN with sensitivity features (Stage 6C).
+    """Physics-informed DAG-GNN with position-varying delay-variance feature (Stage 6C).
 
     Args:
-        tier: 'a' for node-level sensitivities only (6-dim node features),
+        tier: 'a' for node-level var_d/load_ff² only (4-dim node features),
               'ab' for node-level + graph-level analytical SSTA features
+        num_node_features: dimension of per-node input features (4 for tier_a, 4 for tier_ab)
     """
 
     def __init__(
@@ -88,6 +89,7 @@ class PhysicsInformedDAGGNNSage(torch.nn.Module):
         num_layers: int = 3,
         dropout: float = 0.15,
         num_outputs: int = 2,
+        num_node_features: int = 4,
     ):
         super().__init__()
 
@@ -98,9 +100,8 @@ class PhysicsInformedDAGGNNSage(torch.nn.Module):
         self.hidden_dim = hidden_dim
         self.dropout = dropout
 
-        # Tier A: 6 node features (load_ff, x, y, vth_sens, l_sens, w_sens)
+        # Tier A: 4 node features (load_ff, x, y, var_d_per_load_ff_sq)
         # Tier B: same node features + 2 graph-level features
-        num_node_features = 6
         graph_physics_dim = 2 if tier == "ab" else 0
 
         self.input_proj = torch.nn.Linear(num_node_features, hidden_dim)

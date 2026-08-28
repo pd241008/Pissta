@@ -73,6 +73,7 @@ def compute_physics_features(graph: GeneratedGraph, config, variation_params=Non
     delay_moments = compute_delay_moments(timing_params, variation_params, process_moments, gate_loads=graph_gate_loads)
 
     sensitivities = {}
+    var_d_per_load_ff_sq = {}
     for name in timing_graph.topological_order():
         gate = timing_graph.gates[name]
         partials = delay_partials(
@@ -84,9 +85,21 @@ def compute_physics_features(graph: GeneratedGraph, config, variation_params=Non
         )
         sensitivities[name] = partials
 
+        idx = process_moments["idx"][name]
+        var_L = process_moments["var_l"][idx]
+        var_W = process_moments["var_w"][idx]
+        var_Vth = process_moments["var_vth"][idx]
+        load_ff = gate.load_ff
+        if load_ff > 1e-12:
+            var_d = partials["vth"] ** 2 * var_Vth + partials["l"] ** 2 * var_L + partials["w"] ** 2 * var_W
+            var_d_per_load_ff_sq[name] = var_d / (load_ff ** 2)
+        else:
+            var_d_per_load_ff_sq[name] = 0.0
+
     return {
         "analytical_ssta": analytical,
         "sensitivities": sensitivities,
+        "var_d_per_load_ff_sq": var_d_per_load_ff_sq,
     }
 
 
