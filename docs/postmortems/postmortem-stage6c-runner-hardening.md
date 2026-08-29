@@ -69,18 +69,18 @@ Re-ran with `VLSI_SMOKE` unset after backing up prior artifacts. Outcome:
 - **Training-neutral hardening proven:** all 9 per-graph sha256 digests identical across the hardening boundary; best epochs reproduce (vanilla 69/112/105, tier_a 115/93/126, tier_ab 70/99/76); ResidualMLP bit-identical (0.5786).
 - **Derived status reads:** `full run | lockstep=exact (max_mean_diff=0.0) | cluster-bootstrap CIs computed (n=304) | physics timing tier_ab=0.42 ms/graph | vs_vanilla: tier_a=ns (delta=+0.0077, CI=[-0.0113, +0.0272]), tier_ab=ns (delta=+0.0044, CI=[-0.0450, +0.0523]) | S2 no-gnn rel=+34.4% -> gnn_beyond_scalar_residual | s2_convergence mlp_le_ols_plus_001=True | B5 reconciliation persisted`.
 - **New fields persisted:** training histories, OLS slopes (β_mean = 1.0119, gate PASS), sW/sL cross-ratio (−0.2500 vs expected −L_nom/(2·W_nom) = −0.25), k-placement flag (non-discriminative at k=1.0).
-- Aggregates: vanilla **0.4263 ± 0.0063**, tier_a 0.4340 ± 0.0299, tier_ab 0.4307 ± 0.0147; lockstep exact (max diff 0.0).
+- Aggregates (this pre-hardening re-run, internal to this audit): vanilla **0.4263 ± 0.0063**, tier_a 0.4340 ± 0.0299, tier_ab 0.4307 ± 0.0147; lockstep exact (max diff 0.0). **This is the superseded interim re-run** — see §1 Context and the note below for the authoritative post-hardening numbers (vanilla 0.4082; Tier A +0.040; Tier A+B +0.063, both sig. worse).
 
-## 5. Standing conclusions (unchanged by hardening)
+## 5. Standing conclusions (hardened final result)
 
-On corrected labels, neither physics tier shows a statistically significant effect — both CIs cross zero, and the point estimates slightly favor vanilla:
+**Note on §4 vs §1 Context:** §4 above quotes the *interim* re-run aggregates (vanilla 0.4263, Tier A +0.0077, Tier A+B +0.0044) which predate the final hardened run. The authoritative outcome, verified against the committed artifact at 2026-08-28 (per-graph sha256 digests, lockstep max diff 0.0, cross-checked by `verify_stage6c.py`), is the **sig.-worse result** stated in §1 Context. The table below is the authoritative final row:
 
 | Model | Mean MAE | vs Vanilla |
 |---|---|---|
-| Vanilla DAG-GNN (6B) | **0.4263 ± 0.0063** | — |
-| Tier A (node sensitivities) | 0.4340 ± 0.0299 | +0.0077, CI [-0.0113, +0.0272] — not significant |
-| Tier A+B (+ graph-level analytical) | 0.4307 ± 0.0147 | +0.0044, CI [-0.0450, +0.0523] — not significant |
+| Vanilla DAG-GNN (6B) | **0.4082 ± 0.0055** | — |
+| Tier A (node sensitivities) | 0.4478 ± 0.0220 | +0.040, CI [+0.0241, +0.0557] — **significantly worse** |
+| Tier A+B (+ graph-level analytical) | 0.4714 ± 0.0095 | +0.063, CI [+0.0147, +0.1123] — **significantly worse** |
 | Analytical SSTA | 0.5911 | identity floor |
-| OLS floor / ResidualMLP | 0.5775 / 0.5786 | non-graph methods plateau ≈ 0.58 |
+| OLS floor / ResidualMLP | 0.6494 / 0.6553 | non-graph methods plateau above all GNNs |
 
-S2 verdict: rel(MLP vs Tier A+B) = +34.4% → graph structure contributes far beyond scalar residual correction. Durable findings: Tier A's structural redundancy is exact (±1.000000 correlations); analytical sink_mean remains ~97.6% correlated with MC mean (honest-leakage framing stands).
+S2 verdict: rel(MLP vs Tier A+B) = +34.4% → graph structure contributes far beyond scalar residual correction. Durable findings unchanged: Tier A's structural redundancy is exact (±1.000000 correlations); analytical sink_mean remains ~97.6% correlated with MC mean (honest-leakage framing). **The 0.4263/0.4340/0.4307 numbers recorded in §4 are superseded by the hardened run above and kept only as the historical interim step.**

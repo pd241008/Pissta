@@ -6,6 +6,8 @@
 > **Environment:** Python 3.14.6 · torch 2.9.1 · numpy 2.4.0 · torch-geometric 2.8.0.post1 (installed via `pip install --break-system-packages`) · RTX 4050 Laptop GPU · 10 cores
 > **Relocated** from the repo root (`SESSION_REPORT_2026-08-21.md`) on August 21, 2026. Successor document: `postmortem-stage6c-runner-hardening.md`.
 
+> **SUPERSEDED (2026-08-28 decision):** The Stage 6C null conclusion in §5 below (vanilla 0.4263, Tier A +0.0077, Tier A+B +0.0044, CIs crossing zero) reflects this same-day *interim* re-run and was **overturned by the final hardened run**: both physics tiers are **significantly WORSE than vanilla** (Tier A +0.040 CI [+0.0241,+0.0557]; Tier A+B +0.063 CI [+0.0147,+0.1123]; vanilla 0.4082; MLP 0.6553). This banner is a doc-desync correction to the already-resolved decision (see ADR-008 Final Model State, `PROJECT_HISTORY.md` §7). The tables below remain valid only as the historical interim step.
+
 ---
 
 ## 1. Objective
@@ -96,8 +98,7 @@ Supporting checks: lockstep verification **exact** (max diff 0.0, all seeds) · 
 
 ## 5. Revised Scientific Conclusion
 
-> On corrected labels, **neither physics tier helps — both are non-significantly different from vanilla.**
-> The previous headline claim ("Tier A+B reduces mean MAE by 21%, significant") **does not reproduce**. It was an artifact of the mislabeled dataset (B1) plus its different graph-complexity mix. The honest result is a null: vanilla DAG-GNN (0.4263 ± 0.0063) remains the best point estimate, and the physics tiers' CIs both cross zero. The redundancy diagnosis for Tier A stands (r = 1.00 with load_ff); Tier B's graph-level feature remains ~97.6% correlated with the label.
+> On corrected labels, the previous headline claim ("Tier A+B reduces mean MAE by 21%, significant") **does not reproduce** — it was an artifact of the mislabeled dataset (B1) plus its different graph-complexity mix. The *interim* same-day re-run in §4 (vanilla 0.4263 ± 0.0063 best point estimate; both tier CIs crossing zero) was later **overturned by the final hardened run**: both physics tiers are significantly **worse** than vanilla (Tier A +0.040, CI [+0.0241,+0.0557]; Tier A+B +0.063, CI [+0.0147,+0.1123]; vanilla 0.4082). The redundancy diagnosis for Tier A stands (r = +1.00 with load_ff); Tier B's graph-level feature remains ~97.6% correlated with the label.
 
 ---
 
