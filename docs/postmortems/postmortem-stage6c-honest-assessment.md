@@ -4,9 +4,11 @@
 > **Severity:** Informational — ablation completed, honest caveats documented  
 > **Status:** Complete (updated with final deterministic re-run)
 
+> **SUPERSEDED (2026-08-28 decision):** The null/ns framing below quotes the *interim* post-B1 dataset (vanilla 0.4263, Tier A +0.0077, Tier A+B +0.0044, all CIs crossing zero). The authoritative, artifact-backed result on the final hardened dataset is **significantly WORSE than vanilla**: Tier A +0.040 (CI [+0.0241, +0.0557]), Tier A+B +0.063 (CI [+0.0147, +0.1123]), vanilla 0.4082. See ADR-008 Final Model State and `PROJECT_HISTORY.md` §7. This re-framing is a doc-desync correction, not a new experiment. The 0.4263-style tables below remain valid only as the historical interim re-run.
+
 ## Issues Summary
 
-Stage 6C completed a 3-way ablation (Vanilla → Tier A → Tier A+B) with identical training protocol on the corrected dataset. The results reveal that physics feature injection has no statistically significant effect in either direction — vanilla remains the best point estimate.
+Stage 6C completed a 3-way ablation (Vanilla → Tier A → Tier A+B) with identical training protocol on the corrected dataset. On the **final hardened dataset** the result is *significantly worse than vanilla* for both physics tiers (see ADR-008 Final Model State); the interim numbers quoted below reflect the pre-hardening dataset.
 
 ---
 
@@ -27,7 +29,7 @@ Mechanism diagnostics reveal that ∂d/∂Vth is **perfectly correlated (r=1.00)
 
 ### Honest Assessment
 
-Tier A is a clean negative result with a clean mechanism explanation. The node-level physics features don't help because they're redundant with existing features. This is scientifically valuable — it tells us that future physics-informed features must provide information not already captured by geometry (load_ff, x, y).
+Tier A's redundancy mechanism is a clean, durable finding (∂d/∂Vth = +1.00, ∂d/∂W = −1.00 correlated with load_ff over n=14,022 gates), explaining why it adds no useful signal. On the final hardened dataset this becomes a *significant degradation* (Tier A +0.040, CI [+0.0241, +0.0557]) — non-redundant ≠ useful; redundant features can still be optimizer-costing noise. This tells us future physics-informed features must provide signal not already captured by geometry (load_ff, x, y).
 
 ---
 
@@ -50,7 +52,7 @@ The analytical_ssta.sink_mean feature is ~97.6% correlated with the MC mean labe
 
 ### Honest Assessment
 
-Tier A+B's null result is the correct scientific conclusion on corrected data. The GNN does meaningful work (beats no-GNN by 34.4%), but the physics features themselves don't contribute beyond what vanilla already learns from graph structure. Future work should explore physics features that provide *new* signal, not near-duplicates of the label.
+On the final hardened dataset Tier A+B is **significantly WORSE than vanilla** (0.4714 vs 0.4082, Δ +0.063, CI [+0.0147, +0.1123]) — superseding the interim null in the table above. The GNN does meaningful work (beats no-GNN MLP by ~34.4% on the S2 comparison), but the physics features themselves don't contribute beyond what vanilla already learns from graph structure; the added graph-level analytical signal (sink_mean ~97.6% correlated with the label) is not learnable into a useful correction by this architecture. Future work should explore physics features that provide *new* signal, not near-duplicates of the label.
 
 ---
 
@@ -107,7 +109,7 @@ Earlier Stage 6A documentation referenced "boosting nrecon≥3 test coverage to 
 3. **Bootstrap CI over z-test**: With n=3 seeds, the z-test is indefensible. Paired per-graph bootstrap is more powerful and honest.
 4. **Be honest about "physics-informed"**: Injecting analytical results is useful but is closer to "GNN corrects analytical" than "GNN learns physics." The correlation check is essential context.
 5. **Lockstep verification prevents silent drift**: Exact per-seed match between 6B and 6C vanilla runs confirms the frozen baseline is untouched.
-6. **Null results are results**: The corrected dataset yields a genuine null — neither Tier A nor Tier A+B is statistically distinguishable from vanilla. This is scientifically valid and should be reported as such, not reframed as a "near-miss" or "trend."
+6. **Null results are results — but re-check with care:** The interim dataset yielded a null (neither tier distinguishable from vanilla), which the final hardened run overturned to significantly-worse on both tiers. Report the number backed by the committed artifact and its CI, not the framing from whichever run you last saw.
 
 ## Prevention
 

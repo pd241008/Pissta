@@ -1111,19 +1111,29 @@ def main():
     tier_a_sig = significance_results["tier_a"]["mean_ci_low"] > 0 or significance_results["tier_a"]["mean_ci_high"] < 0
     tier_ab_sig = significance_results["tier_ab"]["mean_ci_low"] > 0 or significance_results["tier_ab"]["mean_ci_high"] < 0
 
-    print("\n  Headline: ")
-    if not tier_a_sig and not tier_ab_sig:
-        print("  Neither Tier A nor Tier A+B is statistically distinguishable from vanilla.")
-        print(f"  Point estimates slightly favor vanilla (Tier A {significance_results['tier_a']['mean_delta']:+.4f}, Tier A+B {significance_results['tier_ab']['mean_delta']:+.4f} mean MAE delta),")
-        print("  but both CIs cross zero — physics feature injection has no significant effect in either direction.")
-    elif tier_ab_sig and significance_results["tier_ab"]["mean_delta"] < 0:
-        print("  Tier A+B is significantly BETTER than vanilla (CI excludes 0, delta < 0).")
-        print("  Physics features at Tier A+B level improve prediction accuracy.")
-    elif tier_ab_sig and significance_results["tier_ab"]["mean_delta"] > 0:
-        print("  Tier A+B is significantly WORSE than vanilla (CI excludes 0, delta > 0).")
-        print("  Physics features at Tier A+B level degrade prediction accuracy.")
-    else:
-        print("  Mixed significance results — inspect per-tier CIs above.")
+    print("\n  Headline (per-variant, driven by CI bounds):")
+    tier_order = ["tier_a", "tier_ab"]
+    tier_labels = {"tier_a": "Tier A", "tier_ab": "Tier A+B"}
+    tier_summary = []
+    for tier_name in tier_order:
+        s = significance_results[tier_name]
+        lo, hi = s["mean_ci_low"], s["mean_ci_high"]
+        delta = s["mean_delta"]
+        if hi < 0:
+            verdict = "significantly BETTER than vanilla"
+        elif lo > 0:
+            verdict = "significantly WORSE than vanilla"
+        else:
+            verdict = "not statistically distinguishable from vanilla"
+        tier_summary.append(f"{tier_labels[tier_name]} {verdict}")
+        print(f"  - {tier_labels[tier_name]}: {verdict} "
+              f"(delta={delta:+.4f}, 95% CI=[{lo:+.4f}, {hi:+.4f}])")
+    if "significantly" not in tier_summary[0] and "significantly" not in tier_summary[1]:
+        print("  Both physics tiers are statistically indistinguishable from vanilla: CIs cross zero, "
+              "so feature injection has no significant effect in either direction (ns across the board).")
+    elif tier_a_sig and "significantly WORSE" in tier_summary[0] and "not statistically" in tier_summary[1]:
+        print(f"  Notable: {tier_labels['tier_a']} is significantly worse while {tier_labels['tier_ab']} is ns — "
+              "the added Tier B signal offsets Tier A's degradation, but does not itself clear significance.")
 
     # Tier B leakage check
     print("\n--- Tier B Leakage Check ---")
