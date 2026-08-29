@@ -156,6 +156,15 @@ def run_single_seed(
             num_outputs=2,
             num_node_features=4,
         ).to(device)
+    elif config_name == "tier_b_only":
+        model = PhysicsInformedDAGGNNSage(
+            tier="b",
+            hidden_dim=64,
+            num_layers=3,
+            dropout=0.15,
+            num_outputs=2,
+            num_node_features=5,
+        ).to(device)
     elif config_name == "tier_ab":
         model = PhysicsInformedDAGGNNSage(
             tier="ab",
@@ -163,7 +172,7 @@ def run_single_seed(
             num_layers=3,
             dropout=0.15,
             num_outputs=2,
-            num_node_features=4,
+            num_node_features=6,
         ).to(device)
     else:
         raise ValueError(f"Unknown config: {config_name}")
@@ -831,6 +840,63 @@ def compute_analytical_mae_per_nrecon(test_dataset: GraphDataset, physics_stats:
     return result
 
 
+def paired_cluster_bootstrap_ci(vanilla_results: List[Dict], tier_results: List[Dict], tier_name: str = "tier") -> Dict:
+    """Paired per-graph cluster bootstrap CI (tier minus vanilla), per graph_id,
+    clustered across the 3 seeds. Uses RandomState(42) + 10000 resamples, matching
+    the historical Stage 6C methodology exactly."""
+    by_graph_mean = defaultdict(list)
+    by_graph_std = defaultdict(list)
+    for vr, tr in zip(vanilla_results, tier_results):
+        for vp, tp in zip(vr["test_metrics"]["per_graph"], tr["test_metrics"]["per_graph"]):
+            gid = vp["graph_id"]
+            assert tp["graph_id"] == gid
+            by_graph_mean[gid].append(tp["mean_mae"] - vp["mean_mae"])
+            by_graph_std[gid].append(tp["std_mae"] - vp["std_mae"])
+
+    graph_mean_deltas = np.array([np.mean(v) for v in by_graph_mean.values()])
+    graph_std_deltas = np.array([np.mean(v) for v in by_graph_std.values()])
+    mean_delta = float(np.mean(graph_mean_deltas))
+    std_delta = float(np.mean(graph_std_deltas))
+    mean_win_rate = float(np.mean(graph_mean_deltas < 0))
+    std_win_rate = float(np.mean(graph_std_deltas < 0))
+
+    rng = np.random.RandomState(42)
+    boot_mean_means = []
+    boot_std_means = []
+    for _ in range(10000):
+        idx = rng.randint(0, len(graph_mean_deltas), len(graph_mean_deltas))
+        boot_mean_means.append(np.mean(graph_mean_deltas[idx]))
+        boot_std_means.append(np.mean(graph_std_deltas[idx]))
+    mean_ci_low = float(np.percentile(boot_mean_means, 2.5))
+    mean_ci_high = float(np.percentile(boot_mean_means, 97.5))
+    std_ci_low = float(np.percentile(boot_std_means, 2.5))
+    std_ci_high = float(np.percentile(boot_std_means, 97.5))
+
+    per_seed_mean = []
+    per_seed_std = []
+    for vr, tr in zip(vanilla_results, tier_results):
+        seed_mean_deltas = [tp["mean_mae"] - vp["mean_mae"] for vp, tp in zip(vr["test_metrics"]["per_graph"], tr["test_metrics"]["per_graph"])]
+        seed_std_deltas = [tp["std_mae"] - vp["std_mae"] for vp, tp in zip(vr["test_metrics"]["per_graph"], tr["test_metrics"]["per_graph"])]
+        per_seed_mean.append(float(np.mean(seed_mean_deltas)))
+        per_seed_std.append(float(np.mean(seed_std_deltas)))
+
+    return {
+        "tier": tier_name,
+        "mean_delta": mean_delta,
+        "mean_win_rate": mean_win_rate,
+        "mean_ci_low": mean_ci_low,
+        "mean_ci_high": mean_ci_high,
+        "std_delta": std_delta,
+        "std_win_rate": std_win_rate,
+        "std_ci_low": std_ci_low,
+        "std_ci_high": std_ci_high,
+        "n_graphs": len(graph_mean_deltas),
+        "per_seed_mean_deltas": per_seed_mean,
+        "per_seed_std_deltas": per_seed_std,
+        "bootstrap_method": "cluster by graph_id (3 seeds per graph)",
+    }
+
+
 def main():
     script_dir = Path(__file__).resolve().parent
     checkpoint_dir = script_dir / ("checkpoints_smoke" if SMOKE else "checkpoints")
@@ -886,8 +952,8 @@ def main():
 
         # Batch shape check
         sample_batch = next(iter(train_loader))
-        expected_features = 3 if config == "vanilla" else 4
-        check_batch_shape(sample_batch, train_loader.batch_size, expected_features)
+        expected_node_feats = {"vanilla": 3, "tier_a": 4, "tier_b_only": 5, "tier_ab": 6}[config]
+        check_batch_shape(sample_batch, train_loader.batch_size, expected_node_feats)
         print(f"Batch OK: x={sample_batch.x.shape}, y={sample_batch.y.shape}, "
               f"num_graphs={sample_batch.num_graphs if hasattr(sample_batch, 'num_graphs') else sample_batch.batch.max().item()+1}")
 
@@ -1032,63 +1098,15 @@ def main():
     print("\n--- Paired Per-Graph Significance vs Vanilla ---")
     significance_results = {}
     for tier_name, tier_results in [("tier_a", tier_a_results), ("tier_ab", tier_ab_results)]:
-        by_graph_mean = defaultdict(list)
-        by_graph_std = defaultdict(list)
-        for vr, tr in zip(vanilla_results, tier_results):
-            for vp, tp in zip(vr["test_metrics"]["per_graph"], tr["test_metrics"]["per_graph"]):
-                gid = vp["graph_id"]
-                assert tp["graph_id"] == gid
-                by_graph_mean[gid].append(tp["mean_mae"] - vp["mean_mae"])
-                by_graph_std[gid].append(tp["std_mae"] - vp["std_mae"])
-
-        graph_mean_deltas = np.array([np.mean(v) for v in by_graph_mean.values()])
-        graph_std_deltas = np.array([np.mean(v) for v in by_graph_std.values()])
-        mean_delta = float(np.mean(graph_mean_deltas))
-        std_delta = float(np.mean(graph_std_deltas))
-        mean_win_rate = float(np.mean(graph_mean_deltas < 0))
-        std_win_rate = float(np.mean(graph_std_deltas < 0))
-
-        rng = np.random.RandomState(42)
-        boot_mean_means = []
-        boot_std_means = []
-        for _ in range(10000):
-            idx = rng.randint(0, len(graph_mean_deltas), len(graph_mean_deltas))
-            boot_mean_means.append(np.mean(graph_mean_deltas[idx]))
-            boot_std_means.append(np.mean(graph_std_deltas[idx]))
-        mean_ci_low = float(np.percentile(boot_mean_means, 2.5))
-        mean_ci_high = float(np.percentile(boot_mean_means, 97.5))
-        std_ci_low = float(np.percentile(boot_std_means, 2.5))
-        std_ci_high = float(np.percentile(boot_std_means, 97.5))
-
-        # Per-seed mean deltas (sign agreement check)
-        per_seed_mean = []
-        per_seed_std = []
-        for vr, tr in zip(vanilla_results, tier_results):
-            seed_mean_deltas = [tp["mean_mae"] - vp["mean_mae"] for vp, tp in zip(vr["test_metrics"]["per_graph"], tr["test_metrics"]["per_graph"])]
-            seed_std_deltas = [tp["std_mae"] - vp["std_mae"] for vp, tp in zip(vr["test_metrics"]["per_graph"], tr["test_metrics"]["per_graph"])]
-            per_seed_mean.append(float(np.mean(seed_mean_deltas)))
-            per_seed_std.append(float(np.mean(seed_std_deltas)))
-
-        significance_results[tier_name] = {
-            "mean_delta": mean_delta,
-            "mean_win_rate": mean_win_rate,
-            "mean_ci_low": mean_ci_low,
-            "mean_ci_high": mean_ci_high,
-            "std_delta": std_delta,
-            "std_win_rate": std_win_rate,
-            "std_ci_low": std_ci_low,
-            "std_ci_high": std_ci_high,
-            "n_graphs": len(graph_mean_deltas),
-            "per_seed_mean_deltas": per_seed_mean,
-            "per_seed_std_deltas": per_seed_std,
-            "bootstrap_method": "cluster by graph_id (3 seeds per graph)",
-        }
+        significance_results[tier_name] = paired_cluster_bootstrap_ci(
+            vanilla_results, tier_results, tier_name=tier_name
+        )
 
         print(f"  {tier_name.upper()}:")
-        print(f"    Mean MAE delta (tier - vanilla): {mean_delta:+.4f}  win_rate={mean_win_rate:.1%}  95% CI: [{mean_ci_low:+.4f}, {mean_ci_high:+.4f}]  sig={'Yes' if (mean_ci_low > 0 or mean_ci_high < 0) else 'No'}")
-        print(f"    Std  MAE delta (tier - vanilla): {std_delta:+.4f}  win_rate={std_win_rate:.1%}  95% CI: [{std_ci_low:+.4f}, {std_ci_high:+.4f}]  sig={'Yes' if (std_ci_low > 0 or std_ci_high < 0) else 'No'}")
-        print(f"    Per-seed mean deltas: {[f'{d:+.4f}' for d in per_seed_mean]}")
-        print(f"    Per-seed std deltas:  {[f'{d:+.4f}' for d in per_seed_std]}")
+        print(f"    Mean MAE delta (tier - vanilla): {significance_results[tier_name]['mean_delta']:+.4f}  win_rate={significance_results[tier_name]['mean_win_rate']:.1%}  95% CI: [{significance_results[tier_name]['mean_ci_low']:+.4f}, {significance_results[tier_name]['mean_ci_high']:+.4f}]  sig={'Yes' if (significance_results[tier_name]['mean_ci_low'] > 0 or significance_results[tier_name]['mean_ci_high'] < 0) else 'No'}")
+        print(f"    Std  MAE delta (tier - vanilla): {significance_results[tier_name]['std_delta']:+.4f}  win_rate={significance_results[tier_name]['std_win_rate']:.1%}  95% CI: [{significance_results[tier_name]['std_ci_low']:+.4f}, {significance_results[tier_name]['std_ci_high']:+.4f}]  sig={'Yes' if (significance_results[tier_name]['std_ci_low'] > 0 or significance_results[tier_name]['std_ci_high'] < 0) else 'No'}")
+        print(f"    Per-seed mean deltas: {[f'{d:+.4f}' for d in significance_results[tier_name]['per_seed_mean_deltas']]}")
+        print(f"    Per-seed std deltas:  {[f'{d:+.4f}' for d in significance_results[tier_name]['per_seed_std_deltas']]}")
 
     tier_a_sig = significance_results["tier_a"]["mean_ci_low"] > 0 or significance_results["tier_a"]["mean_ci_high"] < 0
     tier_ab_sig = significance_results["tier_ab"]["mean_ci_low"] > 0 or significance_results["tier_ab"]["mean_ci_high"] < 0

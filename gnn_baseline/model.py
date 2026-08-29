@@ -74,17 +74,21 @@ class VanillaDAGGNNSage(torch.nn.Module):
 
 
 class PhysicsInformedDAGGNNSage(torch.nn.Module):
-    """Physics-informed DAG-GNN with position-varying delay-variance feature (Stage 6C).
+    """Physics-informed DAG-GNN with redesigned per-node features (Stage 6C).
 
     Args:
         tier: 'a' for node-level var_d/load_ff² only (4-dim node features),
-              'ab' for node-level + graph-level analytical SSTA features
-        num_node_features: dimension of per-node input features (4 for tier_a, 4 for tier_ab)
+              'b' for node-level AT_mean/AT_var only (5-dim node features),
+              'ab' for var_d/load_ff² + per-node AT_mean/AT_var (6-dim node features).
+              Tier B is per-node (redesigned); no graph-level sink features are
+              appended.
+        num_node_features: dimension of per-node input features (4 for tier_a,
+              5 for tier_b_only, 6 for tier_ab).
     """
 
     def __init__(
         self,
-        tier: Literal["a", "ab"] = "a",
+        tier: Literal["a", "b", "ab"] = "a",
         hidden_dim: int = 64,
         num_layers: int = 3,
         dropout: float = 0.15,
@@ -93,7 +97,7 @@ class PhysicsInformedDAGGNNSage(torch.nn.Module):
     ):
         super().__init__()
 
-        assert tier in ("a", "ab"), f"tier must be 'a' or 'ab', got {tier}"
+        assert tier in ("a", "b", "ab"), f"tier must be 'a', 'b' or 'ab', got {tier}"
 
         self.tier = tier
         self.num_layers = num_layers
@@ -101,8 +105,8 @@ class PhysicsInformedDAGGNNSage(torch.nn.Module):
         self.dropout = dropout
 
         # Tier A: 4 node features (load_ff, x, y, var_d_per_load_ff_sq)
-        # Tier B: same node features + 2 graph-level features
-        graph_physics_dim = 2 if tier == "ab" else 0
+        # Tier B (redesigned): 6 node features (+ per-node AT_mean, AT_var)
+        mlp_input_dim = hidden_dim
 
         self.input_proj = torch.nn.Linear(num_node_features, hidden_dim)
 
@@ -112,7 +116,6 @@ class PhysicsInformedDAGGNNSage(torch.nn.Module):
             self.convs.append(GraphSAGE(hidden_dim, hidden_dim, num_layers=1))
             self.bns.append(BatchNorm(hidden_dim))
 
-        mlp_input_dim = hidden_dim + graph_physics_dim
         self.mlp = torch.nn.Sequential(
             torch.nn.Linear(mlp_input_dim, hidden_dim),
             torch.nn.ReLU(),
@@ -141,9 +144,6 @@ class PhysicsInformedDAGGNNSage(torch.nn.Module):
             x = global_mean_pool(x, torch.zeros(x.size(0), dtype=torch.long, device=x.device))
         else:
             x = global_mean_pool(x, batch)
-
-        if self.tier == "ab" and graph_physics is not None:
-            x = torch.cat([x, graph_physics], dim=1)
 
         x = self.mlp(x)
         return x
