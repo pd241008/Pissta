@@ -2,8 +2,8 @@
 Stage 6C — Data loading pipeline for physics-informed DAG-GNN baseline.
 
 Extends Stage 6B dataset with physics features:
-- Tier A: per-node sensitivities (vth, l, w) appended to node features
-- Tier B: graph-level analytical SSTA (sink_mean, sink_std) concatenated to pooled embedding
+- Tier A: per-node var_d/load_ff² appended to node features
+- Tier B: per-node analytical AT_mean, AT_var appended to node features (redesigned
 """
 
 from __future__ import annotations
@@ -82,6 +82,8 @@ class GraphDataset:
             return {}
 
         all_var_d = []
+        all_at_mean = []
+        all_at_var = []
         all_sink_mean = []
         all_sink_std = []
 
@@ -93,12 +95,21 @@ class GraphDataset:
             for val in var_d_map.values():
                 all_var_d.append(val)
 
+            for val in analytical["AT_mean"].values():
+                all_at_mean.append(val)
+            for val in analytical["AT_var"].values():
+                all_at_var.append(val)
+
             all_sink_mean.append(analytical["sink_mean"])
             all_sink_std.append(analytical["sink_std"])
 
         physics_stats = {
             "var_d_mean": float(np.mean(all_var_d)),
             "var_d_std": float(np.std(all_var_d, ddof=0) + 1e-8),
+            "at_mean_mean": float(np.mean(all_at_mean)),
+            "at_mean_std": float(np.std(all_at_mean, ddof=0) + 1e-8),
+            "at_var_mean": float(np.mean(all_at_var)),
+            "at_var_std": float(np.std(all_at_var, ddof=0) + 1e-8),
             "sink_mean_mean": float(np.mean(all_sink_mean)),
             "sink_mean_std": float(np.std(all_sink_mean, ddof=0) + 1e-8),
             "sink_std_mean": float(np.mean(all_sink_std)),
@@ -132,28 +143,33 @@ class GraphDataset:
                 x[idx, 0] = (gate["load_ff"] - feature_stats["load_mean"]) / feature_stats["load_std"]
                 x[idx, 1] = (gate["x"] - feature_stats["x_mean"]) / feature_stats["x_std"]
                 x[idx, 2] = (gate["y"] - feature_stats["y_mean"]) / feature_stats["y_std"]
-            graph_physics = None
         else:
-            num_node_features = 4
+            # Physics modes (per-node):
+            #   tier_a      : load_ff, x, y, var_d/load_ff^2                    (4 dims)
+            #   tier_b_only : load_ff, x, y, AT_mean, AT_var                   (5 dims)
+            #   tier_ab     : load_ff, x, y, var_d/load_ff^2, AT_mean, AT_var  (6 dims)
+            use_a = self.physics_mode in ("tier_a", "tier_ab")
+            use_b = self.physics_mode in ("tier_b_only", "tier_ab")
+            num_node_features = 3 + int(use_a) + 2 * int(use_b)
             x = np.zeros((n_nodes, num_node_features), dtype=np.float32)
             var_d_map = entry["physics_features"]["var_d_per_load_ff_sq"]
+            at_mean = entry["physics_features"]["analytical_ssta"]["AT_mean"]
+            at_var = entry["physics_features"]["analytical_ssta"]["AT_var"]
             for name in node_names:
                 gate = gates[name]
                 idx = name_to_idx[name]
-                var_d = var_d_map.get(name, 0.0)
                 x[idx, 0] = (gate["load_ff"] - feature_stats["load_mean"]) / feature_stats["load_std"]
                 x[idx, 1] = (gate["x"] - feature_stats["x_mean"]) / feature_stats["x_std"]
                 x[idx, 2] = (gate["y"] - feature_stats["y_mean"]) / feature_stats["y_std"]
-                x[idx, 3] = (var_d - physics_stats["var_d_mean"]) / physics_stats["var_d_std"]
+                if use_a:
+                    var_d = var_d_map.get(name, 0.0)
+                    x[idx, 3] = (var_d - physics_stats["var_d_mean"]) / physics_stats["var_d_std"]
+                if use_b:
+                    at_col = 3 + int(use_a)
+                    x[idx, at_col] = (at_mean[name] - physics_stats["at_mean_mean"]) / physics_stats["at_mean_std"]
+                    x[idx, at_col + 1] = (at_var[name] - physics_stats["at_var_mean"]) / physics_stats["at_var_std"]
 
-            if self.physics_mode == "tier_ab":
-                analytical = entry["physics_features"]["analytical_ssta"]
-                graph_physics = torch.tensor([
-                    (analytical["sink_mean"] - physics_stats["sink_mean_mean"]) / physics_stats["sink_mean_std"],
-                    (analytical["sink_std"] - physics_stats["sink_std_mean"]) / physics_stats["sink_std_std"],
-                ], dtype=torch.float32).unsqueeze(0)  # Shape [1, 2] so batching gives [batch_size, 2]
-            else:
-                graph_physics = None
+        graph_physics = None
 
         # Edge index from successors (directed)
         edge_list = []
