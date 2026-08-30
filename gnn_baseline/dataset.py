@@ -78,7 +78,7 @@ class GraphDataset:
 
     def _compute_physics_normalization(self) -> Dict[str, float]:
         """Compute mean/std for physics features from train set only."""
-        if self.physics_mode == "vanilla":
+        if self.physics_mode in ("vanilla", "vanilla_nocoor"):
             return {}
 
         all_var_d = []
@@ -143,6 +143,16 @@ class GraphDataset:
                 x[idx, 0] = (gate["load_ff"] - feature_stats["load_mean"]) / feature_stats["load_std"]
                 x[idx, 1] = (gate["x"] - feature_stats["x_mean"]) / feature_stats["x_std"]
                 x[idx, 2] = (gate["y"] - feature_stats["y_mean"]) / feature_stats["y_std"]
+        elif self.physics_mode == "vanilla_nocoor":
+            # ADR-008 §10 item 4 diagnostic: vanilla-minus-coordinates. Drop x,y,
+            # keep load_ff only, to test whether the vanilla GNN is already
+            # implicitly reconstructing geometry/physics from raw features.
+            num_node_features = 1
+            x = np.zeros((n_nodes, num_node_features), dtype=np.float32)
+            for name in node_names:
+                gate = gates[name]
+                idx = name_to_idx[name]
+                x[idx, 0] = (gate["load_ff"] - feature_stats["load_mean"]) / feature_stats["load_std"]
         else:
             # Physics modes (per-node):
             #   tier_a      : load_ff, x, y, var_d/load_ff^2                    (4 dims)
