@@ -182,6 +182,18 @@ def run_single_seed(
             dropout=0.15,
             num_outputs=2,
         ).to(device)
+    elif config_name == "maxbias_cm":
+        # Capacity-matched control: reduce hidden dim so the mean+max hybrid
+        # (2h->h per conv) carries ~the same params as vanilla h=64 (29698).
+        # h=54 -> 30026 params (+1.1%) - isolates the aggregation change from
+        # the capacity change that the h=64 maximas run conflates (41986).
+        model = MaxBiasedDAGGNNSage(
+            num_node_features=3,
+            hidden_dim=54,
+            num_layers=3,
+            dropout=0.15,
+            num_outputs=2,
+        ).to(device)
     else:
         raise ValueError(f"Unknown config: {config_name}")
 
@@ -220,7 +232,7 @@ def run_single_seed(
     print(f"Avg inference time: {test_metrics['avg_inference_time_ms']:.2f} ms")
 
     # Physics feature computation time (Tier A+B only; measured for Tier A, 0 for vanilla/maxbias)
-    if config_name in ("vanilla", "maxbias"):
+    if config_name in ("vanilla", "maxbias", "maxbias_cm"):
         physics_feature_time_ms = 0.0
         total_inference_ms = test_metrics['avg_inference_time_ms']
     else:
