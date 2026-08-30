@@ -147,6 +147,17 @@ def run_single_seed(
             dropout=0.15,
             num_outputs=2,
         ).to(device)
+    elif config_name == "vanilla_nocoor":
+        # ADR-008 §10 item 4 diagnostic: vanilla-minus-coordinates. Same
+        # architecture, but only load_ff (no x,y); tests whether vanilla is
+        # implicitly reconstructing geometry from raw features.
+        model = VanillaDAGGNNSage(
+            num_node_features=1,
+            hidden_dim=64,
+            num_layers=3,
+            dropout=0.15,
+            num_outputs=2,
+        ).to(device)
     elif config_name == "tier_a":
         model = PhysicsInformedDAGGNNSage(
             tier="a",
@@ -178,6 +189,18 @@ def run_single_seed(
         model = MaxBiasedDAGGNNSage(
             num_node_features=3,
             hidden_dim=64,
+            num_layers=3,
+            dropout=0.15,
+            num_outputs=2,
+        ).to(device)
+    elif config_name == "maxbias_cm":
+        # Capacity-matched control: reduce hidden dim so the mean+max hybrid
+        # (2h->h per conv) carries ~the same params as vanilla h=64 (29698).
+        # h=54 -> 30026 params (+1.1%) - isolates the aggregation change from
+        # the capacity change that the h=64 maximas run conflates (41986).
+        model = MaxBiasedDAGGNNSage(
+            num_node_features=3,
+            hidden_dim=54,
             num_layers=3,
             dropout=0.15,
             num_outputs=2,
@@ -220,7 +243,7 @@ def run_single_seed(
     print(f"Avg inference time: {test_metrics['avg_inference_time_ms']:.2f} ms")
 
     # Physics feature computation time (Tier A+B only; measured for Tier A, 0 for vanilla/maxbias)
-    if config_name in ("vanilla", "maxbias"):
+    if config_name in ("vanilla", "vanilla_nocoor", "maxbias", "maxbias_cm"):
         physics_feature_time_ms = 0.0
         total_inference_ms = test_metrics['avg_inference_time_ms']
     else:
@@ -726,11 +749,36 @@ def compute_lockstep_verification(vanilla_6c_results: List[Dict], script_dir: Pa
     vanilla_6b_sorted = sorted(vanilla_6b, key=lambda r: r["seed"])
     vanilla_6c_sorted = sorted(vanilla_6c, key=lambda r: r["seed"])
 
+    # Match by SEED value, not list position: extended-seed runs (5-7 seeds)
+    # carry vanilla seeds beyond the committed 6 seeds, and positional zip()
+    # would misalign them (e.g. 6B's 999 vs 6C's 777 if 777 sorts between 123
+    # and 999). Only the seeds present in BOTH runs are comparable.
     comparison = []
     all_match = True
     max_mean_diff = 0.0
     max_std_diff = 0.0
-    for r6b, r6c in zip(vanilla_6b_sorted, vanilla_6c_sorted):
+    by_seed_6b = {r["seed"]: r for r in vanilla_6b_sorted}
+    for r6c in vanilla_6c_sorted:
+        r6b = by_seed_6b.get(r6c["seed"])
+        if r6b is None:
+            # No committed 6B reference for this seed: it is an independent
+            # extended-seed run and not lockstep-comparable. Record but skip.
+            comparison.append({
+                "seed": r6c["seed"],
+                "source_6b": None,
+                "source_6c": "in-memory 6C vanilla",
+                "mean_mae_6b": None,
+                "mean_mae_6c": r6c["test_metrics"]["mean_mae"],
+                "mean_mae_match": None,
+                "std_mae_6b": None,
+                "std_mae_6c": r6c["test_metrics"]["std_mae"],
+                "std_mae_match": None,
+                "best_val_loss_6b": None,
+                "best_val_loss_6c": r6c["train_result"]["best_val_loss"],
+                "n_params_6b": None,
+                "n_params_6c": r6c["n_params"],
+            })
+            continue
         mean_diff = abs(r6b["test_metrics"]["mean_mae"] - r6c["test_metrics"]["mean_mae"])
         std_diff = abs(r6b["test_metrics"]["std_mae"] - r6c["test_metrics"]["std_mae"])
         max_mean_diff = max(max_mean_diff, mean_diff)

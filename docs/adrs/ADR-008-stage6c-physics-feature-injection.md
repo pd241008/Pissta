@@ -137,3 +137,65 @@ sig. worse (its CI excludes 0).
 produced a result better than vanilla. Supersedes ADR-008's original
 2026-08-28 update. Next candidate per next-steps: architectural
 MAX-biased aggregation (item 3), not further feature redesign.
+
+---
+
+## ADR-008 Addendum #2 (2026-08-29, cont'd): Architectural MAX-bias — first positive result, survives capacity matching
+
+Following the null/negative results from feature-level injection (see
+first addendum above), tried an architectural lever instead: MAX-biased
+aggregation (`aggr=["mean","max"]`) at message passing, motivated by SSTA's
+own MAX-at-reconvergence structure (Stage 4/4b/5's Clark MAX).
+
+**Full-capacity result (h=64, +41% params, 3 seeds):** Δ = −0.064
+[−0.089, −0.040], sig. better. Confounded with added capacity — flagged,
+not treated as final.
+
+**Capacity-matched result (h=54, +1.1% params, 7 seeds — decisive):**
+
+| seed | vanilla | maxbias_cm | Δ |
+|---|---|---|---|
+| 42 | 0.41156 | 0.34288 | −0.069 |
+| 123 | 0.40181 | 0.39346 | −0.008 |
+| 999 | 0.41112 | 0.37751 | −0.034 |
+| 2024 | 0.46641 | 0.36580 | −0.101 |
+| 777 | 0.44217 | 0.35660 | −0.086 |
+| 3141 | 0.42360 | 0.35670 | −0.067 |
+| 2718 | 0.44483 | 0.37301 | −0.072 |
+
+Δ = −0.062, CI [−0.088, −0.037], 7/7 seeds negative. CI narrowed vs the
+3-seed estimate (0.051 vs 0.057 width) rather than ballooning — the
+signal tightened with more data, the signature of a real effect rather
+than noise that happened to align at 3 seeds (contrast Tier B only,
+which flipped sign across just 3 seeds). Aggregate MAX-biased CM MAE
+0.3666 vs vanilla 0.4288 (7 seeds).
+
+**Interpretation:** the architectural effect is real, and — notably — the
+capacity-matched (7-seed) Δ = −0.062 is essentially equal to the unmatched
+h=64 Δ = −0.064. The +41% parameters added almost nothing on top of the
+MAX-bias itself: the effect is ~ −0.06 regardless of capacity. The
+intermediate 3-seed capacity-matched estimate (−0.037) was a mild
+underestimate, dragged down by seed 123's near-null; with 7 seeds it
+turned out the earlier full-capacity number was *not* overstating the
+architectural contribution by ~2× — instead, the 3-seed matched estimate
+was the off one. Seed 123's initial near-null (−0.008) resolved as a mild
+low outlier once 4 more seeds landed strongly negative (−0.067 to −0.101),
+not evidence of topology-dependence.
+
+**Tie-in (vanilla-minus-coordinates diagnostic, §10 item 4):** dropping
+x,y from vanilla gives Δ = +0.83 [+0.72, +0.95] — vanilla degrades ~3×
+without geometric features, i.e. it is NOT already implicitly
+reconstructing structure from load_ff alone. This supports a coherent
+story: the model already has physics-relevant scalars (load_ff) and
+geometry (x,y); the headroom feature injection couldn't unlock was in
+*how sibling/fan-in information is combined*, which MAX-biased
+aggregation addresses directly and feature-level injection could not,
+regardless of which features were injected (Tier A/A+B/B-only, all
+null-or-worse).
+
+**Status: this is the first result in the Stage 6C arc, across seven
+attempts (original A/A+B, redesigned A/A+B, B-only, full-cap maxbias,
+capacity-matched maxbias), that beats vanilla with a defensible,
+capacity-controlled, multi-seed-stable CI.** Supersedes the "no headroom
+regardless of features" conclusion from the first addendum — headroom
+existed, it was in aggregation structure, not node/graph-level features.

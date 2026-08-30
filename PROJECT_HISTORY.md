@@ -197,6 +197,7 @@ Do: compare everything against MC; ablate; test generalization to unseen circuit
 - **N6:** hand-edited "verified" status string could desync → derived at runtime.
 - **Pelgrom cap:** `sampler.py` capped d at 5.0 but `analytical.py` didn't → unified (numerically inert at current params).
 - **[Step 1 correction, 2026-08-29]** First redundancy probe for redesigned Tier A used the *current* process-moment formula (variation/analytical.py, changed 08-22) instead of the dataset's stored delay_var (built 08-21) — showed spurious corr=0.88 vs load_ff. The dataset's own delay_var was what training actually consumed; recomputed from that source gave the correct R²=0.088. Same class of bug as B1 (label/feature source mismatch across a pipeline version boundary) — caught before it reached training.
+- **[compute_lockstep_verification positional-zip bug, 2026-08-29]** Lockstep check compared vanilla seeds by list position (`zip`) rather than by seed value; harmless while the seed lists matched 1:1 in order, but latent under the 7-seed extended run (extra seeds not present in the 6B reference — e.g. if 777 sorts between 123 and 999, 6B's 999 would be compared against 6C's 777). Fixed to match-by-seed explicitly, with extended seeds correctly excluded from the 6B comparison. **Confirmed non-retroactive:** every prior "bit-exact" claim (6B baseline, Tier A/A+B, Tier B-only, full-capacity maxbias, nocoor) compared exactly 3 vanilla seeds `[42,123,999]`, whose sorted order is self-identical, so positional `zip` ≡ seed-match for those runs (verified against the committed artifacts: all `all_match=True, max_mean_diff=0.0`). The bug could only manifest with ≥4 seeds whose sorted order reorders.
 
 ---
 
@@ -231,6 +232,9 @@ Stage 6 uses a **different** (arbitrary-topology, regenerated) dataset — GNN n
 
 **2026-08-29 addendum:** ADR-007's std MAE figure of 0.0337 (4.67%) describes the pre-regeneration "original" 1397/296/307 split, not the current locked dataset. The current lockstep-verified pipeline (6B and all 6C variants, bit-exact) reports std MAE 0.0188 (2.56%). No drift — this is a stale-doc citation, corrected here. The 0.0337 figure should be removed or clearly scoped in ADR-007's prose table.
 
+**2026-08-29 addendum #2 — architectural result:** MAX-biased aggregation, capacity-matched (h=54, 30,026 params vs vanilla's 29,698), 7 seeds: mean MAE 0.3666 vs vanilla 0.4288 (see per-seed table in ADR-008 addendum #2), Δ = −0.062 [−0.088, −0.037], sig. better, sign-stable 7/7. **First positive Stage 6C result.** The +41%-params full-capacity variant gave the same Δ (−0.064), so the extra capacity added ~nothing; the effect is ~−0.06 at matched or unmatched capacity. Vanilla-minus-coordinates control: Δ = +0.83 [+0.72, +0.95] confirms vanilla relies heavily on geometry, motivating why aggregation-structure change (not feature injection) was the effective lever.
+
+
 ---
 
 ## 8. Verification methodology (the pattern that caught the bugs)
@@ -261,15 +265,20 @@ The repository's own documentation conflicts on the Stage 6C verdict:
 
 ## 10. Next steps
 
-**Current place in plan:** Stage 6C resolved (2026-08-29): four feature-injection variants — original Tier A/A+B (sig. worse), redesigned Tier A (sig. worse), redesigned Tier A+B (ns, wide CI), Tier B only (ns, wide CI) — have not produced a result better than vanilla. ⇒ pivot to the architectural route.
+**Current place in plan:** Stage 6C resolved (2026-08-29): the four feature-injection variants (original Tier A/A+B sig. worse; redesigned Tier A sig. worse; redesigned Tier A+B ns wide; Tier B only ns wide) added no headroom — but the **architectural pivot delivered: MAX-biased aggregation beats vanilla, capacity-matched, 7 seeds, CI entirely below 0** (the only positive result in the arc; see ADR-008 addendum #2).
 
 **Planned next attempts, in priority order:**
 1. ~~Redesign Tier A~~ — DONE (2026-08-29), still sig. worse (non-redundant ≠ useful).
 2. ~~Redesign Tier B as per-node~~ — DONE (2026-08-29), ns/tied but CI wide (3-seed); tier_b_only isolation also ns with sign-unstable per-seed deltas.
-3. **Architectural physics constraint (now primary candidate)** — bias message-passing aggregation at reconvergence toward a MAX-like combination. Feature injection has now failed or tied across four variants; this is the next real lever.
-4. **Cheap diagnostic, still outstanding:** vanilla-GNN-minus-coordinates (drop x,y, keep load_ff) — tests whether vanilla already implicitly recovers physics, which would also explain why explicit injection keeps hitting a ceiling.
+3. ~~Architectural physics constraint~~ — DONE (2026-08-29): MAX-biased aggregation (mean+max fanin at message passing) beats vanilla, capacity-matched (h=54), 7 seeds, Δ = −0.062 [−0.088, −0.037]. **First positive result in the Stage 6C arc, and capacity-independent** (same Δ ≈ −0.06 at +41% params).
+4. ~~Vanilla-minus-coordinates diagnostic~~ — DONE (2026-08-29): vanilla degrades ~3× without x,y (Δ = +0.83 [+0.72, +0.95]), confirming it does NOT implicitly reconstruct physics from load_ff alone — ties the architectural win back to the central research question (headroom was in aggregation of geometric/structural info, not in additional physics scalars).
 
-**Optional, cheap, before fully abandoning feature injection:** extend Tier A+B and Tier B-only to more seeds (5–7) to tighten the current 0.07–0.10-wide CIs. Given sign-unstable per-seed deltas already observed, this is expected to confirm the null rather than reverse it, but would convert "ns, wide" into "ns, tight" — a materially stronger claim for the paper's honesty-constraint section.
+**New next steps:**
+5. Extend the honesty-constraint framing for the paper: the headline claim is now "architectural physics-consistent aggregation improves over vanilla; feature-level injection alone does not" — both halves need to be reported together, not just the win, per research philosophy (§2).
+6. Consider whether MAX-bias + Tier A+B (redesigned, per-node, the closest-to-tied feature variant) combined has any headroom beyond MAX-bias alone — cheap follow-up now that a working positive architecture exists as the base to ablate features on top of.
+7. Stage 7 (conformal calibration) can now proceed against the MAX-bias capacity-matched model as the strongest verified backbone, once the docs above are committed.
+
+**Optional (tighter-CI honesty claim, now superseded as a priority):** extend the tied feature variants (Tier A+B, B-only) to 5–7 seeds to convert their "ns, wide" into "ns, tight". Given sign-unstable per-seed deltas already observed, this is expected to confirm the null rather than reverse it — still a materially stronger claim for the paper's honesty-constraint section, but no longer gating since a positive architectural result now exists.
 
 **After Stage 6C is resolved:** Stage 7 (conformal calibration), Stage 8 (final cross-method comparison table with honest amortized data-generation cost accounting, and an explicit methods-section footnote documenting the Stage 6C bug-fix saga).
 
