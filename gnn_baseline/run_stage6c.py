@@ -26,7 +26,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from dataset import create_dataloaders, GraphDataset
 from foundations.config_loader import load_config, TimingParams
-from model import VanillaDAGGNNSage, PhysicsInformedDAGGNNSage
+from model import VanillaDAGGNNSage, PhysicsInformedDAGGNNSage, MaxBiasedDAGGNNSage
 from train import train_model
 from eval import evaluate_model, compute_analytical_baseline_metrics, compare_model_vs_analytical
 from timing.graph import TimingGraph, Gate
@@ -174,6 +174,14 @@ def run_single_seed(
             num_outputs=2,
             num_node_features=6,
         ).to(device)
+    elif config_name == "maxbias":
+        model = MaxBiasedDAGGNNSage(
+            num_node_features=3,
+            hidden_dim=64,
+            num_layers=3,
+            dropout=0.15,
+            num_outputs=2,
+        ).to(device)
     else:
         raise ValueError(f"Unknown config: {config_name}")
 
@@ -211,8 +219,8 @@ def run_single_seed(
     print(f"Std delay relative error: {test_metrics['std_relative']:.2%}")
     print(f"Avg inference time: {test_metrics['avg_inference_time_ms']:.2f} ms")
 
-    # Physics feature computation time (Tier A+B only; measured for Tier A, 0 for vanilla)
-    if config_name == "vanilla":
+    # Physics feature computation time (Tier A+B only; measured for Tier A, 0 for vanilla/maxbias)
+    if config_name in ("vanilla", "maxbias"):
         physics_feature_time_ms = 0.0
         total_inference_ms = test_metrics['avg_inference_time_ms']
     else:
