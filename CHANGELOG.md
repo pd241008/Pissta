@@ -4,6 +4,14 @@
 
 ---
 
+### August 29, 2026 — Stage 6C: redesigned features still no headroom; **architectural MAX-bias is the first positive result**
+
+- 🔁 **Redesigned feature attempt** (ADR-008 addendum 1): Tier A now uses `var_d/load_ff²` (non-redundant vs `load_ff`; R²=0.088) and Tier B is per-node AT, passed through message passing. Still no headroom: Tier A (redesigned) **sig. worse** (+0.048, CI [+0.019,+0.078]); Tier A+B (redesigned) **ns** (−0.007, CI [−0.047,+0.032]); Tier B only **ns** (+0.009, CI [−0.027,+0.043]). Four feature-injection attempts in total — none beat vanilla.
+- 🎯 **Architectural lever (the win): MAX-biased aggregation** (`aggr=["mean","max"]` at message passing, mirroring SSTA's own MAX-at-reconvergence). Full-capacity (h=64, +41% params): Δ −0.064 sig. better. **Capacity-matched (h=54, +1.1% params, 7 seeds): Δ −0.062, CI [−0.088,−0.037], 7/7 seeds negative** — the first defensible, capacity-controlled, multi-seed-stable positive result in the Stage 6C arc. Aggregate maxbias_cm 0.3666 vs vanilla 0.4288. The +41% params added ~nothing (matched Δ ≈ unmatched Δ), so the effect is architectural, not capacity. See ADR-008 addendum #2.
+- 🧪 **Extended-seed + lockstep-by-seed fix**: replaced `compute_lockstep_verification`'s positional zip with seed-value matching; extended seeds without a 6B reference are recorded non-comparable (latent-only bug — every prior bit-exact run used exactly [42,123,999], sorted order == seed order).
+- 🔬 **Vanilla-minus-coordinates diagnostic** (`run_nocoor.py`, 3 seeds): dropping x,y degrades vanilla ~3× (Δ +0.83, CI [+0.72,+0.95]) — vanilla does NOT reconstruct structure from `load_ff` alone; the headroom was in how fan-in/sibling info is combined (aggregation), not in injected features.
+- 🧪 7-seed CM run: all 7 seeds negative; CI narrowed vs 3-seed (0.051 vs 0.057 width) rather than ballooning — signature of a real effect. 11/11 tests still pass.
+
 ### August 21, 2026 — Stage 6C Runner Hardening (audit follow-up)
 
 - 🛡️ **Status string now derived from computed blocks** (`gnn_baseline/run_stage6c.py`): the hardcoded "complete — verified end-to-end…" claim (which had been edited into the source after the verified re-run, leaving artifact/source vintages out of sync) is replaced by a status assembled at runtime from the lockstep result, CI computation, physics timing, S2 verdict, convergence gate, and B5 persistence.

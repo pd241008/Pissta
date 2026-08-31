@@ -132,6 +132,7 @@ Do: compare everything against MC; ablate; test generalization to unseen circuit
 - Postmortem-stage6b-critical-issues; ADR-007.
 
 ### Stage 6C — Physics-informed DAG-GNN (3-way ablation) — THE HEADLINE
+*Feature-injection arc (original + redesigned designs) produced no headroom; the eventual win was architectural (MAX-bias aggregation) — see the supersession note after the table.*
 3-way ablation with frozen architecture/hyperparameters/splits/seeds; only input features vary.
 - **Vanilla** = 6B locked. **Tier A** = node features 3→6 dims (+[∂d/∂Vth, ∂d/∂L, ∂d/∂W]). **Tier A+B** = Tier A node + 2 graph-level scalars (analytical sink_mean, sink_std) appended after pooling.
 - Mandatory diagnostics: Tier A redundancy check, Tier B leakage check, no-GNN residual-MLP baseline, lockstep verification, paired cluster-bootstrap CIs.
@@ -141,7 +142,7 @@ Do: compare everything against MC; ablate; test generalization to unseen circuit
 2. **Round 2 (critical bug B1 found):** labels were wrong → corrected result **reversed**: both tiers significantly *worse* than vanilla (Tier A +0.040, Tier A+B +0.063 vs vanilla 0.408).
 3. **Round 3 (hardening audit + full re-run):** independently audited; the committed artifact yields **significantly WORSE for both tiers** (CIs exclude 0). Note: some git-tracked docs describe an "interim" null (see §9).
 
-**Verified final numbers (3 seeds, N=304 test graphs), from committed `stage6c_results.json`:**
+**Verified final numbers — ORIGINAL design (3 seeds, N=304 test graphs), from committed `stage6c_results.json`:**
 | Model | Mean MAE | vs Vanilla (CI) | Mean rel. | Significant? |
 |---|---|---|---|---|
 | Analytical SSTA | 0.5911 | — | — | — |
@@ -155,6 +156,8 @@ Do: compare everything against MC; ablate; test generalization to unseen circuit
 - Tier A structurally redundant: ∂Vth/∂L = 97.5, ∂W/∂L = −0.25 (algebraically fixed ratios of `load_ff`), carrying **zero information beyond load_ff** for any graph.
 - Tier B leakage: corr(sink_mean, label) ≈ 97%, OLS β = 0.9267.
 - No-GNN MLP (0.655) ≫ all GNN variants → graph structure matters, but explicit physics features don't help (they hurt).
+
+**Supersession (2026-08-29):** the table above is the *original-design* (collinear Tier A / post-pool Tier B) verdict, correct as far as it goes — but two later feature attempts (ADR-008 addendum #1) still found no headroom: **redesigned** Tier A sig. worse (+0.048, CI [+0.019,+0.078]), redesigned Tier A+B **ns** (−0.007, CI [−0.047,+0.032]), Tier B-only ns (+0.009, CI [−0.027,+0.043]). The arc's **first positive result** came from the **architectural** route: MAX-biased aggregation (`aggr=["mean","max"]`), capacity-matched (h=54), beats vanilla on 7 seeds — **Δ −0.062, CI [−0.088,−0.037], 7/7 seeds negative** (ADR-008 addendum #2). See §7 and ADR-008.
 
 ---
 
@@ -228,7 +231,7 @@ Do: compare everything against MC; ablate; test generalization to unseen circuit
 
 Stage 6 uses a **different** (arbitrary-topology, regenerated) dataset — GNN numbers are evaluated against per-graph MC labels (N=10k), not the single locked 6-gate reference, so they are not directly comparable to the table above.
 
-**Stage 6C verified headline:** Vanilla 0.4082 · Tier A 0.4478 (+0.040, sig. worse) · Tier A+B 0.4714 (+0.063, sig. worse) · Analytical 0.5911 · No-GNN MLP 0.6553.
+**Stage 6C feature-injection headline (ORIGINAL design):** Vanilla 0.4082 · Tier A 0.4478 (+0.040, sig. worse) · Tier A+B 0.4714 (+0.063, sig. worse) · Analytical 0.5911 · No-GNN MLP 0.6553. The redesigned-feature attempt was still headroom-free (A +0.048 sig. worse; A+B −0.007 ns; B-only +0.009 ns — ADR-008 addendum #1). **The arc's positive result was architectural — see addendum #2 below.**
 
 **2026-08-29 addendum:** ADR-007's std MAE figure of 0.0337 (4.67%) describes the pre-regeneration "original" 1397/296/307 split, not the current locked dataset. The current lockstep-verified pipeline (6B and all 6C variants, bit-exact) reports std MAE 0.0188 (2.56%). No drift — this is a stale-doc citation, corrected here. The 0.0337 figure should be removed or clearly scoped in ADR-007's prose table.
 
@@ -259,7 +262,9 @@ The repository's own documentation conflicts on the Stage 6C verdict:
 - **Authoritative (artifact-backed):** `gnn_baseline/results/stage6c_results.json` (verified by `verify_stage6c.py`), `CHANGELOG.md`, `README.md`, `results/stage6c_report.md` banner, and the Context section of `postmortem-stage6c-runner-hardening.md` → **sig. worse** (vanilla 0.4082; Tier A +0.040; Tier A+B +0.063; MLP 0.6553).
 - **Stale (null-framed):** `postmortem-stage6c-honest-assessment.md` and `postmortem-stage6c-label-misalignment-and-verified-rerun.md`, plus the Results section (§4/§5) of `postmortem-stage6c-runner-hardening.md` (internally self-contradictory vs. its own Context) → **null** (vanilla 0.4263; Tier A +0.0077; Tier A+B +0.0044; MLP 0.5786).
 
-**Resolution (user decision, 2026-08-28):** the artifact-backed **sig.-worse** reading is authoritative. The null-framing documents are flagged as stale and should be updated (not yet edited). The earlier "significant −21% improvement" claim is universally acknowledged (across all sources) as an artifact of the B1 mislabeled dataset.
+**Resolution (user decision, 2026-08-28):** the artifact-backed **sig.-worse** reading is authoritative. The earlier "significant −21% improvement" claim is universally acknowledged (across all sources) as an artifact of the B1 mislabeled dataset.
+
+**Cleanup (2026-08-31):** the three null-framing postmortems (`honest-assessment`, `label-misalignment-and-verified-rerun`, and the §4/§5 of `runner-hardening`) now each carry a forward-pointer reconciling their historical null/interim body to the authoritative sig.-worse feature-injection verdict **and** the later architectural MAX-bias result. Note the authoritative sig.-worse figure above is the *original-design* feature-injection verdict; the redesigned-feature attempt was no better (A +0.048 sig. worse; A+B −0.007 ns), and the decision-relevant current outcome is the architectural MAX-bias win (§7 addendum #2, ADR-008 addendum #2).
 
 ---
 

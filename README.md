@@ -42,7 +42,7 @@ This is not a generic list of "best practices." If a pattern or architecture cho
 | Stage 5 | Complete | Tail-aware SSTA with skew-normal 3-moment MAX |
 | Stage 6A | Complete | Arbitrary-DAG dataset generation (2,000 graphs, MC labels via name-aligned sampling) |
 | Stage 6B | Complete | Vanilla DAG-GNN baseline (beats analytical SSTA 3/3 seeds; lockstep-frozen) |
-| Stage 6C | Complete | Physics-informed ablation — Tier A and Tier A+B significantly *worse* than vanilla on corrected labels; see `results/stage6c_report.md` banner |
+| Stage 6C | Complete | Physics-informed — feature injection added no headroom (original Tier A/A+B sig. *worse*; redesigned A+B *ns*; B-only *ns*), but architectural MAX-biased aggregation **beat vanilla capacity-matched (Δ −0.062, CI [−0.088,−0.037])** — the arc's first positive result. See `docs/adrs/ADR-008-*.md` (addendum #2) |
 
 ---
 
