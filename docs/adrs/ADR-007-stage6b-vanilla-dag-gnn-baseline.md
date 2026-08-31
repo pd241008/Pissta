@@ -86,6 +86,8 @@ We use **GraphSAGE** as the backbone with the following architecture:
 | vs Analytical SSTA | 0.95× mean MAE, 0.37× std MAE (3/3 seeds) |
 | vs Trivial baseline | 79.7% mean improvement, 72.6% std improvement |
 
+> **Scoping note (2026-08-29):** the values in the table above describe the **original** (pre-regeneration) split `1,397/296/307`: mean delay MAE **0.687 (4.04%)**, std delay MAE **0.0337 (4.67%)**. After the Stage 6A dataset regeneration (1398/298/304) and CUDA-determinism hardening, the lockstep-verified pipeline (6B + all 6C variants, bit-exact) reports **mean 0.4082 (2.46%)** and **std 0.0188 (2.56%)** from `gnn_baseline/results/vanilla_dag_gnn_results.json`. The 0.0337/0.687 figures are retained here only as the original-set historical record, not the current locked baseline.
+
 ## Consequences
 
 - **Stage 6C comparison target**: The 0.37× std MAE ratio vs analytical SSTA is the number Stage 6C must beat or match.

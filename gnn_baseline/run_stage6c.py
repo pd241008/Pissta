@@ -1184,12 +1184,10 @@ def main():
         tier_summary.append(f"{tier_labels[tier_name]} {verdict}")
         print(f"  - {tier_labels[tier_name]}: {verdict} "
               f"(delta={delta:+.4f}, 95% CI=[{lo:+.4f}, {hi:+.4f}])")
-    if "significantly" not in tier_summary[0] and "significantly" not in tier_summary[1]:
-        print("  Both physics tiers are statistically indistinguishable from vanilla: CIs cross zero, "
-              "so feature injection has no significant effect in either direction (ns across the board).")
-    elif tier_a_sig and "significantly WORSE" in tier_summary[0] and "not statistically" in tier_summary[1]:
-        print(f"  Notable: {tier_labels['tier_a']} is significantly worse while {tier_labels['tier_ab']} is ns — "
-              "the added Tier B signal offsets Tier A's degradation, but does not itself clear significance.")
+    n_sig = sum(1 for tn in tier_order if significance_results[tn]["mean_ci_low"] > 0
+                or significance_results[tn]["mean_ci_high"] < 0)
+    print(f"  Summary: {n_sig} of {len(tier_order)} physics tiers have a mean-MAE CI excluding 0; "
+          f"verdicts: {tier_summary[0]}; {tier_summary[1]}.")
 
     # Tier B leakage check
     print("\n--- Tier B Leakage Check ---")

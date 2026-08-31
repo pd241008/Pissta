@@ -8,6 +8,8 @@
 
 > **SUPERSEDED (2026-08-28 decision):** The Stage 6C null conclusion in §5 below (vanilla 0.4263, Tier A +0.0077, Tier A+B +0.0044, CIs crossing zero) reflects this same-day *interim* re-run and was **overturned by the final hardened run**: both physics tiers are **significantly WORSE than vanilla** (Tier A +0.040 CI [+0.0241,+0.0557]; Tier A+B +0.063 CI [+0.0147,+0.1123]; vanilla 0.4082; MLP 0.6553). This banner is a doc-desync correction to the already-resolved decision (see ADR-008 Final Model State, `PROJECT_HISTORY.md` §7). The tables below remain valid only as the historical interim step.
 
+> **Further update (2026-08-29):** the sig.-worse feature-injection verdict above is the correct reading of the injection arc (and, per the §5 note, its direct upshot was to pivot to the architectural route). That pivot became the **first positive Stage 6C result**: MAX-biased aggregation, capacity-matched (h=54), beats vanilla on 7 seeds (Δ = −0.062, CI [−0.088, −0.037], 7/7 negative); see ADR-008 addendum #2 and PROJECT_HISTORY §7. The B1/B4 fixes documented here are what made both the sig.-worse verdict and the later architectural result trustworthy (bit-exact lockstep, deterministic CUDA).
+
 ---
 
 ## 1. Objective

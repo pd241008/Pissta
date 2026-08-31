@@ -6,6 +6,8 @@
 
 > **SUPERSEDED (2026-08-28 decision):** The null/ns framing below quotes the *interim* post-B1 dataset (vanilla 0.4263, Tier A +0.0077, Tier A+B +0.0044, all CIs crossing zero). The authoritative, artifact-backed result on the final hardened dataset is **significantly WORSE than vanilla**: Tier A +0.040 (CI [+0.0241, +0.0557]), Tier A+B +0.063 (CI [+0.0147, +0.1123]), vanilla 0.4082. See ADR-008 Final Model State and `PROJECT_HISTORY.md` §7. This re-framing is a doc-desync correction, not a new experiment. The 0.4263-style tables below remain valid only as the historical interim re-run.
 
+> **Further update (2026-08-29):** the sig.-worse feature-injection verdict above is the correct reading of the injection arc — and it motivated the architectural pivot that became the **first positive Stage 6C result**: MAX-biased aggregation, capacity-matched (h=54), beats vanilla on 7 seeds (Δ = −0.062, CI [−0.088, −0.037], 7/7 negative); the vanilla-minus-coordinates diagnostic confirms vanilla relies heavily on geometry (see ADR-008 addendum #2, PROJECT_HISTORY §7). The "future work = physics features that provide new signal" recommendation here is superseded in practice by the architecture lever, which worked.
+
 ## Issues Summary
 
 Stage 6C completed a 3-way ablation (Vanilla → Tier A → Tier A+B) with identical training protocol on the corrected dataset. On the **final hardened dataset** the result is *significantly worse than vanilla* for both physics tiers (see ADR-008 Final Model State); the interim numbers quoted below reflect the pre-hardening dataset.
