@@ -43,6 +43,7 @@ This is not a generic list of "best practices." If a pattern or architecture cho
 | Stage 6A | Complete | Arbitrary-DAG dataset generation (2,000 graphs, MC labels via name-aligned sampling) |
 | Stage 6B | Complete | Vanilla DAG-GNN baseline (beats analytical SSTA 3/3 seeds; lockstep-frozen) |
 | Stage 6C | Complete | Physics-informed — feature injection added no headroom (original Tier A/A+B sig. *worse*; redesigned A+B *ns*; B-only *ns*), but architectural MAX-biased aggregation **beat vanilla capacity-matched (Δ −0.062, CI [−0.088,−0.037])** — the arc's first positive result. See `docs/adrs/ADR-008-*.md` (addendum #2) |
+| Stage 7 | Complete | Split conformal calibration (studentized residual) closes the "calibrated uncertainty" half of the thesis: pooled 90% coverage **maxbias_cm 0.908 / vanilla 0.895**; eval MAE 0.371 vs 0.416. **Caveat:** both backbones under-cover nrecon=2 (MAX-heavy reconvergence regime); no coverage claim under distribution shift. See `docs/adrs/ADR-009-*.md` |
 
 ---
 

@@ -4,6 +4,14 @@
 
 ---
 
+### August 31, 2026 — Stage 7: split conformal calibration — the "calibrated uncertainty" half of the thesis
+
+- 🎯 **Split conformal + studentized-residual score** (`gnn_baseline/conformal.py`, `run_stage7.py`): `score=|y−mean_pred|/std_pred`, `q_hat` from a held-out calibration set, interval `mean_pred ± q_hat·std_pred`, distribution-free (no Gaussian assumption). Carved the test split (304) into **cal 152 / eval 152**, stratified by nrecon (`carve_seed=7`), so coverage is asserted on an eval slice distinct from the Stage 6C full-test MAE points.
+- 📊 **Pooled coverage @90% nominal (3 seeds):** **maxbias_cm 0.908** (meets target) · vanilla 0.895 (marginally under). Eval MAE: **maxbias_cm 0.371 vs vanilla 0.416** — the architectural win reconfirms on the fresh eval slice.
+- ⚠️ **Disaggregated finding — both backbones under-cover nrecon=2** (vanilla 0.839, maxbias 0.865 vs 0.90): the reconvergence regime where MAX-inflated tails are the point. The pooled 90% hides this; reported per-bucket (see ADR-009 / `results/stage7_report.md`). **A better point estimate does NOT imply better calibration:** maxbias's tighter intervals (q_hat≈1.04 vs vanilla≈1.14) are what cause its nrecon=2 under-coverage.
+- 🚫 **No coverage claim under distribution shift** — eval is same nrecon 1–4 family as cal; an OOD (unseen-topology-family) test is a documented follow-up, not claimed.
+- 🧪 **MAX-bias CM checkpoints were not on disk** → both backbones retrained fresh identically (seeds [42,123,999]) for a fair calibration comparison. 19/19 tests pass (8 new conformal unit tests).
+
 ### August 29, 2026 — Stage 6C: redesigned features still no headroom; **architectural MAX-bias is the first positive result**
 
 - 🔁 **Redesigned feature attempt** (ADR-008 addendum 1): Tier A now uses `var_d/load_ff²` (non-redundant vs `load_ff`; R²=0.088) and Tier B is per-node AT, passed through message passing. Still no headroom: Tier A (redesigned) **sig. worse** (+0.048, CI [+0.019,+0.078]); Tier A+B (redesigned) **ns** (−0.007, CI [−0.047,+0.032]); Tier B only **ns** (+0.009, CI [−0.027,+0.043]). Four feature-injection attempts in total — none beat vanilla.
