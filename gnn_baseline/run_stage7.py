@@ -52,6 +52,7 @@ from conformal import (
     conformal_interval,
     coverage_by_group,
     empirical_coverage,
+    interval_width_stats,
     split_conformal_quantile,
     studentized_score,
 )
@@ -136,6 +137,9 @@ def train_and_evaluate(
     Both vanilla and maxbias_cm are trained fresh with the identical frozen
     protocol (same train split, same hyperparameters) so the calibration
     comparison between them is fair and reproducible.
+
+    If a checkpoint already exists on disk, training is skipped and the
+    existing checkpoint is loaded (for regeneration with per-graph persistence).
     """
     set_seed(seed)
     train_dataset = GraphDataset(split="train", data_dir=data_dir, physics_mode="vanilla")
@@ -148,14 +152,22 @@ def train_and_evaluate(
                             batch_size=32, shuffle=False)
 
     model = build_model(config, device)
-    max_epochs = 10 if SMOKE else 200
     ckpt_path = str(checkpoint_dir / f"best_model_{config}_seed{seed}.pt")
-    train_result = train_model(
-        model=model, train_loader=train_loader, val_loader=val_loader,
-        device=device, lr=1e-3, max_epochs=max_epochs, patience=20,
-        checkpoint_path=ckpt_path,
-    )
-    model.load_state_dict(torch.load(ckpt_path, weights_only=True))
+
+    if os.path.exists(ckpt_path):
+        print(f"  Checkpoint exists, loading: {ckpt_path}")
+        model.load_state_dict(torch.load(ckpt_path, weights_only=True))
+        best_epoch, best_val_loss = -1, float("nan")
+    else:
+        max_epochs = 10 if SMOKE else 200
+        train_result = train_model(
+            model=model, train_loader=train_loader, val_loader=val_loader,
+            device=device, lr=1e-3, max_epochs=max_epochs, patience=20,
+            checkpoint_path=ckpt_path,
+        )
+        model.load_state_dict(torch.load(ckpt_path, weights_only=True))
+        best_epoch = train_result["best_epoch"]
+        best_val_loss = float(train_result["best_val_loss"])
 
     cal_loader = DataLoader(cal_dataset.get_data(feature_stats, target_stats, physics_stats),
                             batch_size=32, shuffle=False)
@@ -170,8 +182,8 @@ def train_and_evaluate(
         "seed": seed,
         "config": config,
         "n_params": n_params,
-        "best_epoch": train_result["best_epoch"],
-        "best_val_loss": float(train_result["best_val_loss"]),
+        "best_epoch": best_epoch,
+        "best_val_loss": best_val_loss,
         "eval_train_loss": _eval_mode_train_loss(model, train_loader, device),
         "cal_metrics": cal_metrics,
         "eval_metrics": eval_metrics,
@@ -209,6 +221,33 @@ def _conformal_run(seed_result: Dict) -> Dict:
     pooled_cov = empirical_coverage(lo, hi, ev_y)
 
     groups = coverage_by_group(lo, hi, ev_y, np.array([g["nrecon"] for g in ev]))
+    width = interval_width_stats(lo, hi, np.array([g["nrecon"] for g in ev]))
+
+    # Per-graph predictions for independent verification (Step 9).
+    cal_per_graph = [
+        {
+            "graph_id": cal[i]["graph_id"],
+            "nrecon": cal[i]["nrecon"],
+            "mc_mean": cal_y[i],
+            "pred_mean": cal_mean[i],
+            "pred_std": cal_std[i],
+            "score": float(scores[i]),
+        }
+        for i in range(len(cal))
+    ]
+    eval_per_graph = [
+        {
+            "graph_id": ev[i]["graph_id"],
+            "nrecon": ev[i]["nrecon"],
+            "mc_mean": ev_y[i],
+            "pred_mean": ev_mean[i],
+            "pred_std": ev_std[i],
+            "interval_lo": float(lo[i]),
+            "interval_hi": float(hi[i]),
+            "covered": bool((ev_y[i] >= lo[i]) and (ev_y[i] <= hi[i])),
+        }
+        for i in range(len(ev))
+    ]
 
     return {
         "seed": seed_result["seed"],
@@ -220,8 +259,11 @@ def _conformal_run(seed_result: Dict) -> Dict:
         "q_hat": q_hat,
         "pooled_coverage": pooled_cov,
         "coverage_by_nrecon": groups,
+        "width_by_nrecon": width,
         "eval_mean_mae": float(seed_result["eval_metrics"]["mean_mae"]),
         "eval_std_mae": float(seed_result["eval_metrics"]["std_mae"]),
+        "cal_per_graph": cal_per_graph,
+        "eval_per_graph": eval_per_graph,
     }
 
 
@@ -274,6 +316,8 @@ def main() -> None:
         covs = [c["pooled_coverage"] for c in conformal_results[config]]
         qs = [c["q_hat"] for c in conformal_results[config]]
         mae = [c["eval_mean_mae"] for c in conformal_results[config]]
+        # Aggregate pooled width stats across seeds.
+        pooled_widths = [c["width_by_nrecon"]["pooled"] for c in conformal_results[config]]
         agg[config] = {
             "mean_pooled_coverage": float(np.mean(covs)),
             "pooled_coverage_per_seed": covs,
@@ -281,6 +325,9 @@ def main() -> None:
             "q_hat_per_seed": qs,
             "eval_mean_mae": float(np.mean(mae)),
             "eval_mean_mae_per_seed": mae,
+            "mean_pooled_interval_width": float(np.mean([w["mean_width"] for w in pooled_widths])),
+            "median_pooled_interval_width": float(np.mean([w["median_width"] for w in pooled_widths])),
+            "pooled_width_per_seed": pooled_widths,
         }
 
     output = {
@@ -307,14 +354,20 @@ def main() -> None:
         print(f"  q_hat per seed    : {[f'{q:.4f}' for q in a['q_hat_per_seed']]}")
         print(f"  pooled coverage   : {[f'{c:.3f}' for c in a['pooled_coverage_per_seed']]} "
               f"(mean {a['mean_pooled_coverage']:.3f})")
+        print(f"  pooled mean width : {a['mean_pooled_interval_width']:.4f} "
+              f"(median {a['median_pooled_interval_width']:.4f})")
         print(f"  eval mean MAE     : {[f'{m:.4f}' for m in a['eval_mean_mae_per_seed']]} "
               f"(mean {a['eval_mean_mae']:.4f})")
-        # Per-nrecon coverage on the first seed's eval for a quick look.
+        # Per-nrecon coverage + width on the first seed's eval.
         c0 = conformal_results[config][0]
-        print("  per-nrecon coverage (seed 42):")
-        for g, s in sorted(c0["coverage_by_nrecon"].items(), key=lambda kv: int(kv[0])):
-            flag = "OK" if s["coverage"] >= 0.9 else "BELOW"
-            print(f"    nrecon={g} (n={s['n']}): cov={s['coverage']:.3f} {flag}")
+        print("  per-nrecon coverage + width (seed 42):")
+        for g in sorted(c0["coverage_by_nrecon"], key=lambda k: int(k)):
+            cov = c0["coverage_by_nrecon"][g]
+            w = c0["width_by_nrecon"][g]
+            flag = "OK" if cov["coverage"] >= 0.9 else "BELOW"
+            print(f"    nrecon={g} (n={cov['n']}): "
+                  f"cov={cov['coverage']:.3f} {flag} | "
+                  f"width mean={w['mean_width']:.3f} med={w['median_width']:.3f}")
 
     print(f"\nResults saved to {out_path}")
 

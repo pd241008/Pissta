@@ -133,3 +133,47 @@ def coverage_by_group(
             "coverage": empirical_coverage(lo[mask], hi[mask], y_true[mask]),
         }
     return out
+
+
+def interval_width_stats(
+    lo: np.ndarray,
+    hi: np.ndarray,
+    groups: Sequence | None = None,
+) -> Dict[str, Dict[str, float]]:
+    """Interval width statistics, optionally broken down by group.
+
+    Returns pooled stats if groups is None, or per-group stats keyed by group.
+    Each entry contains: n, mean_width, median_width, p95_width, p99_width.
+
+    Coverage alone is gameable (predict [-inf, +inf] for 100% coverage).
+    Width alongside coverage is what makes the number meaningful — narrow
+    intervals at nominal coverage are more informative than wide ones.
+    """
+    lo = np.asarray(lo, dtype=float)
+    hi = np.asarray(hi, dtype=float)
+    widths = hi - lo
+
+    def _stats(w: np.ndarray) -> Dict[str, float]:
+        if len(w) == 0:
+            return {"n": 0, "mean_width": float("nan"), "median_width": float("nan"),
+                    "p95_width": float("nan"), "p99_width": float("nan")}
+        return {
+            "n": int(len(w)),
+            "mean_width": float(np.mean(w)),
+            "median_width": float(np.median(w)),
+            "p95_width": float(np.percentile(w, 95)),
+            "p99_width": float(np.percentile(w, 99)),
+        }
+
+    if groups is None:
+        return {"pooled": _stats(widths)}
+
+    groups = np.asarray(list(groups))
+    out: Dict[str, Dict[str, float]] = {}
+    for g in sorted(set(groups), key=lambda x: (isinstance(x, str), str(x))):
+        mask = np.asarray(groups == g)
+        if mask.sum() == 0:
+            continue
+        out[str(g)] = _stats(widths[mask])
+    out["pooled"] = _stats(widths)
+    return out

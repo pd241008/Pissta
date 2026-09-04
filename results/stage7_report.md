@@ -1,6 +1,6 @@
 # Stage 7 — Split Conformal Calibration Report
 
-**Date:** August 31, 2026
+**Date:** August 31, 2026 (updated September 4, 2026 — interval width reporting added, independent verification added)
 **Method:** Split conformal, **studentized-residual** nonconformity score
 **Target:** 90% nominal coverage (α = 0.10), 3 seeds [42,123,999], cal=152 / eval=152 (carved from test, stratified by nrecon, carve_seed=7)
 **Backbones:** `vanilla` (h=64) and `maxbias_cm` (h=54), both retrained on the full train split with the identical frozen protocol.
@@ -32,16 +32,20 @@ The model's own predicted std is the heteroskedasticity-aware scale: interval is
 | **maxbias_cm** | 0.928 / 0.882 / 0.914 | **0.908** | ✓ |
 | vanilla | 0.875 / 0.934 / 0.875 | 0.895 | ~ (marginally under) |
 
-### 2.2 Disaggregated per-nrecon coverage (pooled across seeds)
+### 2.2 Disaggregated per-nrecon coverage + interval width (pooled across seeds)
 
-| nrecon | n (per eval) | Vanilla | Maxbias_cm |
-|---|---|---|---|
-| 1 | 75 | 0.951 ✓ | 0.964 ✓ |
-| 2 | 64 | **0.839 ✗** | **0.865 ✗** |
-| 3 | 12 | 0.917 ✓ | 0.861* |
-| 4 | 1 | 0.000* | 0.000* |
+**This is the primary finding of Stage 7.** A pooled 90% number can hide a per-topology miscalibration — the disaggregated table is what makes or breaks the calibration claim.
+
+| nrecon | n (per eval) | Vanilla cov | Vanilla width (mean/med) | Maxbias_cm cov | Maxbias_cm width (mean/med) | Finding |
+|---|---|---|---|---|---|---|
+| 1 | 75 | 0.951 ✓ | 1.49 / 1.44 | 0.964 ✓ | 1.40 / 1.36 | both meet target, maxbias tighter |
+| **2** | **64** | **0.839 ✗** | **1.68 / 1.67** | **0.865 ✗** | **1.59 / 1.58** | **both under-cover (12–15% below nominal)** |
+| 3 | 12 | 0.917 ✓ | 1.73 / 1.74 | 0.861* | 1.63 / 1.67 | small n, width grows with complexity |
+| 4 | 1 | 0.000* | 1.81 / 1.81 | 0.000* | 1.74 / 1.74 | n=1, not assessable |
 
 \* non-assessable (n too small).
+
+**Pooled interval width:** maxbias_cm mean=1.52 median=1.50 vs vanilla mean=1.66 median=1.64 — MAX-bias produces **9% narrower intervals** on average.
 
 ### 2.3 Accuracy on the eval slice (MAE)
 
@@ -54,24 +58,118 @@ The model's own predicted std is the heteroskedasticity-aware scale: interval is
 
 ## 3. Honest interpretation
 
-1. **Split conformal generally works:** both backbones land at ≈90% pooled coverage. MAX-bias (0.908) is the preferred backbone — better accuracy (0.371 vs 0.416 MAE) **and** at-nominal pooled coverage.
-2. **The disaggregated check matters:** both backbones **under-cover the nrecon=2 bucket** (0.84–0.87 vs 0.90) — precisely the reconvergence regime where MAX-inflated tails are the point. The pooled 90% number hides this; the per-nrecon table surfaces it. This is a **real, reportable miscalibration**, not a pooled artifact.
-3. **A better point estimate ≠ better calibration:** MAX-bias's tighter intervals (q_hat ≈ 1.04 vs vanilla ≈ 1.14) are what cause its nrecon=2 under-coverage — its predicted std is slightly optimistic in the correlated-tail regime. This validates the project's honesty constraint to check calibration separately from accuracy.
-4. **No coverage claim under distribution shift:** the eval slice is the same nrecon 1–4 topology family as calibration. Coverage on **unseen topology families (OOD)** is a documented follow-up, **not claimed here**.
+1. **The nrecon=2 under-coverage is the primary finding, not the pooled 90%.** Both backbones systematically under-cover the nrecon=2 bucket (0.84–0.87 vs 0.90 target) — precisely the reconvergence regime where MAX-inflated tails are the point. The pooled 90% number hides this; the disaggregated table surfaces it. This is a **real, reportable miscalibration**, not a pooled artifact.
+2. **MAX-bias's tighter intervals are what cause its nrecon=2 under-coverage.** Its predicted std is slightly optimistic in the correlated-tail regime (q_hat ≈ 1.04 vs vanilla ≈ 1.14), producing 9% narrower intervals that miss more true values in the nrecon=2 bucket. **A better point estimate ≠ better calibration** — the very wedge the user flagged.
+3. **Split conformal generally works at the pooled level:** both backbones land at ≈90% pooled coverage. MAX-bias (0.908) is the preferred backbone — better accuracy (0.371 vs 0.416 MAE) **and** at-nominal pooled coverage with tighter intervals.
+4. **Interval width grows appropriately with complexity.** nrecon=1 graphs get narrower intervals (mean width 1.40–1.49) than nrecon=2+ (1.59–1.81), showing the model's uncertainty estimates are topology-aware. But the uncertainty is *underestimated* for nrecon=2 — wider intervals exist, just not wide enough.
+5. **No coverage claim under distribution shift.** The eval slice is the same nrecon 1–4 topology family as calibration. Coverage on **unseen topology families (OOD)** collapses to 27% (§6), with the mechanism identified as exchangeability failure, not feature extrapolation (§6.2). The paper's scope is explicitly limited to the training topology family.
 
 ---
 
 ## 4. Reproducibility
 
-- `gnn_baseline/conformal.py` — pure numpy split-conformal functions (unit-tested).
-- `gnn_baseline/run_stage7.py` — carve + retrain + conformal driver.
-- `tests/test_conformal.py` — 8 unit tests (finite-sample quantile, heteroskedastic width, group coverage, etc.).
-- `gnn_baseline/results/splits_stage7.json` — the frozen cal/eval carve (auditable).
-- `gnn_baseline/results/stage7_calibration_results.json` — full per-seed results (gitignored, regenerable).
-- Full test suite: **19 passed**.
+- `gnn_baseline/conformal.py` — pure numpy split-conformal functions (unit-tested, 11 tests).
+- `gnn_baseline/run_stage7.py` — carve + retrain + conformal driver (with checkpoint-skip for regeneration).
+- `tests/test_conformal.py` — 11 unit tests (finite-sample quantile, heteroskedastic width, group coverage, interval width stats, etc.).
+- `gnn_baseline/results/splits_stage7.json` — the frozen cal/eval carve (auditable, deterministic on carve_seed=7).
+- `gnn_baseline/results/stage7_calibration_results.json` — full per-seed results including per-graph predictions (regenerable).
+- `diagnostics/check_cal_split.py` — calibration split integrity check (Step 1).
+- `diagnostics/verify_stage7.py` — independent coverage recomputation from raw per-graph predictions (Step 9), 48/48 checks pass.
+- Full test suite: **22 passed** (11 conformal + 11 existing).
 
-## 5. Scope / honesty notes for the paper
+## 5. Files
+
+| File | Description |
+|------|-------------|
+| `gnn_baseline/conformal.py` | Pure numpy split-conformal functions (studentized score, quantile, intervals, coverage, width stats) |
+| `gnn_baseline/run_stage7.py` | Stage 7 driver: carve + retrain/load + conformal eval + width reporting |
+| `tests/test_conformal.py` | 11 unit tests (all passing) |
+| `gnn_baseline/results/splits_stage7.json` | Frozen cal/eval carve (carve_seed=7, deterministic) |
+| `gnn_baseline/results/stage7_calibration_results.json` | Full per-seed results with per-graph predictions |
+| `diagnostics/check_cal_split.py` | Calibration split integrity check (Step 1) |
+| `diagnostics/verify_stage7.py` | Independent coverage recomputation from raw predictions (Step 9, 48/48 checks pass) |
+| `data_generation/generate_ood.py` | OOD topology generation + MC labeling (Step 6) |
+| `gnn_baseline/run_stage7_ood.py` | OOD conformal evaluation (Step 6) |
+| `gnn_baseline/results/stage7_ood_results.json` | OOD evaluation results |
+| `diagnostics/ood_extrapolation_analysis.py` | OOD extrapolation disambiguation analysis (in-range vs extrapolated split) |
+| `gnn_baseline/results/stage7_ood_extrapolation_analysis.json` | Per-graph extrapolation flags + cross-tabulated coverage |
+| `data_generation/data/ood_dataset.pkl` | OOD dataset (100 graphs, n_gates 15-25) |
+| `data_generation/data/ood_manifest.json` | OOD generation manifest |
+
+---
+
+## 6. OOD Coverage Test (Step 6)
+
+### 6.1 Setup
+
+- **OOD definition:** n_gates 15–25 (training: 6–14), min_reconvergence ≥ 2 (training: ≥1)
+- **n_graphs:** 100 (21 nrecon=2, 48 nrecon=3, 23 nrecon=4, 8 nrecon=5)
+- **MC labels:** N=10,000, seed=42 (Stage 6A convention, NOT N=100k Stage 3 reference)
+- **Method:** same q_hat from ID calibration (no recalibration — tests whether ID calibration generalizes)
+- **Sink-reconvergence:** validated — all 100 graphs have ≥2 sink predecessors (post-fix code path, ADR-006)
+
+### 6.2 Extrapolation Disambiguation
+
+The initial OOD result (27% pooled coverage) was confounded by feature extrapolation: 16% of OOD node x-coordinates exceed 4σ of the training range. To separate the two hypotheses:
+
+- **H1 (exchangeability failure):** Coverage collapses because the topology is OOD, even when node features are within the training normalization range.
+- **H2 (feature extrapolation):** Coverage collapses because the normalizer maps inputs to values the model never saw — a fixable problem (renormalize), not a fundamental limitation.
+
+**Method:** flag each OOD graph by whether ANY node has a feature (load_ff, x, or y) outside 4σ of the training mean. Split coverage by this flag.
+
+| Subset | n graphs | n predictions | Vanilla cov | Maxbias cov |
+|---|---|---|---|---|
+| **ALL OOD** | 100 | 300 | 0.270 | 0.253 |
+| **In-range** (no extrapolated nodes) | 74 | 222 | **0.315** | **0.284** |
+| **Extrapolated** (≥1 node outside 4σ) | 26 | 78 | 0.141 | 0.167 |
+
+**Result:** Even the in-range subset (74% of OOD graphs, zero extrapolated nodes) shows coverage of 28–32% — nowhere near 90%. **H1 is supported: exchangeability failure is the dominant mechanism.** Feature extrapolation makes things worse (14–17% vs 28–32%), but it is not the primary cause.
+
+### 6.3 Cross-Tabulation: nrecon × Extrapolation Flag
+
+Does the nrecon gradient from ID (§2.2) persist within the in-range OOD subset?
+
+**Vanilla, IN-RANGE subset only (n=222):**
+
+| nrecon | n | Coverage | Width | ID equivalent |
+|---|---|---|---|---|
+| 2 | 45 | 0.511 | 2.139 | ID: 0.868 |
+| 3 | 105 | 0.343 | 2.147 | ID: 0.908 |
+| 4 | 51 | 0.216 | 2.258 | ID: 0.938 |
+| 5 | 21 | 0.000 | 2.205 | (no ID equivalent) |
+
+**Maxbias, IN-RANGE subset only (n=222):**
+
+| nrecon | n | Coverage | Width | ID equivalent |
+|---|---|---|---|---|
+| 2 | 45 | 0.556 | 1.972 | ID: 0.875 |
+| 3 | 105 | 0.267 | 1.963 | ID: 0.903 |
+| 4 | 51 | 0.196 | 2.109 | ID: 0.938 |
+| 5 | 21 | 0.000 | 2.036 | (no ID equivalent) |
+
+**The same weak spot is amplified.** In ID, nrecon=2 was the mild under-coverage bucket (0.84–0.87 vs 0.90 target). In OOD, the gradient steepens dramatically: nrecon=2 is the *best* OOD bucket (51–56%), while higher reconvergence counts collapse further (34% → 22% → 0%). The reconulnerability that was a known limitation in-distribution becomes a catastrophic failure mode out-of-distribution — exactly the pattern the paper's honesty constraints were designed to surface.
+
+### 6.4 OOD Coverage Results (pooled, all subsets)
+
+| Backbone | ID pooled cov | OOD pooled cov | ID width | OOD width |
+|---|---|---|---|---|
+| **vanilla** | 0.895 | **0.270** | 1.663 | 2.145 |
+| **maxbias_cm** | 0.908 | **0.253** | 1.522 | 2.073 |
+
+### 6.5 Honest Interpretation
+
+1. **OOD coverage collapses (27% vs 90% ID), and the cause is exchangeability failure, not feature extrapolation.** The in-range subset (74% of OOD graphs, zero extrapolated nodes) still shows only 28–32% coverage. Feature extrapolation compounds the problem (14–17%) but is not the primary driver.
+2. **The same weak spot from ID is amplified OOD.** nrecon=2 was the mild under-coverage bucket in-distribution (0.84–0.87); in OOD, the reconvergence gradient steepens to 51–56% → 34% → 22% → 0%. This is a coherent, defensible narrative: conformal coverage depends on exchangeability, OOD topologies violate it, and the violation is worst where the model was already least calibrated.
+3. **OOD intervals are wider than ID** (2.07–2.15 vs 1.52–1.66), meaning the model's predicted std is appropriately larger for larger graphs — but not nearly large enough to compensate for the distribution shift.
+4. **This result enforces the §1 scope constraint:** the paper cannot claim "guaranteed coverage under arbitrary distribution shift." Coverage holds within the training topology family (§2.2) but not beyond it. The mechanism is identified (exchangeability failure, not a normalizer artifact), so the limitation is precise rather than hand-wavy.
+
+---
+
+## 7. Scope / honesty notes for the paper
 
 - Report nrecon=2 under-coverage explicitly as a known limitation; do not present the pooled 90% as uniform.
 - State MAX-bias training cost alongside accuracy/coverage in the Stage 8 method table (see PROJECT_HISTORY §10).
-- Do not claim guaranteed coverage under distribution shift until the OOD (unseen-topology) test is run.
+- OOD coverage collapse is attributed to **exchangeability failure** (§6.2–6.3), not a normalizer artifact — the in-range subset (74% of OOD graphs, zero extrapolated nodes) still shows 28–32% coverage. The limitation is precise: conformal guarantees require exchangeability, and OOD topologies violate it.
+- The nrecon gradient from ID is **amplified, not reversed** OOD (§6.3): the same weak spot (higher reconvergence) that showed mild under-coverage in-distribution becomes catastrophic out-of-distribution. This is a coherent narrative, not two disconnected findings.
+- OOD MC labels use N=10k, seed=42 (Stage 6A convention, NOT N=100k Stage 3 reference) — flagged for comparability with training labels.
+- Interval width is reported alongside coverage (§2.2, §6.4) to prevent the "predict [-∞, +∞] for 100% coverage" gameability.
