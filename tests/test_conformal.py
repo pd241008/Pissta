@@ -5,6 +5,7 @@ from gnn_baseline.conformal import (
     conformal_interval,
     coverage_by_group,
     empirical_coverage,
+    interval_width_stats,
     split_conformal_quantile,
     studentized_score,
 )
@@ -91,3 +92,37 @@ def test_heteroskedastic_interval_width_follows_std():
     w1 = intervals[1, 1] - intervals[1, 0]
     assert w0 == pytest.approx(4.0)
     assert w1 == pytest.approx(12.0)
+
+
+def test_interval_width_stats_pooled():
+    lo = np.array([0.0, 2.0, 5.0])
+    hi = np.array([10.0, 4.0, 15.0])
+    widths = hi - lo  # [10, 2, 10]
+    result = interval_width_stats(lo, hi)
+    assert "pooled" in result
+    assert result["pooled"]["n"] == 3
+    assert result["pooled"]["mean_width"] == pytest.approx(np.mean(widths))
+    assert result["pooled"]["median_width"] == pytest.approx(np.median(widths))
+
+
+def test_interval_width_stats_by_group():
+    lo = np.array([0.0, 0.0, 0.0, 0.0])
+    hi = np.array([2.0, 4.0, 6.0, 8.0])
+    groups = np.array([1, 1, 2, 2])
+    result = interval_width_stats(lo, hi, groups)
+    assert "1" in result
+    assert "2" in result
+    assert "pooled" in result
+    assert result["1"]["n"] == 2
+    assert result["1"]["mean_width"] == pytest.approx(3.0)  # (2+4)/2
+    assert result["2"]["n"] == 2
+    assert result["2"]["mean_width"] == pytest.approx(7.0)  # (6+8)/2
+    assert result["pooled"]["n"] == 4
+
+
+def test_interval_width_stats_empty():
+    lo = np.array([], dtype=float)
+    hi = np.array([], dtype=float)
+    result = interval_width_stats(lo, hi)
+    assert result["pooled"]["n"] == 0
+    assert np.isnan(result["pooled"]["mean_width"])
