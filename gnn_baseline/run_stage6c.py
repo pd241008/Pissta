@@ -949,7 +949,7 @@ def paired_cluster_bootstrap_ci(vanilla_results: List[Dict], tier_results: List[
         "n_graphs": len(graph_mean_deltas),
         "per_seed_mean_deltas": per_seed_mean,
         "per_seed_std_deltas": per_seed_std,
-        "bootstrap_method": "cluster by graph_id (3 seeds per graph)",
+        "bootstrap_method": "cluster by graph_id",
     }
 
 
