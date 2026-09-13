@@ -30,6 +30,7 @@ import os
 import sys
 from pathlib import Path
 
+import numpy as np
 import torch
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -67,6 +68,8 @@ def _agg(res):
         "std_mae": float(sum(r['test_metrics']['std_mae'] for r in res) / len(res)),
         "mean_rel": float(sum(r['test_metrics']['mean_relative'] for r in res) / len(res)),
         "std_rel": float(sum(r['test_metrics']['std_relative'] for r in res) / len(res)),
+        "avg_train_time_s": float(np.mean([r["train_result"]["train_time"] for r in res])),
+        "avg_inference_ms_per_graph": float(np.mean([r["test_metrics"]["avg_inference_time_ms"] for r in res])),
     }
 
 
@@ -151,6 +154,8 @@ def main() -> None:
                     "seed": r["seed"], "config": r["config"], "n_params": r["n_params"],
                     "best_epoch": r["train_result"]["best_epoch"],
                     "best_val_loss": float(r["train_result"]["best_val_loss"]),
+                    "train_time": float(r["train_result"]["train_time"]),
+                    "history": r["train_result"].get("history", {}),
                     "eval_train_loss": float(r["eval_train_loss"]),
                     "test_metrics": r["test_metrics"],
                     "physics_feature_time_ms": r.get("physics_feature_time_ms"),
