@@ -205,6 +205,19 @@ def run_single_seed(
             dropout=0.15,
             num_outputs=2,
         ).to(device)
+    elif config_name == "maxbias_cm_tierab":
+        # Combined ablation: MAX-biased aggregation (capacity-matched h=54, the
+        # Section 7 positive architecture) + redesigned Tier A+B per-node
+        # physics features (load_ff, x, y, var_d/load_ff^2, AT_mean, AT_var).
+        # Same capacity-matched hidden dim; only the node-feature semantics
+        # differ from maxbias_cm (6-dim tier_ab features, physics_mode="tier_ab").
+        model = MaxBiasedDAGGNNSage(
+            num_node_features=6,
+            hidden_dim=54,
+            num_layers=3,
+            dropout=0.15,
+            num_outputs=2,
+        ).to(device)
     else:
         raise ValueError(f"Unknown config: {config_name}")
 
