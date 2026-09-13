@@ -37,7 +37,42 @@ Locked reference distributions, raw data, and final reports.
 |------|-------------|
 | `stage5_tail_aware_ssta.json` | Tail-aware SSTA report with skew-normal MAX, gap closure analysis |
 
-### Diagnostic/Validation
+### Stage 7 (Conformal Calibration) & Stage 8 (Cross-Method Comparison)
+
+| File | Description |
+|------|-------------|
+| `stage7_report.md` | Split-conformal calibration report (ADR-009), incl. nrecon=2 under-coverage caveat |
+| `stage8_report.md` | **Final cross-method cost/accuracy table** (MC / analytical / tail-aware / vanilla / MAX-bias CM + full-cap / combined × mean-MAE · inference ms · training s · amortized data-gen) with honest amortized-cost paragraph |
+
+### Stage 6C (Physics Feature Injection + MAX-bias artifact set)
+
+| File | Description |
+|------|-------------|
+| `stage6c_report.md` | Comprehensive Stage 6C cross-lever report (all four feature attempts + MAX-bias arc) |
+| `stage6c_results.json` | **≥0.365/0.367/0.361** (maxbias_cm 7-seed, maxbias full-cap, combined tierab) lockstep-verified runs w/ training-time instrumentation |
+| `stage6c_results_maxbias_cm_tierab.json` | Combined MAX-bias-CM × Tier A+B ablation (7 seeds) — first execution |
+| `stage6c_results_original_design.json` | Stage 6C original-design runs (pre-hardening, archived) |
+
+### Stage 7 (Split-Conformal Calibration) & Stage 8 (Cross-Method Comparison)
+
+| File | Description |
+|------|-------------|
+| `stage7_report.md` | Split-conformal calibration report (ADR-009) with the nrecon=2 under-coverage caveat |
+| `stage8_report.md` | **Final cross-method cost/accuracy table** — MC / analytical (Clark) / tail-aware skew-normal / vanilla / MAX-bias (CM + full-cap) / combined × mean-MAE, inference ms/graph, training s, amortized data-gen — with honest amortized-cost paragraph |
+
+### Stage 6C (Physics Feature Injection / MAX-bias arc)
+
+| File | Description |
+|------|-------------|
+| `stage6c_report.md` | Cross-lever Stage 6C report (all four feature attempts + MAX-bias arc) |
+| `stage6c_results.json` | Committed artifact: vanilla/maxbias_cm (7 seeds) w/ train_time instrumentation |
+| `stage6c_results_maxbias.json` | MAX-bias full-capability (3 seeds) w/ train_time instrumentation |
+| `stage6c_results_maxbias_cm_tierab.json` | Combined MAX-bias-CM + redesigned Tier A+B ablation (7 seeds) — first execution |
+| `stage6c_results_nocoor.json` | Vanilla-minus-coordinates diagnostic (3 seeds) |
+| `stage6c_results_tier_b_only.json` | Tier-B-only ablation (3 seeds) |
+| `stage6c_results_original_design.json` | Original-design feature-injection runs (archived, pre-hardening) |
+
+Pre-2026-09-13 backup of the pre-train-time versions: `gnn_baseline/results_backup_pre-traintime/`, `gnn_baseline/checkpoints_backup_pre-traintime/`; a second copy in `/tmp/opencode/artifacts_backup/`.
 
 | File | Description |
 |------|-------------|

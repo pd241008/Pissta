@@ -2,7 +2,7 @@
 
 > **Status:** Decided  
 > **Date:** August 20, 2026  
-> **Last updated:** August 28, 2026
+> **Last updated:** September 13, 2026
 
 ## Context
 
@@ -70,7 +70,7 @@ We use **feature-level physics injection** with a 3-way ablation:
 - Tier A: +0.040, cluster-bootstrap CI [+0.0241, +0.0557] (excludes 0)
 - Tier A+B: +0.063, cluster-bootstrap CI [+0.0147, +0.1123] (excludes 0)
 
-Values here are the aggregates recomputed from the committed `gnn_baseline/results/stage6c_results.json` and independently re-derived by `verify_stage6c.py` (per-graph sha256-consistent, lockstep exact, max diff 0.0). This supersedes the earlier "corrected re-run" table below (which read as a null because its CIs crossed zero at the interim dataset). Note the earlier significant improvement (Tier A+B -21%) was an artifact of the mislabeled dataset (B1) plus its different graph-complexity mix.
+Values here are the aggregates recomputed from the archived original-design artifact `gnn_baseline/results/stage6c_results_original_design.json` (recovered pre-hardening backup) and cross-checked by `verify_stage6c.py` (per-graph point estimates recomputed and matching; lockstep exact, max diff 0.0). **Note:** `stage6c_results.json` was later overwritten by the *redesigned* run — original-design numbers live only in the recovered file. **CI caveat:** `verify_stage6c.py` recomputes per-graph aggregates but *reads* the bootstrap CI fields from the artifact rather than re-deriving them; the CI bounds above are stored-in-artifact, not independently re-derived. This supersedes the earlier "corrected re-run" table below (which read as a null because its CIs crossed zero at the interim dataset). Note the earlier significant improvement (Tier A+B -21%) was an artifact of the mislabeled dataset (B1) plus its different graph-complexity mix.
 
 **Earlier corrected re-run (interim, superseded — kept for the record):** the first post-B1-numbers re-run gave Vanilla 0.4263, Tier A 0.4340 (CI [-0.0113, +0.0272]), Tier A+B 0.4307 (CI [-0.0450, +0.0523]) — point estimates slightly favoring vanilla, CIs crossing zero. That interim dataset was regenerated concurrently with the hardening work and is not graph-for-graph identical to the final one; the hardened full run (table above) is the authoritative result.
 
@@ -199,3 +199,53 @@ capacity-matched maxbias), that beats vanilla with a defensible,
 capacity-controlled, multi-seed-stable CI.** Supersedes the "no headroom
 regardless of features" conclusion from the first addendum — headroom
 existed, it was in aggregation structure, not node/graph-level features.
+
+## ADR-008 Addendum #3 (2026-09-13): Training-time instrumentation fix + combined MAX-bias × Tier A+B ablation (Stage 8 prep)
+
+Two follow-ups closed during Stage 8 prep.
+
+**(a) Training-time logging bug (same class as B3):** the harnesses used for the
+MAX-bias runs (`run_maxbias.py`), the vanilla-minus-coordinates control
+(`run_nocoor.py`), and the Tier-B-only control (`run_tier_b_only.py`) trained the model,
+captured `train_result['train_time']` — and then discarded it when writing the per-seed
+JSON (per-seed dicts kept only `best_epoch` / `best_val_loss` / eval metrics). Training
+seconds were reported as `None` / absent. Fixed in all three harnesses: per-seed
+`train_time` + `history` persisted; `stability_summary` gains `avg_train_time_s`
+alongside the existing physics/inference aggregates (plus a missing `import numpy as np`
+that the new aggregation needed, found when the first instrumented CM run crashed at
+`_agg`).
+
+**(b) Instrumentation re-runs (no-recompute):** MAX-bias-CM was re-run on the full 7
+seeds and MAX-bias full-capacity on 3 seeds purely to populate training seconds with the
+same hyperparameters/seeds as the committed artifacts. Per-graph lockstep vs the
+committed artifacts: **max diff 0.0** — the reported MAE numbers are untouched; only now
+real training-time numbers exist (vanilla avg 106–154 s, maxbias_cm 112 s, maxbias
+full-cap 120 s; single-GPU deterministic wall-clock, load-sensitive ±35%).
+
+**(c) Combined ablation (the last untried feature injection):** MAX-bias-CM architecture
+(h=54, capacity-matched) + redesigned per-node Tier A+B physics features, 7 seeds,
+`run_maxbias_tierab.py`:
+
+| seed | vanilla | maxbias_cm_tierab | Δ |
+|---|---|---|---|
+| 42 | 0.41156 | 0.38009 | −0.0315 |
+| 123 | 0.40181 | 0.37706 | −0.0248 |
+| 999 | 0.41112 | 0.31502 | −0.0961 |
+| 2024 | 0.46641 | 0.38843 | −0.0780 |
+| 777 | 0.44217 | 0.32930 | −0.1129 |
+| 3141 | 0.42360 | 0.36548 | −0.0581 |
+| 2718 | 0.44483 | 0.36976 | −0.0751 |
+
+Δ vs vanilla −0.068, CI [−0.105, −0.032], sig. better, 7/7 negative. **But vs
+MAX-bias-CM alone the Δ is −0.006, CI [−0.033, +0.022] — not significant, sign-unstable
+per seed** (independent clustered-bootstrap re-derivation [−0.0330, +0.0218]), and the
+combination pays a 0.56 ms/graph physics-feature inference tax (0.81 vs 0.28 ms/graph
+total). **Verdict: the combined variant is not worth taking.** This closes the feature
+injection arc from the remaining direction — even on top of a *working* architecture,
+per-node physics features add nothing (matches addenda #1 and the original-design
+runs, where they were null-to-sig-worse against a *vanilla* base).
+
+**Adopted conclusions (supersede nothing; amend addendum #2's status):** MAX-biased
+aggregation remains the sole positive lever. Analytical baseline on the current dataset
+is 0.6609 (0.5911 quoted earlier was stale). Full Stage 8 table + honest amortized-cost
+framing in `results/stage8_report.md`.

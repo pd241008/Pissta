@@ -93,7 +93,7 @@ The model's own predicted std is the heteroskedasticity-aware scale: interval is
 | `gnn_baseline/results/stage7_ood_results.json` | OOD evaluation results |
 | `diagnostics/ood_extrapolation_analysis.py` | OOD extrapolation disambiguation analysis (in-range vs extrapolated split) |
 | `gnn_baseline/results/stage7_ood_extrapolation_analysis.json` | Per-graph extrapolation flags + cross-tabulated coverage |
-| `gnn_baseline/results/stage6c_results_original_design.json` | **Original-design** Tier A/A+B (recovered from backup; canonical Table I artifact: vanilla 0.4082, tier_a 0.4478, tier_ab 0.4714) |
+| `gnn_baseline/results/stage6c_results_original_design.json` | Original-design Tier A/A+B, recovered from backup (vanilla 0.4082, tier_a 0.4478, tier_ab 0.4714). **Verification status:** point estimates internally cross-checked against per-seed data (per-seed mean deltas average to stored mean_delta); **CI bounds [+0.024,+0.056] / [+0.015,+0.112] stored but not independently re-derived** from raw per-graph arrays (no independent file access to the artifact). Report Table I as "historically reported, point estimates cross-checked, CI not independently re-derived" — not as artifact-verified. |
 | `data_generation/data/ood_dataset.pkl` | OOD dataset (100 graphs, n_gates 15-25) |
 | `data_generation/data/ood_manifest.json` | OOD generation manifest |
 

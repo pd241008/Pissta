@@ -86,6 +86,8 @@ Conclusion: GPU atomics, not code logic, caused the mismatch. Fix B4 resolves it
 
 Beats analytical SSTA baseline (MAE 0.5911) on 3/3 seeds. Saved to `gnn_baseline/results/vanilla_dag_gnn_results.json`.
 
+> **2026-09-13 stet annotation:** the analytical baseline quoted above (0.5911) was stale; the current-dataset analytical mean MAE is **0.6609** (see `results/stage8_report.md` §footnote 3). The "beats on 3/3 seeds" conclusion is unaffected — vanilla 0.408 still beats 0.661.
+
 ### Stage 6C — 3-way ablation (deterministic re-run)
 | Model | Mean MAE | Mean Rel | Std MAE | Std Rel | Δ vs vanilla | 95% CI | Significant? |
 |-------|----------|----------|---------|---------|--------------|--------|--------------|
@@ -100,7 +102,7 @@ Supporting checks: lockstep verification **exact** (max diff 0.0, all seeds) · 
 
 ## 5. Revised Scientific Conclusion
 
-> On corrected labels, the previous headline claim ("Tier A+B reduces mean MAE by 21%, significant") **does not reproduce** — it was an artifact of the mislabeled dataset (B1) plus its different graph-complexity mix. The *interim* same-day re-run in §4 (vanilla 0.4263 ± 0.0063 best point estimate; both tier CIs crossing zero) was later **overturned by the final hardened run**: both physics tiers are significantly **worse** than vanilla (Tier A +0.040, CI [+0.0241,+0.0557]; Tier A+B +0.063, CI [+0.0147,+0.1123]; vanilla 0.4082). The redundancy diagnosis for Tier A stands (r = +1.00 with load_ff); Tier B's graph-level feature remains ~97.6% correlated with the label.
+> On corrected labels, the previous headline claim ("Tier A+B reduces mean MAE by 21%, significant") **does not reproduce** — it was an artifact of the mislabeled dataset (B1) plus its different graph-complexity mix. The *interim* same-day re-run in §4 (vanilla 0.4263 ± 0.0063 best point estimate; both tier CIs crossing zero) was later **overturned by the final hardened run**: both physics tiers are significantly **worse** than vanilla (Tier A +0.040, CI [+0.0241,+0.0557]; Tier A+B +0.063, CI [+0.0147,+0.1123]; vanilla 0.4082). The redundancy diagnosis for Tier A stands (r = +1.00 with load_ff); Tier B's graph-level feature remains ~97.6% correlated with the label. *(Verification status of the underlying artifact: original-design numbers archived at `stage6c_results_original_design.json`, point estimates recomputed-and-matched by `verify_stage6c.py`; CI bounds stored in the artifact but not independently re-derived.)*
 
 ---
 

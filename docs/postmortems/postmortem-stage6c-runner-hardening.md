@@ -80,9 +80,11 @@ Re-ran with `VLSI_SMOKE` unset after backing up prior artifacts. Outcome:
 | Vanilla DAG-GNN (6B) | **0.4082 ± 0.0055** | — |
 | Tier A (node sensitivities) | 0.4478 ± 0.0220 | +0.040, CI [+0.0241, +0.0557] — **significantly worse** |
 | Tier A+B (+ graph-level analytical) | 0.4714 ± 0.0095 | +0.063, CI [+0.0147, +0.1123] — **significantly worse** |
-| Analytical SSTA | 0.5911 | identity floor |
+| Analytical SSTA | 0.6609 | identity floor |
+
+> **2026-09-13 stet annotation:** this table originally quoted Analytical SSTA as 0.5911 — stale (earlier dataset revision). Both committed artifacts and a direct recomputation give **0.6609** on the current dataset; the floor is 0.661, not 0.591.
 | OLS floor / ResidualMLP | 0.6494 / 0.6553 | non-graph methods plateau above all GNNs |
 
-S2 verdict: rel(MLP vs Tier A+B) = +34.4% → graph structure contributes far beyond scalar residual correction. Durable findings unchanged: Tier A's structural redundancy is exact (±1.000000 correlations); analytical sink_mean remains ~97.6% correlated with MC mean (honest-leakage framing). **The 0.4263/0.4340/0.4307 numbers recorded in §4 are superseded by the hardened run above and kept only as the historical interim step.**
+S2 verdict: rel(MLP vs Tier A+B) = +34.4% → graph structure contributes far beyond scalar residual correction. Durable findings unchanged: Tier A's structural redundancy is exact (±1.000000 correlations); analytical sink_mean remains ~97.6% correlated with MC mean (honest-leakage framing). **The 0.4263/0.4340/0.4307 numbers recorded in §4 are superseded by the hardened run above and kept only as the historical interim step.** *(Verification status: original-design numbers archived at `stage6c_results_original_design.json`, point estimates recomputed-and-matched by `verify_stage6c.py`; CI bounds stored in the artifact but not independently re-derived.)*
 
 > **Further update (2026-08-29):** the feature-injection verdict documented here (and the "next lever = architecture" recommendation that follows from it) is the correct reading of the Stage 6C arc — and the recommendation proved out. MAX-biased aggregation (mean+max fanin at message passing), capacity-matched (h=54), beats vanilla on 7 seeds (Δ = −0.062, CI [−0.088, −0.037], 7/7 negative) — the **first positive Stage 6C result**. This postmortem records the 2026-08-21/28 feature-injection conclusion; the architectural outcome is documented in ADR-008 addendum #2, PROJECT_HISTORY §7, and `physics_informed_ssta_context.md`.
