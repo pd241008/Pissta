@@ -1,0 +1,32 @@
+{
+  "n_test": 304,
+  "checks": {
+    "stored_features_reproduced_bit_exactly_by_buggy_precap": true,
+    "stored_vs_buggy_precap_max_absdiff": 0.0,
+    "fixed_readback_invariant_to_gate_coords_ordering": true,
+    "fixed_readback_ordering_invariance_max_absdiff": 0.0
+  },
+  "variants": {
+    "buggy_precap": {
+      "mean_mae": 0.6608902032397683,
+      "std_of_pergraph_mae": 0.5165217701333755,
+      "role": "reproduces the stored analytical_ssta bit-exactly; = stage8_report.md's 0.6609"
+    },
+    "buggy_capped": {
+      "mean_mae": 0.6596408434618949,
+      "std_of_pergraph_mae": 0.5154566801678374,
+      "role": "defect D1 only (D2 fixed); sensitivity row"
+    },
+    "fixed_precap": {
+      "mean_mae": 0.1082197544369258,
+      "std_of_pergraph_mae": 0.059613469454899835,
+      "role": "defect D2 only (D1 fixed); sensitivity row"
+    },
+    "fixed_capped": {
+      "mean_mae": 0.11286977092477134,
+      "std_of_pergraph_mae": 0.05499666846914336,
+      "role": "CORRECTED baseline: name-correct readback + capped moments, consistent with the MC label sampler; the number the paper should carry"
+    }
+  },
+  "conclusion": "The stored analytical_ssta (0.6609 MAE in results/stage8_report.md) was produced by compute_analytical_ssta_arbitrary with (D1) topological-index readback of gate_coords-ordered moment arrays and (D2) pre-Pelgrom-cap process moments. The corrected, label-consistent analytical baseline is ~0.1129 MAE. This reverses the Stage 8 GNN-vs-analytical ordering: every GNN row (0.34-0.43) is WORSE than the corrected analytical baseline, and the analytical method needs no corpus or training. The underlying code bug (D1) in data_generation/analytical_ssta_arbitrary.py is still present and should be fixed separately."
+}

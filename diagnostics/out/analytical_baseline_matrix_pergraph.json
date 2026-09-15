@@ -1,0 +1,3042 @@
+{
+ "graph_001310": {
+  "mc_mean": 16.194624828335822,
+  "stored_sink_mean": 16.160864851237154,
+  "buggy_precap_sink_mean": 16.160864851237154,
+  "fixed_precap_sink_mean": 16.1498685916305,
+  "fixed_precap_mae": 0.044756236705321584,
+  "buggy_capped_sink_mean": 16.13031155454736,
+  "fixed_capped_sink_mean": 16.14825079379029,
+  "fixed_capped_mae": 0.046374034545532794
+ },
+ "graph_001752": {
+  "mc_mean": 22.40150761258729,
+  "stored_sink_mean": 23.792913942646578,
+  "buggy_precap_sink_mean": 23.792913942646578,
+  "fixed_precap_sink_mean": 22.275383173244307,
+  "fixed_precap_mae": 0.12612443934298412,
+  "buggy_capped_sink_mean": 23.74857138952921,
+  "fixed_capped_sink_mean": 22.215087432631243,
+  "fixed_capped_mae": 0.18642017995604832
+ },
+ "graph_001564": {
+  "mc_mean": 12.137917587954842,
+  "stored_sink_mean": 12.954693489171655,
+  "buggy_precap_sink_mean": 12.954693489171655,
+  "fixed_precap_sink_mean": 12.047878230419032,
+  "fixed_precap_mae": 0.09003935753580983,
+  "buggy_capped_sink_mean": 12.954693489171655,
+  "fixed_capped_sink_mean": 12.047878230419023,
+  "fixed_capped_mae": 0.09003935753581871
+ },
+ "graph_000394": {
+  "mc_mean": 15.319055712839809,
+  "stored_sink_mean": 14.809618383489868,
+  "buggy_precap_sink_mean": 14.809618383489868,
+  "fixed_precap_sink_mean": 15.52497069677347,
+  "fixed_precap_mae": 0.2059149839336616,
+  "buggy_capped_sink_mean": 14.781541798704573,
+  "fixed_capped_sink_mean": 15.439879726675397,
+  "fixed_capped_mae": 0.12082401383558761
+ },
+ "graph_000656": {
+  "mc_mean": 15.63344936361473,
+  "stored_sink_mean": 16.060059006120305,
+  "buggy_precap_sink_mean": 16.060059006120305,
+  "fixed_precap_sink_mean": 15.50754278048333,
+  "fixed_precap_mae": 0.12590658313139969,
+  "buggy_capped_sink_mean": 16.060059006120298,
+  "fixed_capped_sink_mean": 15.507542780480112,
+  "fixed_capped_mae": 0.12590658313461844
+ },
+ "graph_000089": {
+  "mc_mean": 18.997150774587528,
+  "stored_sink_mean": 18.109526360842715,
+  "buggy_precap_sink_mean": 18.109526360842715,
+  "fixed_precap_sink_mean": 18.855511271354,
+  "fixed_precap_mae": 0.14163950323352736,
+  "buggy_capped_sink_mean": 18.0960184743212,
+  "fixed_capped_sink_mean": 18.839742603716317,
+  "fixed_capped_mae": 0.15740817087121073
+ },
+ "graph_000497": {
+  "mc_mean": 17.55430794656676,
+  "stored_sink_mean": 18.06398600352165,
+  "buggy_precap_sink_mean": 18.06398600352165,
+  "fixed_precap_sink_mean": 17.40362826982049,
+  "fixed_precap_mae": 0.15067967674626814,
+  "buggy_capped_sink_mean": 18.06398600336825,
+  "fixed_capped_sink_mean": 17.398183038290707,
+  "fixed_capped_mae": 0.15612490827605185
+ },
+ "graph_000002": {
+  "mc_mean": 11.394326898369904,
+  "stored_sink_mean": 10.652413406696049,
+  "buggy_precap_sink_mean": 10.652413406696049,
+  "fixed_precap_sink_mean": 11.309687617399984,
+  "fixed_precap_mae": 0.08463928096992035,
+  "buggy_capped_sink_mean": 10.652410881022153,
+  "fixed_capped_sink_mean": 11.309687617399964,
+  "fixed_capped_mae": 0.08463928096993989
+ },
+ "graph_001038": {
+  "mc_mean": 10.790343187454383,
+  "stored_sink_mean": 11.52092547662506,
+  "buggy_precap_sink_mean": 11.52092547662506,
+  "fixed_precap_sink_mean": 10.725997087713399,
+  "fixed_precap_mae": 0.06434609974098393,
+  "buggy_capped_sink_mean": 11.516590769529259,
+  "fixed_capped_sink_mean": 10.717753918303586,
+  "fixed_capped_mae": 0.07258926915079655
+ },
+ "graph_000362": {
+  "mc_mean": 18.56874130065092,
+  "stored_sink_mean": 18.28923307573084,
+  "buggy_precap_sink_mean": 18.28923307573084,
+  "fixed_precap_sink_mean": 18.453671194590182,
+  "fixed_precap_mae": 0.1150701060607382,
+  "buggy_capped_sink_mean": 18.144582170387338,
+  "fixed_capped_sink_mean": 18.405409821702875,
+  "fixed_capped_mae": 0.16333147894804512
+ },
+ "graph_001644": {
+  "mc_mean": 16.543746840415032,
+  "stored_sink_mean": 18.092183895580586,
+  "buggy_precap_sink_mean": 18.092183895580586,
+  "fixed_precap_sink_mean": 16.403492940769084,
+  "fixed_precap_mae": 0.14025389964594837,
+  "buggy_capped_sink_mean": 18.08095970545258,
+  "fixed_capped_sink_mean": 16.392148240538916,
+  "fixed_capped_mae": 0.15159859987611668
+ },
+ "graph_001080": {
+  "mc_mean": 11.16995832290992,
+  "stored_sink_mean": 10.872920253499705,
+  "buggy_precap_sink_mean": 10.872920253499705,
+  "fixed_precap_sink_mean": 11.093166145128349,
+  "fixed_precap_mae": 0.07679217778157188,
+  "buggy_capped_sink_mean": 10.87292015343473,
+  "fixed_capped_sink_mean": 11.093166108412992,
+  "fixed_capped_mae": 0.07679221449692797
+ },
+ "graph_000397": {
+  "mc_mean": 13.502296792864607,
+  "stored_sink_mean": 12.865898532958786,
+  "buggy_precap_sink_mean": 12.865898532958786,
+  "fixed_precap_sink_mean": 13.489430737016011,
+  "fixed_precap_mae": 0.012866055848595792,
+  "buggy_capped_sink_mean": 12.788570257419993,
+  "fixed_capped_sink_mean": 13.443886684313734,
+  "fixed_capped_mae": 0.058410108550873474
+ },
+ "graph_000776": {
+  "mc_mean": 10.801828534568406,
+  "stored_sink_mean": 10.551675453208748,
+  "buggy_precap_sink_mean": 10.551675453208748,
+  "fixed_precap_sink_mean": 10.881266819159958,
+  "fixed_precap_mae": 0.07943828459155178,
+  "buggy_capped_sink_mean": 10.526227225441666,
+  "fixed_capped_sink_mean": 10.855427935522345,
+  "fixed_capped_mae": 0.05359940095393867
+ },
+ "graph_001498": {
+  "mc_mean": 18.94118563427988,
+  "stored_sink_mean": 18.74624015300081,
+  "buggy_precap_sink_mean": 18.74624015300081,
+  "fixed_precap_sink_mean": 18.776029172944767,
+  "fixed_precap_mae": 0.16515646133511197,
+  "buggy_capped_sink_mean": 18.746240147440528,
+  "fixed_capped_sink_mean": 18.776020640547735,
+  "fixed_capped_mae": 0.16516499373214444
+ },
+ "graph_000101": {
+  "mc_mean": 15.762005890606236,
+  "stored_sink_mean": 15.41366598180344,
+  "buggy_precap_sink_mean": 15.41366598180344,
+  "fixed_precap_sink_mean": 15.643374250630771,
+  "fixed_precap_mae": 0.11863163997546522,
+  "buggy_capped_sink_mean": 15.411655389445894,
+  "fixed_capped_sink_mean": 15.639761473688921,
+  "fixed_capped_mae": 0.12224441691731514
+ },
+ "graph_001856": {
+  "mc_mean": 14.27562552675019,
+  "stored_sink_mean": 15.330936386221218,
+  "buggy_precap_sink_mean": 15.330936386221218,
+  "fixed_precap_sink_mean": 14.305526877690934,
+  "fixed_precap_mae": 0.029901350940743754,
+  "buggy_capped_sink_mean": 15.244660900965027,
+  "fixed_capped_sink_mean": 14.218221673796387,
+  "fixed_capped_mae": 0.05740385295380257
+ },
+ "graph_000823": {
+  "mc_mean": 10.629728721889059,
+  "stored_sink_mean": 9.607894376747517,
+  "buggy_precap_sink_mean": 9.607894376747517,
+  "fixed_precap_sink_mean": 10.54777509314087,
+  "fixed_precap_mae": 0.08195362874818812,
+  "buggy_capped_sink_mean": 9.607892235613496,
+  "fixed_capped_sink_mean": 10.547775093140823,
+  "fixed_capped_mae": 0.08195362874823608
+ },
+ "graph_000780": {
+  "mc_mean": 22.596053934942773,
+  "stored_sink_mean": 21.685646498559045,
+  "buggy_precap_sink_mean": 21.685646498559045,
+  "fixed_precap_sink_mean": 22.383739371833286,
+  "fixed_precap_mae": 0.21231456310948715,
+  "buggy_capped_sink_mean": 21.681746669418494,
+  "fixed_capped_sink_mean": 22.38089536025395,
+  "fixed_capped_mae": 0.2151585746888216
+ },
+ "graph_001289": {
+  "mc_mean": 9.460409482129863,
+  "stored_sink_mean": 9.502117156043777,
+  "buggy_precap_sink_mean": 9.502117156043777,
+  "fixed_precap_sink_mean": 9.481050315594594,
+  "fixed_precap_mae": 0.020640833464730335,
+  "buggy_capped_sink_mean": 9.501473643291968,
+  "fixed_capped_sink_mean": 9.469308230832285,
+  "fixed_capped_mae": 0.008898748702421244
+ },
+ "graph_001926": {
+  "mc_mean": 16.027590965490223,
+  "stored_sink_mean": 15.236359279006573,
+  "buggy_precap_sink_mean": 15.236359279006573,
+  "fixed_precap_sink_mean": 15.960259452263752,
+  "fixed_precap_mae": 0.06733151322647046,
+  "buggy_capped_sink_mean": 15.222674794762042,
+  "fixed_capped_sink_mean": 15.90397987985763,
+  "fixed_capped_mae": 0.12361108563259293
+ },
+ "graph_000336": {
+  "mc_mean": 15.310985756294187,
+  "stored_sink_mean": 15.568468371415213,
+  "buggy_precap_sink_mean": 15.568468371415213,
+  "fixed_precap_sink_mean": 15.351673150615255,
+  "fixed_precap_mae": 0.04068739432106838,
+  "buggy_capped_sink_mean": 15.493282745125844,
+  "fixed_capped_sink_mean": 15.264083452632029,
+  "fixed_capped_mae": 0.04690230366215786
+ },
+ "graph_001768": {
+  "mc_mean": 11.850862551501873,
+  "stored_sink_mean": 12.307880597615956,
+  "buggy_precap_sink_mean": 12.307880597615956,
+  "fixed_precap_sink_mean": 11.76859368092602,
+  "fixed_precap_mae": 0.0822688705758523,
+  "buggy_capped_sink_mean": 12.307880597615956,
+  "fixed_capped_sink_mean": 11.76859368045299,
+  "fixed_capped_mae": 0.0822688710488837
+ },
+ "graph_000390": {
+  "mc_mean": 15.64761182353498,
+  "stored_sink_mean": 15.635604109228009,
+  "buggy_precap_sink_mean": 15.635604109228009,
+  "fixed_precap_sink_mean": 15.527827262221455,
+  "fixed_precap_mae": 0.11978456131352466,
+  "buggy_capped_sink_mean": 15.630101186832237,
+  "fixed_capped_sink_mean": 15.520143946219036,
+  "fixed_capped_mae": 0.12746787731594367
+ },
+ "graph_000341": {
+  "mc_mean": 12.987507808898101,
+  "stored_sink_mean": 12.328338329452274,
+  "buggy_precap_sink_mean": 12.328338329452274,
+  "fixed_precap_sink_mean": 12.898525335593908,
+  "fixed_precap_mae": 0.08898247330419373,
+  "buggy_capped_sink_mean": 12.328338329439491,
+  "fixed_capped_sink_mean": 12.898303661818757,
+  "fixed_capped_mae": 0.08920414707934476
+ },
+ "graph_000300": {
+  "mc_mean": 14.235816632229811,
+  "stored_sink_mean": 14.30115373910651,
+  "buggy_precap_sink_mean": 14.30115373910651,
+  "fixed_precap_sink_mean": 14.235402231647223,
+  "fixed_precap_mae": 0.00041440058258856993,
+  "buggy_capped_sink_mean": 14.281687843558677,
+  "fixed_capped_sink_mean": 14.188704168849299,
+  "fixed_capped_mae": 0.04711246338051289
+ },
+ "graph_000705": {
+  "mc_mean": 14.67177932294198,
+  "stored_sink_mean": 14.092016515845426,
+  "buggy_precap_sink_mean": 14.092016515845426,
+  "fixed_precap_sink_mean": 14.53839074989365,
+  "fixed_precap_mae": 0.13338857304832885,
+  "buggy_capped_sink_mean": 14.091846738064259,
+  "fixed_capped_sink_mean": 14.538390054714478,
+  "fixed_capped_mae": 0.13338926822750174
+ },
+ "graph_001765": {
+  "mc_mean": 19.15991577983737,
+  "stored_sink_mean": 21.314800595593788,
+  "buggy_precap_sink_mean": 21.314800595593788,
+  "fixed_precap_sink_mean": 19.084243788687786,
+  "fixed_precap_mae": 0.07567199114958356,
+  "buggy_capped_sink_mean": 21.274796113121,
+  "fixed_capped_sink_mean": 19.0622245545536,
+  "fixed_capped_mae": 0.09769122528376784
+ },
+ "graph_000596": {
+  "mc_mean": 12.616012193155726,
+  "stored_sink_mean": 12.261484963787204,
+  "buggy_precap_sink_mean": 12.261484963787204,
+  "fixed_precap_sink_mean": 12.524091505274162,
+  "fixed_precap_mae": 0.09192068788156327,
+  "buggy_capped_sink_mean": 12.261462574715877,
+  "fixed_capped_sink_mean": 12.524079320692724,
+  "fixed_capped_mae": 0.0919328724630013
+ },
+ "graph_000592": {
+  "mc_mean": 21.430169153607867,
+  "stored_sink_mean": 22.529872962562926,
+  "buggy_precap_sink_mean": 22.529872962562926,
+  "fixed_precap_sink_mean": 21.25088237247879,
+  "fixed_precap_mae": 0.17928678112907548,
+  "buggy_capped_sink_mean": 22.452837672136035,
+  "fixed_capped_sink_mean": 21.22375292566912,
+  "fixed_capped_mae": 0.20641622793874603
+ },
+ "graph_001483": {
+  "mc_mean": 20.43868987620625,
+  "stored_sink_mean": 21.463148990807,
+  "buggy_precap_sink_mean": 21.463148990807,
+  "fixed_precap_sink_mean": 20.321045618714372,
+  "fixed_precap_mae": 0.11764425749187879,
+  "buggy_capped_sink_mean": 21.457982617528657,
+  "fixed_capped_sink_mean": 20.268193087531028,
+  "fixed_capped_mae": 0.1704967886752229
+ },
+ "graph_001415": {
+  "mc_mean": 13.849184912160574,
+  "stored_sink_mean": 13.401959864240448,
+  "buggy_precap_sink_mean": 13.401959864240448,
+  "fixed_precap_sink_mean": 13.73778559908444,
+  "fixed_precap_mae": 0.11139931307613438,
+  "buggy_capped_sink_mean": 13.394439912396926,
+  "fixed_capped_sink_mean": 13.737684470321387,
+  "fixed_capped_mae": 0.11150044183918695
+ },
+ "graph_000694": {
+  "mc_mean": 20.250600178194848,
+  "stored_sink_mean": 19.36029487878855,
+  "buggy_precap_sink_mean": 19.36029487878855,
+  "fixed_precap_sink_mean": 20.05785358697853,
+  "fixed_precap_mae": 0.19274659121631643,
+  "buggy_capped_sink_mean": 19.360239655678825,
+  "fixed_capped_sink_mean": 20.05785203520324,
+  "fixed_capped_mae": 0.1927481429916078
+ },
+ "graph_001020": {
+  "mc_mean": 18.111678267648244,
+  "stored_sink_mean": 18.395857999173725,
+  "buggy_precap_sink_mean": 18.395857999173725,
+  "fixed_precap_sink_mean": 17.957226431385532,
+  "fixed_precap_mae": 0.1544518362627123,
+  "buggy_capped_sink_mean": 18.39204689563497,
+  "fixed_capped_sink_mean": 17.954043645979528,
+  "fixed_capped_mae": 0.15763462166871633
+ },
+ "graph_000184": {
+  "mc_mean": 26.084295423148223,
+  "stored_sink_mean": 25.358257510663663,
+  "buggy_precap_sink_mean": 25.358257510663663,
+  "fixed_precap_sink_mean": 25.83321419655193,
+  "fixed_precap_mae": 0.2510812265962947,
+  "buggy_capped_sink_mean": 25.358257510663663,
+  "fixed_capped_sink_mean": 25.83321419655193,
+  "fixed_capped_mae": 0.2510812265962947
+ },
+ "graph_000120": {
+  "mc_mean": 14.145814670635824,
+  "stored_sink_mean": 13.3210849885525,
+  "buggy_precap_sink_mean": 13.3210849885525,
+  "fixed_precap_sink_mean": 14.037792793398097,
+  "fixed_precap_mae": 0.10802187723772683,
+  "buggy_capped_sink_mean": 13.3210849885525,
+  "fixed_capped_sink_mean": 14.037792793398097,
+  "fixed_capped_mae": 0.10802187723772683
+ },
+ "graph_001335": {
+  "mc_mean": 15.526653570107545,
+  "stored_sink_mean": 15.426152927285887,
+  "buggy_precap_sink_mean": 15.426152927285887,
+  "fixed_precap_sink_mean": 15.451882345090523,
+  "fixed_precap_mae": 0.07477122501702205,
+  "buggy_capped_sink_mean": 15.388216356763257,
+  "fixed_capped_sink_mean": 15.41024688225092,
+  "fixed_capped_mae": 0.11640668785662456
+ },
+ "graph_001171": {
+  "mc_mean": 15.999454703491583,
+  "stored_sink_mean": 16.148786780583382,
+  "buggy_precap_sink_mean": 16.148786780583382,
+  "fixed_precap_sink_mean": 16.014612043702794,
+  "fixed_precap_mae": 0.015157340211210624,
+  "buggy_capped_sink_mean": 16.08202838826162,
+  "fixed_capped_sink_mean": 15.93592630817089,
+  "fixed_capped_mae": 0.06352839532069332
+ },
+ "graph_001522": {
+  "mc_mean": 15.346421699398563,
+  "stored_sink_mean": 15.471153684042779,
+  "buggy_precap_sink_mean": 15.471153684042779,
+  "fixed_precap_sink_mean": 15.301771242545565,
+  "fixed_precap_mae": 0.04465045685299884,
+  "buggy_capped_sink_mean": 15.43374432409801,
+  "fixed_capped_sink_mean": 15.251462721549784,
+  "fixed_capped_mae": 0.09495897784877982
+ },
+ "graph_001353": {
+  "mc_mean": 14.426480057785398,
+  "stored_sink_mean": 13.125962528794217,
+  "buggy_precap_sink_mean": 13.125962528794217,
+  "fixed_precap_sink_mean": 14.325411920069481,
+  "fixed_precap_mae": 0.1010681377159166,
+  "buggy_capped_sink_mean": 13.125959976979535,
+  "fixed_capped_sink_mean": 14.325411920069481,
+  "fixed_capped_mae": 0.1010681377159166
+ },
+ "graph_000858": {
+  "mc_mean": 16.2141702160089,
+  "stored_sink_mean": 18.356768822652757,
+  "buggy_precap_sink_mean": 18.356768822652757,
+  "fixed_precap_sink_mean": 16.255590965793708,
+  "fixed_precap_mae": 0.04142074978480892,
+  "buggy_capped_sink_mean": 18.35609153178502,
+  "fixed_capped_sink_mean": 16.13293158074624,
+  "fixed_capped_mae": 0.08123863526265751
+ },
+ "graph_000083": {
+  "mc_mean": 13.165799004037675,
+  "stored_sink_mean": 12.275940007457312,
+  "buggy_precap_sink_mean": 12.275940007457312,
+  "fixed_precap_sink_mean": 13.073386949747325,
+  "fixed_precap_mae": 0.09241205429034949,
+  "buggy_capped_sink_mean": 12.206115814032959,
+  "fixed_capped_sink_mean": 13.071734378762818,
+  "fixed_capped_mae": 0.09406462527485715
+ },
+ "graph_000993": {
+  "mc_mean": 18.934067205942224,
+  "stored_sink_mean": 18.827239188840284,
+  "buggy_precap_sink_mean": 18.827239188840284,
+  "fixed_precap_sink_mean": 19.007164256987664,
+  "fixed_precap_mae": 0.07309705104544051,
+  "buggy_capped_sink_mean": 18.722834534316686,
+  "fixed_capped_sink_mean": 18.913473918409363,
+  "fixed_capped_mae": 0.020593287532861382
+ },
+ "graph_001440": {
+  "mc_mean": 15.717838754952455,
+  "stored_sink_mean": 15.292051809035259,
+  "buggy_precap_sink_mean": 15.292051809035259,
+  "fixed_precap_sink_mean": 15.59693852617955,
+  "fixed_precap_mae": 0.1209002287729053,
+  "buggy_capped_sink_mean": 15.282272709199466,
+  "fixed_capped_sink_mean": 15.579054631001496,
+  "fixed_capped_mae": 0.13878412395095907
+ },
+ "graph_001693": {
+  "mc_mean": 13.723333372141228,
+  "stored_sink_mean": 12.52135868835136,
+  "buggy_precap_sink_mean": 12.52135868835136,
+  "fixed_precap_sink_mean": 13.624548562258676,
+  "fixed_precap_mae": 0.09878480988255234,
+  "buggy_capped_sink_mean": 12.52135868609149,
+  "fixed_capped_sink_mean": 13.624548562258676,
+  "fixed_capped_mae": 0.09878480988255234
+ },
+ "graph_001464": {
+  "mc_mean": 21.03855903297061,
+  "stored_sink_mean": 20.252569284380417,
+  "buggy_precap_sink_mean": 20.252569284380417,
+  "fixed_precap_sink_mean": 20.93336780900807,
+  "fixed_precap_mae": 0.10519122396253877,
+  "buggy_capped_sink_mean": 20.14703451663953,
+  "fixed_capped_sink_mean": 20.89425625559376,
+  "fixed_capped_mae": 0.1443027773768506
+ },
+ "graph_000228": {
+  "mc_mean": 10.503080978215474,
+  "stored_sink_mean": 10.553583182978178,
+  "buggy_precap_sink_mean": 10.553583182978178,
+  "fixed_precap_sink_mean": 10.51305873042788,
+  "fixed_precap_mae": 0.009977752212407154,
+  "buggy_capped_sink_mean": 10.521160841901198,
+  "fixed_capped_sink_mean": 10.493050309563959,
+  "fixed_capped_mae": 0.010030668651515029
+ },
+ "graph_000978": {
+  "mc_mean": 13.647675746303825,
+  "stored_sink_mean": 15.370033790402331,
+  "buggy_precap_sink_mean": 15.370033790402331,
+  "fixed_precap_sink_mean": 13.54021558795177,
+  "fixed_precap_mae": 0.10746015835205469,
+  "buggy_capped_sink_mean": 15.37003373593869,
+  "fixed_capped_sink_mean": 13.538691135461574,
+  "fixed_capped_mae": 0.10898461084225097
+ },
+ "graph_001117": {
+  "mc_mean": 12.875434082868884,
+  "stored_sink_mean": 12.24690956233915,
+  "buggy_precap_sink_mean": 12.24690956233915,
+  "fixed_precap_sink_mean": 12.776889837711064,
+  "fixed_precap_mae": 0.09854424515781979,
+  "buggy_capped_sink_mean": 12.246909079937351,
+  "fixed_capped_sink_mean": 12.776889837711058,
+  "fixed_capped_mae": 0.09854424515782512
+ },
+ "graph_001239": {
+  "mc_mean": 11.139407218724003,
+  "stored_sink_mean": 11.415150083855012,
+  "buggy_precap_sink_mean": 11.415150083855012,
+  "fixed_precap_sink_mean": 11.181302737136619,
+  "fixed_precap_mae": 0.041895518412616184,
+  "buggy_capped_sink_mean": 11.296815600128818,
+  "fixed_capped_sink_mean": 11.107450219606386,
+  "fixed_capped_mae": 0.03195699911761629
+ },
+ "graph_001958": {
+  "mc_mean": 22.88371038256072,
+  "stored_sink_mean": 23.242612988634278,
+  "buggy_precap_sink_mean": 23.242612988634278,
+  "fixed_precap_sink_mean": 22.652513773150194,
+  "fixed_precap_mae": 0.231196609410528,
+  "buggy_capped_sink_mean": 23.242612988634278,
+  "fixed_capped_sink_mean": 22.652513773150197,
+  "fixed_capped_mae": 0.23119660941052445
+ },
+ "graph_001948": {
+  "mc_mean": 17.785561214293782,
+  "stored_sink_mean": 19.38823807299067,
+  "buggy_precap_sink_mean": 19.38823807299067,
+  "fixed_precap_sink_mean": 17.970469214571896,
+  "fixed_precap_mae": 0.1849080002781136,
+  "buggy_capped_sink_mean": 19.2274536332022,
+  "fixed_capped_sink_mean": 17.829957484019115,
+  "fixed_capped_mae": 0.044396269725332616
+ },
+ "graph_001064": {
+  "mc_mean": 13.87714166285086,
+  "stored_sink_mean": 12.445085620248392,
+  "buggy_precap_sink_mean": 12.445085620248392,
+  "fixed_precap_sink_mean": 13.772488637196481,
+  "fixed_precap_mae": 0.10465302565437895,
+  "buggy_capped_sink_mean": 12.438912908779761,
+  "fixed_capped_sink_mean": 13.772469522179062,
+  "fixed_capped_mae": 0.10467214067179853
+ },
+ "graph_000796": {
+  "mc_mean": 12.02943661858436,
+  "stored_sink_mean": 12.343030838706921,
+  "buggy_precap_sink_mean": 12.343030838706921,
+  "fixed_precap_sink_mean": 11.947044311413979,
+  "fixed_precap_mae": 0.08239230717038026,
+  "buggy_capped_sink_mean": 12.343030838706921,
+  "fixed_capped_sink_mean": 11.94704431141398,
+  "fixed_capped_mae": 0.08239230717037849
+ },
+ "graph_000367": {
+  "mc_mean": 10.859718406642779,
+  "stored_sink_mean": 9.808222528729369,
+  "buggy_precap_sink_mean": 9.808222528729369,
+  "fixed_precap_sink_mean": 10.785138181203754,
+  "fixed_precap_mae": 0.07458022543902487,
+  "buggy_capped_sink_mean": 9.79735208911997,
+  "fixed_capped_sink_mean": 10.78479651250433,
+  "fixed_capped_mae": 0.07492189413844841
+ },
+ "graph_001205": {
+  "mc_mean": 15.983246572258219,
+  "stored_sink_mean": 15.699616115321415,
+  "buggy_precap_sink_mean": 15.699616115321415,
+  "fixed_precap_sink_mean": 15.884775766554826,
+  "fixed_precap_mae": 0.09847080570339273,
+  "buggy_capped_sink_mean": 15.475488976111103,
+  "fixed_capped_sink_mean": 15.834805474636536,
+  "fixed_capped_mae": 0.14844109762168323
+ },
+ "graph_000670": {
+  "mc_mean": 12.673216532740108,
+  "stored_sink_mean": 12.960966318082644,
+  "buggy_precap_sink_mean": 12.960966318082644,
+  "fixed_precap_sink_mean": 12.743114025422159,
+  "fixed_precap_mae": 0.06989749268205081,
+  "buggy_capped_sink_mean": 12.880349304001903,
+  "fixed_capped_sink_mean": 12.660392156951362,
+  "fixed_capped_mae": 0.012824375788746067
+ },
+ "graph_001287": {
+  "mc_mean": 16.917870842635008,
+  "stored_sink_mean": 16.70108281673809,
+  "buggy_precap_sink_mean": 16.70108281673809,
+  "fixed_precap_sink_mean": 16.76226263098144,
+  "fixed_precap_mae": 0.15560821165356842,
+  "buggy_capped_sink_mean": 16.701082814677658,
+  "fixed_capped_sink_mean": 16.762262630970227,
+  "fixed_capped_mae": 0.15560821166478078
+ },
+ "graph_001746": {
+  "mc_mean": 14.924461773379798,
+  "stored_sink_mean": 14.47613560369455,
+  "buggy_precap_sink_mean": 14.47613560369455,
+  "fixed_precap_sink_mean": 14.800895966618125,
+  "fixed_precap_mae": 0.12356580676167361,
+  "buggy_capped_sink_mean": 14.47613560369192,
+  "fixed_capped_sink_mean": 14.800895966618125,
+  "fixed_capped_mae": 0.12356580676167361
+ },
+ "graph_001272": {
+  "mc_mean": 12.008226641124722,
+  "stored_sink_mean": 11.983450015357436,
+  "buggy_precap_sink_mean": 11.983450015357436,
+  "fixed_precap_sink_mean": 11.978606690054477,
+  "fixed_precap_mae": 0.029619951070245065,
+  "buggy_capped_sink_mean": 11.948882105038088,
+  "fixed_capped_sink_mean": 11.93640482324138,
+  "fixed_capped_mae": 0.07182181788334141
+ },
+ "graph_000323": {
+  "mc_mean": 16.820683969115404,
+  "stored_sink_mean": 17.162157599964424,
+  "buggy_precap_sink_mean": 17.162157599964424,
+  "fixed_precap_sink_mean": 16.664738523338904,
+  "fixed_precap_mae": 0.15594544577649927,
+  "buggy_capped_sink_mean": 17.161282013929572,
+  "fixed_capped_sink_mean": 16.663473136914646,
+  "fixed_capped_mae": 0.15721083220075727
+ },
+ "graph_001518": {
+  "mc_mean": 11.995125992741398,
+  "stored_sink_mean": 11.378904668272444,
+  "buggy_precap_sink_mean": 11.378904668272444,
+  "fixed_precap_sink_mean": 11.913777998633476,
+  "fixed_precap_mae": 0.08134799410792226,
+  "buggy_capped_sink_mean": 11.371996449742715,
+  "fixed_capped_sink_mean": 11.913777998091343,
+  "fixed_capped_mae": 0.08134799465005571
+ },
+ "graph_000425": {
+  "mc_mean": 15.437590930847195,
+  "stored_sink_mean": 15.643533828226774,
+  "buggy_precap_sink_mean": 15.643533828226774,
+  "fixed_precap_sink_mean": 15.309048859626754,
+  "fixed_precap_mae": 0.1285420712204406,
+  "buggy_capped_sink_mean": 15.642008800455917,
+  "fixed_capped_sink_mean": 15.307582497147482,
+  "fixed_capped_mae": 0.1300084336997127
+ },
+ "graph_001169": {
+  "mc_mean": 15.6996840067224,
+  "stored_sink_mean": 14.628745724682751,
+  "buggy_precap_sink_mean": 14.628745724682751,
+  "fixed_precap_sink_mean": 15.572603290887443,
+  "fixed_precap_mae": 0.12708071583495695,
+  "buggy_capped_sink_mean": 14.602235020551435,
+  "fixed_capped_sink_mean": 15.563777691117997,
+  "fixed_capped_mae": 0.13590631560440336
+ },
+ "graph_001997": {
+  "mc_mean": 10.698126196112117,
+  "stored_sink_mean": 10.293366177036546,
+  "buggy_precap_sink_mean": 10.293366177036546,
+  "fixed_precap_sink_mean": 10.622681259451156,
+  "fixed_precap_mae": 0.0754449366609613,
+  "buggy_capped_sink_mean": 10.29336617697926,
+  "fixed_capped_sink_mean": 10.622681259450728,
+  "fixed_capped_mae": 0.0754449366613894
+ },
+ "graph_001501": {
+  "mc_mean": 18.58815323237038,
+  "stored_sink_mean": 18.775063365241234,
+  "buggy_precap_sink_mean": 18.775063365241234,
+  "fixed_precap_sink_mean": 18.516659521410727,
+  "fixed_precap_mae": 0.07149371095965407,
+  "buggy_capped_sink_mean": 18.556850475901662,
+  "fixed_capped_sink_mean": 18.44653055020148,
+  "fixed_capped_mae": 0.14162268216890084
+ },
+ "graph_001067": {
+  "mc_mean": 15.742928112127423,
+  "stored_sink_mean": 17.229884855908164,
+  "buggy_precap_sink_mean": 17.229884855908164,
+  "fixed_precap_sink_mean": 15.592744157750788,
+  "fixed_precap_mae": 0.1501839543766348,
+  "buggy_capped_sink_mean": 17.2220979741375,
+  "fixed_capped_sink_mean": 15.591806394516288,
+  "fixed_capped_mae": 0.1511217176111348
+ },
+ "graph_000276": {
+  "mc_mean": 14.883844276734505,
+  "stored_sink_mean": 15.428810504732892,
+  "buggy_precap_sink_mean": 15.428810504732892,
+  "fixed_precap_sink_mean": 14.909644013881152,
+  "fixed_precap_mae": 0.02579973714664696,
+  "buggy_capped_sink_mean": 15.345201135481728,
+  "fixed_capped_sink_mean": 14.803501332190713,
+  "fixed_capped_mae": 0.08034294454379243
+ },
+ "graph_001807": {
+  "mc_mean": 16.280815149418935,
+  "stored_sink_mean": 14.748747790189693,
+  "buggy_precap_sink_mean": 14.748747790189693,
+  "fixed_precap_sink_mean": 16.136399299129653,
+  "fixed_precap_mae": 0.14441585028928117,
+  "buggy_capped_sink_mean": 14.748747141440896,
+  "fixed_capped_sink_mean": 16.13639914356375,
+  "fixed_capped_mae": 0.14441600585518444
+ },
+ "graph_001915": {
+  "mc_mean": 21.12721514200529,
+  "stored_sink_mean": 21.04224453003831,
+  "buggy_precap_sink_mean": 21.04224453003831,
+  "fixed_precap_sink_mean": 20.927129361650778,
+  "fixed_precap_mae": 0.20008578035451308,
+  "buggy_capped_sink_mean": 21.042244530011345,
+  "fixed_capped_sink_mean": 20.92712936160033,
+  "fixed_capped_mae": 0.2000857804049616
+ },
+ "graph_001114": {
+  "mc_mean": 18.694658370248032,
+  "stored_sink_mean": 18.38903298604444,
+  "buggy_precap_sink_mean": 18.38903298604444,
+  "fixed_precap_sink_mean": 18.628250406406842,
+  "fixed_precap_mae": 0.06640796384118985,
+  "buggy_capped_sink_mean": 18.326870860929542,
+  "fixed_capped_sink_mean": 18.54185268860361,
+  "fixed_capped_mae": 0.15280568164442343
+ },
+ "graph_001456": {
+  "mc_mean": 19.283695399749284,
+  "stored_sink_mean": 17.85732956230392,
+  "buggy_precap_sink_mean": 17.85732956230392,
+  "fixed_precap_sink_mean": 19.098018517451866,
+  "fixed_precap_mae": 0.1856768822974182,
+  "buggy_capped_sink_mean": 17.85732877975727,
+  "fixed_capped_sink_mean": 19.09801851745126,
+  "fixed_capped_mae": 0.1856768822980257
+ },
+ "graph_000099": {
+  "mc_mean": 12.014244367107693,
+  "stored_sink_mean": 11.962043887101535,
+  "buggy_precap_sink_mean": 11.962043887101535,
+  "fixed_precap_sink_mean": 11.92858562376455,
+  "fixed_precap_mae": 0.08565874334314394,
+  "buggy_capped_sink_mean": 11.935465681714486,
+  "fixed_capped_sink_mean": 11.925607919561305,
+  "fixed_capped_mae": 0.08863644754638855
+ },
+ "graph_000073": {
+  "mc_mean": 14.271715009489665,
+  "stored_sink_mean": 14.179125316009502,
+  "buggy_precap_sink_mean": 14.179125316009502,
+  "fixed_precap_sink_mean": 14.15974748353273,
+  "fixed_precap_mae": 0.11196752595693482,
+  "buggy_capped_sink_mean": 14.179125316009502,
+  "fixed_capped_sink_mean": 14.15974748353273,
+  "fixed_capped_mae": 0.11196752595693482
+ },
+ "graph_001523": {
+  "mc_mean": 18.065827224452203,
+  "stored_sink_mean": 17.421942432908356,
+  "buggy_precap_sink_mean": 17.421942432908356,
+  "fixed_precap_sink_mean": 17.905368473195104,
+  "fixed_precap_mae": 0.1604587512570994,
+  "buggy_capped_sink_mean": 17.42191573569916,
+  "fixed_capped_sink_mean": 17.905368435779188,
+  "fixed_capped_mae": 0.1604587886730151
+ },
+ "graph_000588": {
+  "mc_mean": 18.76128523061614,
+  "stored_sink_mean": 19.539173006001693,
+  "buggy_precap_sink_mean": 19.539173006001693,
+  "fixed_precap_sink_mean": 18.588467774284215,
+  "fixed_precap_mae": 0.17281745633192358,
+  "buggy_capped_sink_mean": 19.53139713553307,
+  "fixed_capped_sink_mean": 18.58499694556088,
+  "fixed_capped_mae": 0.17628828505525718
+ },
+ "graph_001630": {
+  "mc_mean": 11.97358739646617,
+  "stored_sink_mean": 11.777154613398245,
+  "buggy_precap_sink_mean": 11.777154613398245,
+  "fixed_precap_sink_mean": 11.8908581525361,
+  "fixed_precap_mae": 0.08272924393006953,
+  "buggy_capped_sink_mean": 11.77715461339822,
+  "fixed_capped_sink_mean": 11.8908581525359,
+  "fixed_capped_mae": 0.08272924393027026
+ },
+ "graph_000576": {
+  "mc_mean": 14.96457205849207,
+  "stored_sink_mean": 15.114273072872118,
+  "buggy_precap_sink_mean": 15.114273072872118,
+  "fixed_precap_sink_mean": 15.000918440372624,
+  "fixed_precap_mae": 0.036346381880553835,
+  "buggy_capped_sink_mean": 15.012342906948911,
+  "fixed_capped_sink_mean": 14.921236109864466,
+  "fixed_capped_mae": 0.043335948627603926
+ },
+ "graph_001066": {
+  "mc_mean": 16.772170663775427,
+  "stored_sink_mean": 17.352482414590927,
+  "buggy_precap_sink_mean": 17.352482414590927,
+  "fixed_precap_sink_mean": 16.719100706779397,
+  "fixed_precap_mae": 0.05306995699602979,
+  "buggy_capped_sink_mean": 17.302435303149725,
+  "fixed_capped_sink_mean": 16.63775202666921,
+  "fixed_capped_mae": 0.13441863710621504
+ },
+ "graph_000662": {
+  "mc_mean": 16.167101775195576,
+  "stored_sink_mean": 18.511610470015082,
+  "buggy_precap_sink_mean": 18.511610470015082,
+  "fixed_precap_sink_mean": 16.196249894040257,
+  "fixed_precap_mae": 0.029148118844680937,
+  "buggy_capped_sink_mean": 18.39488992312742,
+  "fixed_capped_sink_mean": 16.120728207655304,
+  "fixed_capped_mae": 0.046373567540271665
+ },
+ "graph_001408": {
+  "mc_mean": 10.902536858875894,
+  "stored_sink_mean": 10.975805013093867,
+  "buggy_precap_sink_mean": 10.975805013093867,
+  "fixed_precap_sink_mean": 10.92047222835807,
+  "fixed_precap_mae": 0.017935369482176,
+  "buggy_capped_sink_mean": 10.92128712694035,
+  "fixed_capped_sink_mean": 10.874719124860196,
+  "fixed_capped_mae": 0.027817734015698647
+ },
+ "graph_001998": {
+  "mc_mean": 23.413225323518958,
+  "stored_sink_mean": 23.53869933102419,
+  "buggy_precap_sink_mean": 23.53869933102419,
+  "fixed_precap_sink_mean": 23.345394292919504,
+  "fixed_precap_mae": 0.06783103059945361,
+  "buggy_capped_sink_mean": 23.477714421222483,
+  "fixed_capped_sink_mean": 23.234157004410342,
+  "fixed_capped_mae": 0.17906831910861598
+ },
+ "graph_000114": {
+  "mc_mean": 21.101200462642993,
+  "stored_sink_mean": 20.598950895143226,
+  "buggy_precap_sink_mean": 20.598950895143226,
+  "fixed_precap_sink_mean": 21.147791026688157,
+  "fixed_precap_mae": 0.046590564045164484,
+  "buggy_capped_sink_mean": 20.377780920138747,
+  "fixed_capped_sink_mean": 21.024526999797864,
+  "fixed_capped_mae": 0.07667346284512888
+ },
+ "graph_001730": {
+  "mc_mean": 11.044087116427729,
+  "stored_sink_mean": 12.215932459499154,
+  "buggy_precap_sink_mean": 12.215932459499154,
+  "fixed_precap_sink_mean": 11.06200678967204,
+  "fixed_precap_mae": 0.017919673244310985,
+  "buggy_capped_sink_mean": 12.215926425034885,
+  "fixed_capped_sink_mean": 11.036594661007285,
+  "fixed_capped_mae": 0.007492455420443633
+ },
+ "graph_001320": {
+  "mc_mean": 18.143208109995978,
+  "stored_sink_mean": 15.763360253380371,
+  "buggy_precap_sink_mean": 15.763360253380371,
+  "fixed_precap_sink_mean": 17.983821145240896,
+  "fixed_precap_mae": 0.15938696475508252,
+  "buggy_capped_sink_mean": 15.667826788199632,
+  "fixed_capped_sink_mean": 17.983538174529,
+  "fixed_capped_mae": 0.1596699354669795
+ },
+ "graph_000392": {
+  "mc_mean": 23.193348231146228,
+  "stored_sink_mean": 22.473042094539228,
+  "buggy_precap_sink_mean": 22.473042094539228,
+  "fixed_precap_sink_mean": 22.98257075722878,
+  "fixed_precap_mae": 0.2107774739174495,
+  "buggy_capped_sink_mean": 22.299275984587684,
+  "fixed_capped_sink_mean": 22.978759064859524,
+  "fixed_capped_mae": 0.21458916628670366
+ },
+ "graph_001775": {
+  "mc_mean": 14.85372778245996,
+  "stored_sink_mean": 15.333932028887611,
+  "buggy_precap_sink_mean": 15.333932028887611,
+  "fixed_precap_sink_mean": 14.739653110704374,
+  "fixed_precap_mae": 0.11407467175558494,
+  "buggy_capped_sink_mean": 15.333932028887611,
+  "fixed_capped_sink_mean": 14.739653110704374,
+  "fixed_capped_mae": 0.11407467175558494
+ },
+ "graph_000223": {
+  "mc_mean": 15.351960620422801,
+  "stored_sink_mean": 14.661736302987993,
+  "buggy_precap_sink_mean": 14.661736302987993,
+  "fixed_precap_sink_mean": 15.23414918310496,
+  "fixed_precap_mae": 0.11781143731784205,
+  "buggy_capped_sink_mean": 14.658041646758313,
+  "fixed_capped_sink_mean": 15.234146508303912,
+  "fixed_capped_mae": 0.11781411211888937
+ },
+ "graph_001858": {
+  "mc_mean": 14.201931075704588,
+  "stored_sink_mean": 13.666245749876923,
+  "buggy_precap_sink_mean": 13.666245749876923,
+  "fixed_precap_sink_mean": 14.090454615456657,
+  "fixed_precap_mae": 0.11147646024793012,
+  "buggy_capped_sink_mean": 13.651265283082763,
+  "fixed_capped_sink_mean": 14.088010533991282,
+  "fixed_capped_mae": 0.11392054171330557
+ },
+ "graph_000340": {
+  "mc_mean": 15.545339550748427,
+  "stored_sink_mean": 16.115277159222767,
+  "buggy_precap_sink_mean": 16.115277159222767,
+  "fixed_precap_sink_mean": 15.427543513707574,
+  "fixed_precap_mae": 0.1177960370408524,
+  "buggy_capped_sink_mean": 16.11527119427533,
+  "fixed_capped_sink_mean": 15.427543513707574,
+  "fixed_capped_mae": 0.1177960370408524
+ },
+ "graph_000632": {
+  "mc_mean": 15.003768171328815,
+  "stored_sink_mean": 15.425187563779978,
+  "buggy_precap_sink_mean": 15.425187563779978,
+  "fixed_precap_sink_mean": 14.91596702798645,
+  "fixed_precap_mae": 0.08780114334236444,
+  "buggy_capped_sink_mean": 15.398636370247699,
+  "fixed_capped_sink_mean": 14.890234097443136,
+  "fixed_capped_mae": 0.11353407388567938
+ },
+ "graph_001621": {
+  "mc_mean": 19.058874657502287,
+  "stored_sink_mean": 18.594877235371126,
+  "buggy_precap_sink_mean": 18.594877235371126,
+  "fixed_precap_sink_mean": 18.880355792961943,
+  "fixed_precap_mae": 0.1785188645403437,
+  "buggy_capped_sink_mean": 18.594847137090397,
+  "fixed_capped_sink_mean": 18.880283446932232,
+  "fixed_capped_mae": 0.17859121057005467
+ },
+ "graph_001487": {
+  "mc_mean": 12.424670572640377,
+  "stored_sink_mean": 13.400747171530197,
+  "buggy_precap_sink_mean": 13.400747171530197,
+  "fixed_precap_sink_mean": 12.338245131702664,
+  "fixed_precap_mae": 0.0864254409377132,
+  "buggy_capped_sink_mean": 13.39762965377227,
+  "fixed_capped_sink_mean": 12.334567763933356,
+  "fixed_capped_mae": 0.09010280870702125
+ },
+ "graph_001499": {
+  "mc_mean": 15.323923814625022,
+  "stored_sink_mean": 14.99930062821779,
+  "buggy_precap_sink_mean": 14.99930062821779,
+  "fixed_precap_sink_mean": 15.190712579810736,
+  "fixed_precap_mae": 0.13321123481428643,
+  "buggy_capped_sink_mean": 14.999288766586002,
+  "fixed_capped_sink_mean": 15.190712536716635,
+  "fixed_capped_mae": 0.13321127790838716
+ },
+ "graph_000065": {
+  "mc_mean": 12.21379382200079,
+  "stored_sink_mean": 12.545351427162068,
+  "buggy_precap_sink_mean": 12.545351427162068,
+  "fixed_precap_sink_mean": 12.365399166152732,
+  "fixed_precap_mae": 0.1516053441519425,
+  "buggy_capped_sink_mean": 12.431093869873216,
+  "fixed_capped_sink_mean": 12.255388709724137,
+  "fixed_capped_mae": 0.041594887723347185
+ },
+ "graph_000025": {
+  "mc_mean": 12.44148232049746,
+  "stored_sink_mean": 12.877160679922248,
+  "buggy_precap_sink_mean": 12.877160679922248,
+  "fixed_precap_sink_mean": 12.340470055045733,
+  "fixed_precap_mae": 0.10101226545172715,
+  "buggy_capped_sink_mean": 12.877112620717003,
+  "fixed_capped_sink_mean": 12.340195301205002,
+  "fixed_capped_mae": 0.10128701929245842
+ },
+ "graph_000234": {
+  "mc_mean": 14.943454770842449,
+  "stored_sink_mean": 14.228004185058696,
+  "buggy_precap_sink_mean": 14.228004185058696,
+  "fixed_precap_sink_mean": 14.818215581988289,
+  "fixed_precap_mae": 0.12523918885415952,
+  "buggy_capped_sink_mean": 14.22251869346402,
+  "fixed_capped_sink_mean": 14.81821276457701,
+  "fixed_capped_mae": 0.12524200626543802
+ },
+ "graph_000959": {
+  "mc_mean": 21.180667026754918,
+  "stored_sink_mean": 21.79139400438509,
+  "buggy_precap_sink_mean": 21.79139400438509,
+  "fixed_precap_sink_mean": 20.983627900780455,
+  "fixed_precap_mae": 0.19703912597446305,
+  "buggy_capped_sink_mean": 21.790097195448887,
+  "fixed_capped_sink_mean": 20.97928964902024,
+  "fixed_capped_mae": 0.20137737773467634
+ },
+ "graph_001072": {
+  "mc_mean": 13.306524716688,
+  "stored_sink_mean": 13.397989421158881,
+  "buggy_precap_sink_mean": 13.397989421158881,
+  "fixed_precap_sink_mean": 13.28973704753568,
+  "fixed_precap_mae": 0.01678766915231833,
+  "buggy_capped_sink_mean": 13.396150116181863,
+  "fixed_capped_sink_mean": 13.27966909228835,
+  "fixed_capped_mae": 0.026855624399649614
+ },
+ "graph_000873": {
+  "mc_mean": 19.345405160660885,
+  "stored_sink_mean": 19.114193962045032,
+  "buggy_precap_sink_mean": 19.114193962045032,
+  "fixed_precap_sink_mean": 19.1909768773969,
+  "fixed_precap_mae": 0.15442828326398583,
+  "buggy_capped_sink_mean": 19.114193827309105,
+  "fixed_capped_sink_mean": 19.190976877115624,
+  "fixed_capped_mae": 0.15442828354526128
+ },
+ "graph_000019": {
+  "mc_mean": 15.60549266880092,
+  "stored_sink_mean": 15.57481774634208,
+  "buggy_precap_sink_mean": 15.57481774634208,
+  "fixed_precap_sink_mean": 15.474897091976713,
+  "fixed_precap_mae": 0.13059557682420753,
+  "buggy_capped_sink_mean": 15.57311184643337,
+  "fixed_capped_sink_mean": 15.47481633244326,
+  "fixed_capped_mae": 0.13067633635766107
+ },
+ "graph_001772": {
+  "mc_mean": 20.56947637752491,
+  "stored_sink_mean": 21.415629749383918,
+  "buggy_precap_sink_mean": 21.415629749383918,
+  "fixed_precap_sink_mean": 20.37157149942176,
+  "fixed_precap_mae": 0.19790487810315227,
+  "buggy_capped_sink_mean": 21.39879904614908,
+  "fixed_capped_sink_mean": 20.364986709695714,
+  "fixed_capped_mae": 0.20448966782919697
+ },
+ "graph_000155": {
+  "mc_mean": 18.270539573365532,
+  "stored_sink_mean": 17.079231410407857,
+  "buggy_precap_sink_mean": 17.079231410407857,
+  "fixed_precap_sink_mean": 18.12675029169642,
+  "fixed_precap_mae": 0.1437892816691111,
+  "buggy_capped_sink_mean": 17.079231408790058,
+  "fixed_capped_sink_mean": 18.126750291695643,
+  "fixed_capped_mae": 0.14378928166988914
+ },
+ "graph_001465": {
+  "mc_mean": 16.648624588441717,
+  "stored_sink_mean": 15.676841905134506,
+  "buggy_precap_sink_mean": 15.676841905134506,
+  "fixed_precap_sink_mean": 16.508848580449673,
+  "fixed_precap_mae": 0.13977600799204382,
+  "buggy_capped_sink_mean": 15.676841905134506,
+  "fixed_capped_sink_mean": 16.508848580449673,
+  "fixed_capped_mae": 0.13977600799204382
+ },
+ "graph_000836": {
+  "mc_mean": 21.961829748122366,
+  "stored_sink_mean": 21.049365304620014,
+  "buggy_precap_sink_mean": 21.049365304620014,
+  "fixed_precap_sink_mean": 21.76076303513648,
+  "fixed_precap_mae": 0.20106671298588452,
+  "buggy_capped_sink_mean": 21.049362252128546,
+  "fixed_capped_sink_mean": 21.76076303197654,
+  "fixed_capped_mae": 0.2010667161458244
+ },
+ "graph_001944": {
+  "mc_mean": 13.579173561032903,
+  "stored_sink_mean": 13.22465492103375,
+  "buggy_precap_sink_mean": 13.22465492103375,
+  "fixed_precap_sink_mean": 13.473123886327869,
+  "fixed_precap_mae": 0.10604967470503368,
+  "buggy_capped_sink_mean": 13.223621187881314,
+  "fixed_capped_sink_mean": 13.470424503596064,
+  "fixed_capped_mae": 0.10874905743683883
+ },
+ "graph_000473": {
+  "mc_mean": 21.54638600773044,
+  "stored_sink_mean": 22.219394619915416,
+  "buggy_precap_sink_mean": 22.219394619915416,
+  "fixed_precap_sink_mean": 21.55245833951664,
+  "fixed_precap_mae": 0.006072331786199925,
+  "buggy_capped_sink_mean": 21.968995577235138,
+  "fixed_capped_sink_mean": 21.418284468667544,
+  "fixed_capped_mae": 0.12810153906289656
+ },
+ "graph_001646": {
+  "mc_mean": 15.44412601725498,
+  "stored_sink_mean": 15.396361439514422,
+  "buggy_precap_sink_mean": 15.396361439514422,
+  "fixed_precap_sink_mean": 15.326758969290442,
+  "fixed_precap_mae": 0.11736704796453878,
+  "buggy_capped_sink_mean": 15.396361439514422,
+  "fixed_capped_sink_mean": 15.326758969290442,
+  "fixed_capped_mae": 0.11736704796453878
+ },
+ "graph_000637": {
+  "mc_mean": 12.751216054563757,
+  "stored_sink_mean": 12.205905662818273,
+  "buggy_precap_sink_mean": 12.205905662818273,
+  "fixed_precap_sink_mean": 12.654605968035536,
+  "fixed_precap_mae": 0.09661008652822112,
+  "buggy_capped_sink_mean": 12.203190261434884,
+  "fixed_capped_sink_mean": 12.654562563696109,
+  "fixed_capped_mae": 0.09665349086764863
+ },
+ "graph_000791": {
+  "mc_mean": 15.087389247121191,
+  "stored_sink_mean": 15.398414512186964,
+  "buggy_precap_sink_mean": 15.398414512186964,
+  "fixed_precap_sink_mean": 15.081601844534921,
+  "fixed_precap_mae": 0.005787402586269863,
+  "buggy_capped_sink_mean": 15.387612846038245,
+  "fixed_capped_sink_mean": 15.015517761430715,
+  "fixed_capped_mae": 0.07187148569047608
+ },
+ "graph_001819": {
+  "mc_mean": 21.767662592492755,
+  "stored_sink_mean": 22.041097304591702,
+  "buggy_precap_sink_mean": 22.041097304591702,
+  "fixed_precap_sink_mean": 21.54477101038692,
+  "fixed_precap_mae": 0.22289158210583437,
+  "buggy_capped_sink_mean": 22.041097302756203,
+  "fixed_capped_sink_mean": 21.544771010349805,
+  "fixed_capped_mae": 0.22289158214294957
+ },
+ "graph_001756": {
+  "mc_mean": 9.02610688053548,
+  "stored_sink_mean": 9.06558332965764,
+  "buggy_precap_sink_mean": 9.06558332965764,
+  "fixed_precap_sink_mean": 8.986602676607859,
+  "fixed_precap_mae": 0.03950420392762055,
+  "buggy_capped_sink_mean": 9.055067441919247,
+  "fixed_capped_sink_mean": 8.981541746351567,
+  "fixed_capped_mae": 0.04456513418391239
+ },
+ "graph_001132": {
+  "mc_mean": 13.101653323820056,
+  "stored_sink_mean": 13.034893859553891,
+  "buggy_precap_sink_mean": 13.034893859553891,
+  "fixed_precap_sink_mean": 13.002718189727009,
+  "fixed_precap_mae": 0.09893513409304688,
+  "buggy_capped_sink_mean": 13.034887488059697,
+  "fixed_capped_sink_mean": 13.002603624073874,
+  "fixed_capped_mae": 0.09904969974618183
+ },
+ "graph_001843": {
+  "mc_mean": 17.68880563372617,
+  "stored_sink_mean": 16.654807664803407,
+  "buggy_precap_sink_mean": 16.654807664803407,
+  "fixed_precap_sink_mean": 17.550233551332486,
+  "fixed_precap_mae": 0.1385720823936829,
+  "buggy_capped_sink_mean": 16.633251388593326,
+  "fixed_capped_sink_mean": 17.52879325341332,
+  "fixed_capped_mae": 0.1600123803128497
+ },
+ "graph_000789": {
+  "mc_mean": 15.739293941445686,
+  "stored_sink_mean": 16.017579225094543,
+  "buggy_precap_sink_mean": 16.017579225094543,
+  "fixed_precap_sink_mean": 15.603982308782436,
+  "fixed_precap_mae": 0.13531163266324953,
+  "buggy_capped_sink_mean": 16.017579225094543,
+  "fixed_capped_sink_mean": 15.603982308782436,
+  "fixed_capped_mae": 0.13531163266324953
+ },
+ "graph_000934": {
+  "mc_mean": 18.212239238904672,
+  "stored_sink_mean": 19.700409312675507,
+  "buggy_precap_sink_mean": 19.700409312675507,
+  "fixed_precap_sink_mean": 18.517551541575408,
+  "fixed_precap_mae": 0.3053123026707354,
+  "buggy_capped_sink_mean": 19.411377976768616,
+  "fixed_capped_sink_mean": 18.177761306418606,
+  "fixed_capped_mae": 0.03447793248606601
+ },
+ "graph_000572": {
+  "mc_mean": 14.532596200980807,
+  "stored_sink_mean": 13.213783871539903,
+  "buggy_precap_sink_mean": 13.213783871539903,
+  "fixed_precap_sink_mean": 14.410063211945623,
+  "fixed_precap_mae": 0.12253298903518406,
+  "buggy_capped_sink_mean": 13.21306132101041,
+  "fixed_capped_sink_mean": 14.410063211933162,
+  "fixed_capped_mae": 0.1225329890476452
+ },
+ "graph_001363": {
+  "mc_mean": 16.17020657919941,
+  "stored_sink_mean": 16.510150733882377,
+  "buggy_precap_sink_mean": 16.510150733882377,
+  "fixed_precap_sink_mean": 16.041139247804217,
+  "fixed_precap_mae": 0.12906733139519133,
+  "buggy_capped_sink_mean": 16.510142394823042,
+  "fixed_capped_sink_mean": 16.034614323864258,
+  "fixed_capped_mae": 0.13559225533515118
+ },
+ "graph_001166": {
+  "mc_mean": 13.327435916242731,
+  "stored_sink_mean": 12.437844858394845,
+  "buggy_precap_sink_mean": 12.437844858394845,
+  "fixed_precap_sink_mean": 13.227000565734674,
+  "fixed_precap_mae": 0.1004353505080573,
+  "buggy_capped_sink_mean": 12.437306569361223,
+  "fixed_capped_sink_mean": 13.226990662335357,
+  "fixed_capped_mae": 0.10044525390737391
+ },
+ "graph_001123": {
+  "mc_mean": 12.152304942171817,
+  "stored_sink_mean": 11.761244517512404,
+  "buggy_precap_sink_mean": 11.761244517512404,
+  "fixed_precap_sink_mean": 12.117436856916004,
+  "fixed_precap_mae": 0.03486808525581253,
+  "buggy_capped_sink_mean": 11.735568579583045,
+  "fixed_capped_sink_mean": 12.09371311060762,
+  "fixed_capped_mae": 0.058591831564196895
+ },
+ "graph_000642": {
+  "mc_mean": 15.57579852220254,
+  "stored_sink_mean": 16.254810957804697,
+  "buggy_precap_sink_mean": 16.254810957804697,
+  "fixed_precap_sink_mean": 15.445594934803168,
+  "fixed_precap_mae": 0.13020358739937166,
+  "buggy_capped_sink_mean": 16.254810957804697,
+  "fixed_capped_sink_mean": 15.445594934803168,
+  "fixed_capped_mae": 0.13020358739937166
+ },
+ "graph_000865": {
+  "mc_mean": 12.23178394367334,
+  "stored_sink_mean": 12.315001526437138,
+  "buggy_precap_sink_mean": 12.315001526437138,
+  "fixed_precap_sink_mean": 12.265206060088595,
+  "fixed_precap_mae": 0.033422116415254166,
+  "buggy_capped_sink_mean": 12.289037276501439,
+  "fixed_capped_sink_mean": 12.235476472394739,
+  "fixed_capped_mae": 0.003692528721398247
+ },
+ "graph_001099": {
+  "mc_mean": 14.412812918567937,
+  "stored_sink_mean": 15.252597084180332,
+  "buggy_precap_sink_mean": 15.252597084180332,
+  "fixed_precap_sink_mean": 14.375667651535593,
+  "fixed_precap_mae": 0.037145267032343554,
+  "buggy_capped_sink_mean": 15.24911804817718,
+  "fixed_capped_sink_mean": 14.335878550736544,
+  "fixed_capped_mae": 0.0769343678313934
+ },
+ "graph_000760": {
+  "mc_mean": 17.795557648147916,
+  "stored_sink_mean": 17.149104187414867,
+  "buggy_precap_sink_mean": 17.149104187414867,
+  "fixed_precap_sink_mean": 17.642564282585752,
+  "fixed_precap_mae": 0.15299336556216403,
+  "buggy_capped_sink_mean": 17.148989231475262,
+  "fixed_capped_sink_mean": 17.642564139266426,
+  "fixed_capped_mae": 0.15299350888149021
+ },
+ "graph_000719": {
+  "mc_mean": 9.72404132112172,
+  "stored_sink_mean": 9.770956324074705,
+  "buggy_precap_sink_mean": 9.770956324074705,
+  "fixed_precap_sink_mean": 9.7596238894718,
+  "fixed_precap_mae": 0.035582568350081445,
+  "buggy_capped_sink_mean": 9.766256793272484,
+  "fixed_capped_sink_mean": 9.745621099720113,
+  "fixed_capped_mae": 0.021579778598393773
+ },
+ "graph_001004": {
+  "mc_mean": 13.261523226154502,
+  "stored_sink_mean": 13.523496971391133,
+  "buggy_precap_sink_mean": 13.523496971391133,
+  "fixed_precap_sink_mean": 13.341793644736054,
+  "fixed_precap_mae": 0.08027041858155215,
+  "buggy_capped_sink_mean": 13.424168243355158,
+  "fixed_capped_sink_mean": 13.24703598809296,
+  "fixed_capped_mae": 0.014487238061541063
+ },
+ "graph_001153": {
+  "mc_mean": 15.893002065027941,
+  "stored_sink_mean": 18.043006318393665,
+  "buggy_precap_sink_mean": 18.043006318393665,
+  "fixed_precap_sink_mean": 15.797747349450589,
+  "fixed_precap_mae": 0.09525471557735266,
+  "buggy_capped_sink_mean": 18.04300631594853,
+  "fixed_capped_sink_mean": 15.763633707221835,
+  "fixed_capped_mae": 0.129368357806106
+ },
+ "graph_001557": {
+  "mc_mean": 18.181490531620373,
+  "stored_sink_mean": 18.45317273681012,
+  "buggy_precap_sink_mean": 18.45317273681012,
+  "fixed_precap_sink_mean": 18.160182768877302,
+  "fixed_precap_mae": 0.02130776274307067,
+  "buggy_capped_sink_mean": 18.349778189703706,
+  "fixed_capped_sink_mean": 18.073467692458017,
+  "fixed_capped_mae": 0.10802283916235567
+ },
+ "graph_000544": {
+  "mc_mean": 17.948495790517807,
+  "stored_sink_mean": 17.050758160092364,
+  "buggy_precap_sink_mean": 17.050758160092364,
+  "fixed_precap_sink_mean": 17.806248373694615,
+  "fixed_precap_mae": 0.1422474168231922,
+  "buggy_capped_sink_mean": 17.049581905575636,
+  "fixed_capped_sink_mean": 17.805278175049185,
+  "fixed_capped_mae": 0.14321761546862177
+ },
+ "graph_001267": {
+  "mc_mean": 16.32260447486023,
+  "stored_sink_mean": 16.907824372329674,
+  "buggy_precap_sink_mean": 16.907824372329674,
+  "fixed_precap_sink_mean": 16.188257803128703,
+  "fixed_precap_mae": 0.13434667173152803,
+  "buggy_capped_sink_mean": 16.90724788960378,
+  "fixed_capped_sink_mean": 16.18661526164707,
+  "fixed_capped_mae": 0.13598921321316126
+ },
+ "graph_001687": {
+  "mc_mean": 14.2303560110497,
+  "stored_sink_mean": 13.422481268248408,
+  "buggy_precap_sink_mean": 13.422481268248408,
+  "fixed_precap_sink_mean": 14.125701638848055,
+  "fixed_precap_mae": 0.10465437220164553,
+  "buggy_capped_sink_mean": 13.422476747591386,
+  "fixed_capped_sink_mean": 14.125701638848055,
+  "fixed_capped_mae": 0.10465437220164553
+ },
+ "graph_000661": {
+  "mc_mean": 15.58008265029749,
+  "stored_sink_mean": 16.782308985899515,
+  "buggy_precap_sink_mean": 16.782308985899515,
+  "fixed_precap_sink_mean": 15.448187774688442,
+  "fixed_precap_mae": 0.13189487560904745,
+  "buggy_capped_sink_mean": 16.782175309080547,
+  "fixed_capped_sink_mean": 15.44357945506084,
+  "fixed_capped_mae": 0.13650319523664933
+ },
+ "graph_000695": {
+  "mc_mean": 19.891163339082123,
+  "stored_sink_mean": 19.562603358001734,
+  "buggy_precap_sink_mean": 19.562603358001734,
+  "fixed_precap_sink_mean": 19.69073207195358,
+  "fixed_precap_mae": 0.2004312671285433,
+  "buggy_capped_sink_mean": 19.552683604645622,
+  "fixed_capped_sink_mean": 19.69052847166501,
+  "fixed_capped_mae": 0.20063486741711145
+ },
+ "graph_000068": {
+  "mc_mean": 12.988180289603177,
+  "stored_sink_mean": 12.900685963758054,
+  "buggy_precap_sink_mean": 12.900685963758054,
+  "fixed_precap_sink_mean": 12.88222839354526,
+  "fixed_precap_mae": 0.10595189605791688,
+  "buggy_capped_sink_mean": 12.90067746967168,
+  "fixed_capped_sink_mean": 12.882194839022501,
+  "fixed_capped_mae": 0.10598545058067543
+ },
+ "graph_001116": {
+  "mc_mean": 18.589833313953054,
+  "stored_sink_mean": 17.40560586075057,
+  "buggy_precap_sink_mean": 17.40560586075057,
+  "fixed_precap_sink_mean": 18.632397439377073,
+  "fixed_precap_mae": 0.04256412542401833,
+  "buggy_capped_sink_mean": 17.244131371112204,
+  "fixed_capped_sink_mean": 18.560573635370535,
+  "fixed_capped_mae": 0.029259678582519655
+ },
+ "graph_001938": {
+  "mc_mean": 11.083040675205371,
+  "stored_sink_mean": 10.600363446123943,
+  "buggy_precap_sink_mean": 10.600363446123943,
+  "fixed_precap_sink_mean": 11.061003094924445,
+  "fixed_precap_mae": 0.022037580280926505,
+  "buggy_capped_sink_mean": 10.583240464245838,
+  "fixed_capped_sink_mean": 11.04889743685303,
+  "fixed_capped_mae": 0.03414323835234079
+ },
+ "graph_000890": {
+  "mc_mean": 15.984836173576763,
+  "stored_sink_mean": 15.922374201814513,
+  "buggy_precap_sink_mean": 15.922374201814513,
+  "fixed_precap_sink_mean": 16.17004812289037,
+  "fixed_precap_mae": 0.18521194931360796,
+  "buggy_capped_sink_mean": 15.850856778785445,
+  "fixed_capped_sink_mean": 16.02465082426178,
+  "fixed_capped_mae": 0.03981465068501677
+ },
+ "graph_001812": {
+  "mc_mean": 11.318811604350579,
+  "stored_sink_mean": 11.90503669764028,
+  "buggy_precap_sink_mean": 11.90503669764028,
+  "fixed_precap_sink_mean": 11.305118233904635,
+  "fixed_precap_mae": 0.013693370445944097,
+  "buggy_capped_sink_mean": 11.90013251393808,
+  "fixed_capped_sink_mean": 11.305118233904635,
+  "fixed_capped_mae": 0.013693370445944097
+ },
+ "graph_001126": {
+  "mc_mean": 15.035848887907976,
+  "stored_sink_mean": 13.708972180117948,
+  "buggy_precap_sink_mean": 13.708972180117948,
+  "fixed_precap_sink_mean": 14.918886775858452,
+  "fixed_precap_mae": 0.11696211204952434,
+  "buggy_capped_sink_mean": 13.69258621076909,
+  "fixed_capped_sink_mean": 14.918874693663923,
+  "fixed_capped_mae": 0.11697419424405275
+ },
+ "graph_001341": {
+  "mc_mean": 17.309060002755636,
+  "stored_sink_mean": 18.907941534274247,
+  "buggy_precap_sink_mean": 18.907941534274247,
+  "fixed_precap_sink_mean": 17.293392194002216,
+  "fixed_precap_mae": 0.01566780875342033,
+  "buggy_capped_sink_mean": 18.788053694462487,
+  "fixed_capped_sink_mean": 17.17638698429742,
+  "fixed_capped_mae": 0.13267301845821677
+ },
+ "graph_001403": {
+  "mc_mean": 17.185457103907265,
+  "stored_sink_mean": 16.8190985572065,
+  "buggy_precap_sink_mean": 16.8190985572065,
+  "fixed_precap_sink_mean": 17.020402476383715,
+  "fixed_precap_mae": 0.16505462752354916,
+  "buggy_capped_sink_mean": 16.819098557206498,
+  "fixed_capped_sink_mean": 17.020402476383712,
+  "fixed_capped_mae": 0.1650546275235527
+ },
+ "graph_000938": {
+  "mc_mean": 13.926597121818855,
+  "stored_sink_mean": 13.500916858112426,
+  "buggy_precap_sink_mean": 13.500916858112426,
+  "fixed_precap_sink_mean": 13.907370923727575,
+  "fixed_precap_mae": 0.01922619809128001,
+  "buggy_capped_sink_mean": 13.443327288113515,
+  "fixed_capped_sink_mean": 13.851949047064348,
+  "fixed_capped_mae": 0.07464807475450641
+ },
+ "graph_001303": {
+  "mc_mean": 11.29656312207947,
+  "stored_sink_mean": 12.189020762982988,
+  "buggy_precap_sink_mean": 12.189020762982988,
+  "fixed_precap_sink_mean": 11.21617302349021,
+  "fixed_precap_mae": 0.08039009858926072,
+  "buggy_capped_sink_mean": 12.189020762982988,
+  "fixed_capped_sink_mean": 11.216172463072944,
+  "fixed_capped_mae": 0.08039065900652709
+ },
+ "graph_000599": {
+  "mc_mean": 16.808362441852417,
+  "stored_sink_mean": 16.30587578723838,
+  "buggy_precap_sink_mean": 16.30587578723838,
+  "fixed_precap_sink_mean": 16.896767581297986,
+  "fixed_precap_mae": 0.0884051394455696,
+  "buggy_capped_sink_mean": 16.29165596267735,
+  "fixed_capped_sink_mean": 16.8193290111709,
+  "fixed_capped_mae": 0.010966569318483721
+ },
+ "graph_001907": {
+  "mc_mean": 19.673393407666357,
+  "stored_sink_mean": 18.266625732020945,
+  "buggy_precap_sink_mean": 18.266625732020945,
+  "fixed_precap_sink_mean": 19.49697941475876,
+  "fixed_precap_mae": 0.17641399290759807,
+  "buggy_capped_sink_mean": 18.251527942730768,
+  "fixed_capped_sink_mean": 19.49697899187602,
+  "fixed_capped_mae": 0.17641441579033668
+ },
+ "graph_000781": {
+  "mc_mean": 14.722413275232288,
+  "stored_sink_mean": 16.16598581812693,
+  "buggy_precap_sink_mean": 16.16598581812693,
+  "fixed_precap_sink_mean": 14.758099900144689,
+  "fixed_precap_mae": 0.035686624912401044,
+  "buggy_capped_sink_mean": 16.061849832894126,
+  "fixed_capped_sink_mean": 14.653534296636131,
+  "fixed_capped_mae": 0.06887897859615677
+ },
+ "graph_001688": {
+  "mc_mean": 9.793069740525418,
+  "stored_sink_mean": 10.206724722383733,
+  "buggy_precap_sink_mean": 10.206724722383733,
+  "fixed_precap_sink_mean": 9.76937595105951,
+  "fixed_precap_mae": 0.0236937894659075,
+  "buggy_capped_sink_mean": 10.19179476042953,
+  "fixed_capped_sink_mean": 9.759034885245228,
+  "fixed_capped_mae": 0.0340348552801899
+ },
+ "graph_000269": {
+  "mc_mean": 14.242175455687303,
+  "stored_sink_mean": 14.79186921294911,
+  "buggy_precap_sink_mean": 14.79186921294911,
+  "fixed_precap_sink_mean": 14.113487623233503,
+  "fixed_precap_mae": 0.12868783245379944,
+  "buggy_capped_sink_mean": 14.790911922400236,
+  "fixed_capped_sink_mean": 14.11232911350004,
+  "fixed_capped_mae": 0.1298463421872622
+ },
+ "graph_001735": {
+  "mc_mean": 16.465668792761758,
+  "stored_sink_mean": 17.567205585392085,
+  "buggy_precap_sink_mean": 17.567205585392085,
+  "fixed_precap_sink_mean": 16.493979282356253,
+  "fixed_precap_mae": 0.02831048959449589,
+  "buggy_capped_sink_mean": 17.495935168138082,
+  "fixed_capped_sink_mean": 16.43906487318721,
+  "fixed_capped_mae": 0.026603919574547774
+ },
+ "graph_000346": {
+  "mc_mean": 16.260323726368927,
+  "stored_sink_mean": 15.772107415530856,
+  "buggy_precap_sink_mean": 15.772107415530856,
+  "fixed_precap_sink_mean": 16.12575095603181,
+  "fixed_precap_mae": 0.1345727703371189,
+  "buggy_capped_sink_mean": 15.769532065306215,
+  "fixed_capped_sink_mean": 16.117705853118288,
+  "fixed_capped_mae": 0.14261787325063935
+ },
+ "graph_000460": {
+  "mc_mean": 13.022444402300124,
+  "stored_sink_mean": 14.975638216146297,
+  "buggy_precap_sink_mean": 14.975638216146297,
+  "fixed_precap_sink_mean": 12.92488163441384,
+  "fixed_precap_mae": 0.09756276788628426,
+  "buggy_capped_sink_mean": 14.97562878856859,
+  "fixed_capped_sink_mean": 12.921428822850736,
+  "fixed_capped_mae": 0.10101557944938833
+ },
+ "graph_000302": {
+  "mc_mean": 18.851173865286896,
+  "stored_sink_mean": 19.10566892162321,
+  "buggy_precap_sink_mean": 19.10566892162321,
+  "fixed_precap_sink_mean": 18.74850184671653,
+  "fixed_precap_mae": 0.10267201857036667,
+  "buggy_capped_sink_mean": 19.095031389794773,
+  "fixed_capped_sink_mean": 18.722619095314844,
+  "fixed_capped_mae": 0.12855476997205173
+ },
+ "graph_001475": {
+  "mc_mean": 12.373625824261195,
+  "stored_sink_mean": 13.18907566765577,
+  "buggy_precap_sink_mean": 13.18907566765577,
+  "fixed_precap_sink_mean": 12.336611005522133,
+  "fixed_precap_mae": 0.03701481873906154,
+  "buggy_capped_sink_mean": 13.175506953482818,
+  "fixed_capped_sink_mean": 12.311773476724081,
+  "fixed_capped_mae": 0.06185234753711377
+ },
+ "graph_001360": {
+  "mc_mean": 10.954702839790611,
+  "stored_sink_mean": 12.596086401301347,
+  "buggy_precap_sink_mean": 12.596086401301347,
+  "fixed_precap_sink_mean": 10.923894061706811,
+  "fixed_precap_mae": 0.030808778083800448,
+  "buggy_capped_sink_mean": 12.596086401301344,
+  "fixed_capped_sink_mean": 10.92143004803652,
+  "fixed_capped_mae": 0.03327279175409181
+ },
+ "graph_001871": {
+  "mc_mean": 12.71519756458554,
+  "stored_sink_mean": 13.073324894152783,
+  "buggy_precap_sink_mean": 13.073324894152783,
+  "fixed_precap_sink_mean": 12.689770805337028,
+  "fixed_precap_mae": 0.025426759248512454,
+  "buggy_capped_sink_mean": 13.047666380194451,
+  "fixed_capped_sink_mean": 12.64577922015354,
+  "fixed_capped_mae": 0.06941834443200001
+ },
+ "graph_001206": {
+  "mc_mean": 16.032634231197644,
+  "stored_sink_mean": 16.756044417912623,
+  "buggy_precap_sink_mean": 16.756044417912623,
+  "fixed_precap_sink_mean": 16.143768395978334,
+  "fixed_precap_mae": 0.11113416478069027,
+  "buggy_capped_sink_mean": 16.558349174309605,
+  "fixed_capped_sink_mean": 15.998392079571797,
+  "fixed_capped_mae": 0.03424215162584687
+ },
+ "graph_001139": {
+  "mc_mean": 22.812742445244925,
+  "stored_sink_mean": 22.04621633636916,
+  "buggy_precap_sink_mean": 22.04621633636916,
+  "fixed_precap_sink_mean": 22.58928974701229,
+  "fixed_precap_mae": 0.22345269823263436,
+  "buggy_capped_sink_mean": 22.045046588239977,
+  "fixed_capped_sink_mean": 22.589285103203334,
+  "fixed_capped_mae": 0.2234573420415913
+ },
+ "graph_000610": {
+  "mc_mean": 13.732393533542872,
+  "stored_sink_mean": 14.773088728093356,
+  "buggy_precap_sink_mean": 14.773088728093356,
+  "fixed_precap_sink_mean": 13.774051249796006,
+  "fixed_precap_mae": 0.04165771625313397,
+  "buggy_capped_sink_mean": 14.762616037244843,
+  "fixed_capped_sink_mean": 13.70042338098649,
+  "fixed_capped_mae": 0.031970152556382914
+ },
+ "graph_000822": {
+  "mc_mean": 19.776572113427722,
+  "stored_sink_mean": 19.29362950202899,
+  "buggy_precap_sink_mean": 19.29362950202899,
+  "fixed_precap_sink_mean": 19.603761264201673,
+  "fixed_precap_mae": 0.1728108492260496,
+  "buggy_capped_sink_mean": 19.293626348584624,
+  "fixed_capped_sink_mean": 19.603682668786895,
+  "fixed_capped_mae": 0.1728894446408269
+ },
+ "graph_001734": {
+  "mc_mean": 16.646619692035504,
+  "stored_sink_mean": 17.66413046860512,
+  "buggy_precap_sink_mean": 17.66413046860512,
+  "fixed_precap_sink_mean": 16.511004038572423,
+  "fixed_precap_mae": 0.13561565346308058,
+  "buggy_capped_sink_mean": 17.664130288059486,
+  "fixed_capped_sink_mean": 16.51100175681468,
+  "fixed_capped_mae": 0.1356179352208251
+ },
+ "graph_001894": {
+  "mc_mean": 16.51201358845115,
+  "stored_sink_mean": 16.15538113554326,
+  "buggy_precap_sink_mean": 16.15538113554326,
+  "fixed_precap_sink_mean": 16.381047031362012,
+  "fixed_precap_mae": 0.1309665570891383,
+  "buggy_capped_sink_mean": 16.05063663293601,
+  "fixed_capped_sink_mean": 16.363980109016904,
+  "fixed_capped_mae": 0.14803347943424683
+ },
+ "graph_000814": {
+  "mc_mean": 17.397165425305463,
+  "stored_sink_mean": 18.314101972780392,
+  "buggy_precap_sink_mean": 18.314101972780392,
+  "fixed_precap_sink_mean": 17.22475243726136,
+  "fixed_precap_mae": 0.17241298804410476,
+  "buggy_capped_sink_mean": 18.314101919336082,
+  "fixed_capped_sink_mean": 17.22475239118111,
+  "fixed_capped_mae": 0.17241303412435371
+ },
+ "graph_001394": {
+  "mc_mean": 17.039287038673212,
+  "stored_sink_mean": 16.193725937914046,
+  "buggy_precap_sink_mean": 16.193725937914046,
+  "fixed_precap_sink_mean": 16.917007886857565,
+  "fixed_precap_mae": 0.12227915181564697,
+  "buggy_capped_sink_mean": 16.160417439057298,
+  "fixed_capped_sink_mean": 16.903093043420814,
+  "fixed_capped_mae": 0.13619399525239828
+ },
+ "graph_001650": {
+  "mc_mean": 14.13135747027208,
+  "stored_sink_mean": 14.654096989684378,
+  "buggy_precap_sink_mean": 14.654096989684378,
+  "fixed_precap_sink_mean": 14.011298375495725,
+  "fixed_precap_mae": 0.12005909477635512,
+  "buggy_capped_sink_mean": 14.65409698945109,
+  "fixed_capped_sink_mean": 14.011298328312797,
+  "fixed_capped_mae": 0.12005914195928291
+ },
+ "graph_000404": {
+  "mc_mean": 18.748802744174334,
+  "stored_sink_mean": 19.34434009422005,
+  "buggy_precap_sink_mean": 19.34434009422005,
+  "fixed_precap_sink_mean": 18.891488975291278,
+  "fixed_precap_mae": 0.14268623111694367,
+  "buggy_capped_sink_mean": 19.267471236981045,
+  "fixed_capped_sink_mean": 18.7710024970608,
+  "fixed_capped_mae": 0.022199752886464807
+ },
+ "graph_001890": {
+  "mc_mean": 12.146503358790042,
+  "stored_sink_mean": 11.386540825490991,
+  "buggy_precap_sink_mean": 11.386540825490991,
+  "fixed_precap_sink_mean": 12.062947039162896,
+  "fixed_precap_mae": 0.08355631962714583,
+  "buggy_capped_sink_mean": 11.386540814808924,
+  "fixed_capped_sink_mean": 12.062947039162896,
+  "fixed_capped_mae": 0.08355631962714583
+ },
+ "graph_000615": {
+  "mc_mean": 13.852617693000642,
+  "stored_sink_mean": 13.348215459016357,
+  "buggy_precap_sink_mean": 13.348215459016357,
+  "fixed_precap_sink_mean": 13.73604252959135,
+  "fixed_precap_mae": 0.11657516340929241,
+  "buggy_capped_sink_mean": 13.32091719986154,
+  "fixed_capped_sink_mean": 13.729048331009343,
+  "fixed_capped_mae": 0.12356936199129898
+ },
+ "graph_000736": {
+  "mc_mean": 16.003693887149954,
+  "stored_sink_mean": 16.40888034463125,
+  "buggy_precap_sink_mean": 16.40888034463125,
+  "fixed_precap_sink_mean": 15.894935849987212,
+  "fixed_precap_mae": 0.10875803716274213,
+  "buggy_capped_sink_mean": 16.40842079517937,
+  "fixed_capped_sink_mean": 15.888250840415816,
+  "fixed_capped_mae": 0.11544304673413741
+ },
+ "graph_000356": {
+  "mc_mean": 20.539496521045923,
+  "stored_sink_mean": 22.076732315713585,
+  "buggy_precap_sink_mean": 22.076732315713585,
+  "fixed_precap_sink_mean": 20.61997782305161,
+  "fixed_precap_mae": 0.08048130200568693,
+  "buggy_capped_sink_mean": 22.009855240719414,
+  "fixed_capped_sink_mean": 20.421901115342017,
+  "fixed_capped_mae": 0.1175954057039057
+ },
+ "graph_000382": {
+  "mc_mean": 14.75997167451565,
+  "stored_sink_mean": 14.550640362501463,
+  "buggy_precap_sink_mean": 14.550640362501463,
+  "fixed_precap_sink_mean": 14.728339955845275,
+  "fixed_precap_mae": 0.03163171867037562,
+  "buggy_capped_sink_mean": 14.51067621341707,
+  "fixed_capped_sink_mean": 14.679612826653399,
+  "fixed_capped_mae": 0.08035884786225189
+ },
+ "graph_000539": {
+  "mc_mean": 17.353052043129836,
+  "stored_sink_mean": 17.301714013351877,
+  "buggy_precap_sink_mean": 17.301714013351877,
+  "fixed_precap_sink_mean": 17.207371115337203,
+  "fixed_precap_mae": 0.14568092779263253,
+  "buggy_capped_sink_mean": 17.301714013351866,
+  "fixed_capped_sink_mean": 17.207371115337114,
+  "fixed_capped_mae": 0.14568092779272135
+ },
+ "graph_001306": {
+  "mc_mean": 14.417694019637402,
+  "stored_sink_mean": 13.277395299574726,
+  "buggy_precap_sink_mean": 13.277395299574726,
+  "fixed_precap_sink_mean": 14.29246331062746,
+  "fixed_precap_mae": 0.1252307090099425,
+  "buggy_capped_sink_mean": 13.263241101160713,
+  "fixed_capped_sink_mean": 14.292379142222472,
+  "fixed_capped_mae": 0.12531487741492953
+ },
+ "graph_001350": {
+  "mc_mean": 13.387436470292794,
+  "stored_sink_mean": 12.205653189983643,
+  "buggy_precap_sink_mean": 12.205653189983643,
+  "fixed_precap_sink_mean": 13.296768621974161,
+  "fixed_precap_mae": 0.09066784831863295,
+  "buggy_capped_sink_mean": 12.204609731652573,
+  "fixed_capped_sink_mean": 13.296768584116682,
+  "fixed_capped_mae": 0.09066788617611188
+ },
+ "graph_000016": {
+  "mc_mean": 24.797581828856714,
+  "stored_sink_mean": 23.96373536198947,
+  "buggy_precap_sink_mean": 23.96373536198947,
+  "fixed_precap_sink_mean": 24.54285931516187,
+  "fixed_precap_mae": 0.2547225136948441,
+  "buggy_capped_sink_mean": 23.96373536198947,
+  "fixed_capped_sink_mean": 24.54285931516187,
+  "fixed_capped_mae": 0.2547225136948441
+ },
+ "graph_001972": {
+  "mc_mean": 15.416029185358726,
+  "stored_sink_mean": 15.094941125793351,
+  "buggy_precap_sink_mean": 15.094941125793351,
+  "fixed_precap_sink_mean": 15.278599684388245,
+  "fixed_precap_mae": 0.13742950097048023,
+  "buggy_capped_sink_mean": 15.085633847023036,
+  "fixed_capped_sink_mean": 15.27518570840883,
+  "fixed_capped_mae": 0.14084347694989496
+ },
+ "graph_001036": {
+  "mc_mean": 15.218156819083003,
+  "stored_sink_mean": 15.71972935727697,
+  "buggy_precap_sink_mean": 15.71972935727697,
+  "fixed_precap_sink_mean": 15.089867169512278,
+  "fixed_precap_mae": 0.12828964957072486,
+  "buggy_capped_sink_mean": 15.719728387090198,
+  "fixed_capped_sink_mean": 15.089710749814238,
+  "fixed_capped_mae": 0.12844606926876523
+ },
+ "graph_001235": {
+  "mc_mean": 9.045912482379476,
+  "stored_sink_mean": 9.13353345569759,
+  "buggy_precap_sink_mean": 9.13353345569759,
+  "fixed_precap_sink_mean": 9.08388827027038,
+  "fixed_precap_mae": 0.037975787890903945,
+  "buggy_capped_sink_mean": 9.13353345569759,
+  "fixed_capped_sink_mean": 9.08388827027038,
+  "fixed_capped_mae": 0.037975787890903945
+ },
+ "graph_000059": {
+  "mc_mean": 9.416336460817902,
+  "stored_sink_mean": 10.27855602321173,
+  "buggy_precap_sink_mean": 10.27855602321173,
+  "fixed_precap_sink_mean": 9.446557731833892,
+  "fixed_precap_mae": 0.03022127101598926,
+  "buggy_capped_sink_mean": 10.274626081599187,
+  "fixed_capped_sink_mean": 9.429810338506389,
+  "fixed_capped_mae": 0.013473877688486624
+ },
+ "graph_000028": {
+  "mc_mean": 19.046636367781588,
+  "stored_sink_mean": 20.363172607087076,
+  "buggy_precap_sink_mean": 20.363172607087076,
+  "fixed_precap_sink_mean": 18.872407066133523,
+  "fixed_precap_mae": 0.17422930164806516,
+  "buggy_capped_sink_mean": 20.363146481926368,
+  "fixed_capped_sink_mean": 18.870640240178254,
+  "fixed_capped_mae": 0.17599612760333372
+ },
+ "graph_001604": {
+  "mc_mean": 22.52479196341042,
+  "stored_sink_mean": 21.646442706637153,
+  "buggy_precap_sink_mean": 21.646442706637153,
+  "fixed_precap_sink_mean": 22.312520521296545,
+  "fixed_precap_mae": 0.21227144211387383,
+  "buggy_capped_sink_mean": 21.64644270653508,
+  "fixed_capped_sink_mean": 22.31252051900352,
+  "fixed_capped_mae": 0.21227144440689827
+ },
+ "graph_000581": {
+  "mc_mean": 19.608059905293402,
+  "stored_sink_mean": 18.306046109214737,
+  "buggy_precap_sink_mean": 18.306046109214737,
+  "fixed_precap_sink_mean": 19.42445885543658,
+  "fixed_precap_mae": 0.18360104985682213,
+  "buggy_capped_sink_mean": 18.305340000057647,
+  "fixed_capped_sink_mean": 19.424458582869498,
+  "fixed_capped_mae": 0.18360132242390392
+ },
+ "graph_001950": {
+  "mc_mean": 24.08037203750285,
+  "stored_sink_mean": 24.917793248287204,
+  "buggy_precap_sink_mean": 24.917793248287204,
+  "fixed_precap_sink_mean": 23.853063173185323,
+  "fixed_precap_mae": 0.2273088643175285,
+  "buggy_capped_sink_mean": 24.917785706490715,
+  "fixed_capped_sink_mean": 23.851668333790993,
+  "fixed_capped_mae": 0.228703703711858
+ },
+ "graph_000664": {
+  "mc_mean": 11.520839088189307,
+  "stored_sink_mean": 10.875462619220876,
+  "buggy_precap_sink_mean": 10.875462619220876,
+  "fixed_precap_sink_mean": 11.431609676923353,
+  "fixed_precap_mae": 0.08922941126595418,
+  "buggy_capped_sink_mean": 10.871563304096354,
+  "fixed_capped_sink_mean": 11.431460951721485,
+  "fixed_capped_mae": 0.08937813646782189
+ },
+ "graph_001929": {
+  "mc_mean": 20.488544276372,
+  "stored_sink_mean": 19.25201736289509,
+  "buggy_precap_sink_mean": 19.25201736289509,
+  "fixed_precap_sink_mean": 20.32515676898418,
+  "fixed_precap_mae": 0.16338750738782082,
+  "buggy_capped_sink_mean": 19.25201736289509,
+  "fixed_capped_sink_mean": 20.32514684308044,
+  "fixed_capped_mae": 0.16339743329156065
+ },
+ "graph_001395": {
+  "mc_mean": 18.331053899484623,
+  "stored_sink_mean": 17.8599606143031,
+  "buggy_precap_sink_mean": 17.8599606143031,
+  "fixed_precap_sink_mean": 18.308091250006864,
+  "fixed_precap_mae": 0.02296264947775839,
+  "buggy_capped_sink_mean": 17.833712083874477,
+  "fixed_capped_sink_mean": 18.25373029839212,
+  "fixed_capped_mae": 0.0773236010925018
+ },
+ "graph_001373": {
+  "mc_mean": 16.382751874900944,
+  "stored_sink_mean": 17.10655132673966,
+  "buggy_precap_sink_mean": 17.10655132673966,
+  "fixed_precap_sink_mean": 16.52722723967177,
+  "fixed_precap_mae": 0.1444753647708268,
+  "buggy_capped_sink_mean": 17.00369330164607,
+  "fixed_capped_sink_mean": 16.45116346944497,
+  "fixed_capped_mae": 0.06841159454402757
+ },
+ "graph_001024": {
+  "mc_mean": 12.85466002147455,
+  "stored_sink_mean": 13.47353382770323,
+  "buggy_precap_sink_mean": 13.47353382770323,
+  "fixed_precap_sink_mean": 12.827790156414443,
+  "fixed_precap_mae": 0.02686986506010669,
+  "buggy_capped_sink_mean": 13.452131747950391,
+  "fixed_capped_sink_mean": 12.78965994075497,
+  "fixed_capped_mae": 0.06500008071957986
+ },
+ "graph_000562": {
+  "mc_mean": 21.202093800794287,
+  "stored_sink_mean": 20.951433851982223,
+  "buggy_precap_sink_mean": 20.951433851982223,
+  "fixed_precap_sink_mean": 21.022387007647662,
+  "fixed_precap_mae": 0.1797067931466252,
+  "buggy_capped_sink_mean": 20.950461406449943,
+  "fixed_capped_sink_mean": 21.013886335125576,
+  "fixed_capped_mae": 0.18820746566871094
+ },
+ "graph_000893": {
+  "mc_mean": 20.871007160802687,
+  "stored_sink_mean": 22.88417282454801,
+  "buggy_precap_sink_mean": 22.88417282454801,
+  "fixed_precap_sink_mean": 20.781236049885653,
+  "fixed_precap_mae": 0.08977111091703449,
+  "buggy_capped_sink_mean": 22.866707154773874,
+  "fixed_capped_sink_mean": 20.739868655480365,
+  "fixed_capped_mae": 0.13113850532232263
+ },
+ "graph_000723": {
+  "mc_mean": 26.11672706236856,
+  "stored_sink_mean": 25.811268188266713,
+  "buggy_precap_sink_mean": 25.811268188266713,
+  "fixed_precap_sink_mean": 25.861361154623633,
+  "fixed_precap_mae": 0.2553659077449275,
+  "buggy_capped_sink_mean": 25.76393345156731,
+  "fixed_capped_sink_mean": 25.86047361248585,
+  "fixed_capped_mae": 0.2562534498827098
+ },
+ "graph_000640": {
+  "mc_mean": 19.107137058910535,
+  "stored_sink_mean": 19.626918432604498,
+  "buggy_precap_sink_mean": 19.626918432604498,
+  "fixed_precap_sink_mean": 19.09867370798542,
+  "fixed_precap_mae": 0.00846335092511552,
+  "buggy_capped_sink_mean": 19.54950039705057,
+  "fixed_capped_sink_mean": 19.02102972901912,
+  "fixed_capped_mae": 0.08610732989141567
+ },
+ "graph_001800": {
+  "mc_mean": 20.19300603617436,
+  "stored_sink_mean": 20.854178775639166,
+  "buggy_precap_sink_mean": 20.854178775639166,
+  "fixed_precap_sink_mean": 20.01413062424362,
+  "fixed_precap_mae": 0.17887541193073986,
+  "buggy_capped_sink_mean": 20.854178775639166,
+  "fixed_capped_sink_mean": 20.01413062424289,
+  "fixed_capped_mae": 0.17887541193147172
+ },
+ "graph_000693": {
+  "mc_mean": 10.950917164939028,
+  "stored_sink_mean": 12.296502902626317,
+  "buggy_precap_sink_mean": 12.296502902626317,
+  "fixed_precap_sink_mean": 10.92497617331302,
+  "fixed_precap_mae": 0.02594099162600827,
+  "buggy_capped_sink_mean": 12.296502898778515,
+  "fixed_capped_sink_mean": 10.912481497379707,
+  "fixed_capped_mae": 0.038435667559321374
+ },
+ "graph_000917": {
+  "mc_mean": 16.54627613810163,
+  "stored_sink_mean": 15.814087343859908,
+  "buggy_precap_sink_mean": 15.814087343859908,
+  "fixed_precap_sink_mean": 16.403888693481104,
+  "fixed_precap_mae": 0.14238744462052466,
+  "buggy_capped_sink_mean": 15.814087343502539,
+  "fixed_capped_sink_mean": 16.403888693480912,
+  "fixed_capped_mae": 0.1423874446207165
+ },
+ "graph_001427": {
+  "mc_mean": 15.372490921361381,
+  "stored_sink_mean": 13.961134773231382,
+  "buggy_precap_sink_mean": 13.961134773231382,
+  "fixed_precap_sink_mean": 15.261937436431342,
+  "fixed_precap_mae": 0.11055348493003869,
+  "buggy_capped_sink_mean": 13.960912907729867,
+  "fixed_capped_sink_mean": 15.261937436431342,
+  "fixed_capped_mae": 0.11055348493003869
+ },
+ "graph_001181": {
+  "mc_mean": 18.413409297127654,
+  "stored_sink_mean": 17.30440209072373,
+  "buggy_precap_sink_mean": 17.30440209072373,
+  "fixed_precap_sink_mean": 18.464584265887737,
+  "fixed_precap_mae": 0.05117496876008332,
+  "buggy_capped_sink_mean": 17.242210047888243,
+  "fixed_capped_sink_mean": 18.401342213474905,
+  "fixed_capped_mae": 0.012067083652748778
+ },
+ "graph_000948": {
+  "mc_mean": 23.777863849577088,
+  "stored_sink_mean": 23.240805758697473,
+  "buggy_precap_sink_mean": 23.240805758697473,
+  "fixed_precap_sink_mean": 23.54666869208539,
+  "fixed_precap_mae": 0.2311951574916975,
+  "buggy_capped_sink_mean": 23.24079271016543,
+  "fixed_capped_sink_mean": 23.54665912824023,
+  "fixed_capped_mae": 0.23120472133685865
+ },
+ "graph_001121": {
+  "mc_mean": 24.677286428551366,
+  "stored_sink_mean": 24.434500285909,
+  "buggy_precap_sink_mean": 24.434500285909,
+  "fixed_precap_sink_mean": 24.429314428890056,
+  "fixed_precap_mae": 0.2479719996613099,
+  "buggy_capped_sink_mean": 24.434500285909,
+  "fixed_capped_sink_mean": 24.429314428890056,
+  "fixed_capped_mae": 0.2479719996613099
+ },
+ "graph_001711": {
+  "mc_mean": 16.893801205008188,
+  "stored_sink_mean": 18.107615128620864,
+  "buggy_precap_sink_mean": 18.107615128620864,
+  "fixed_precap_sink_mean": 16.733020029378068,
+  "fixed_precap_mae": 0.1607811756301203,
+  "buggy_capped_sink_mean": 18.10357573819617,
+  "fixed_capped_sink_mean": 16.732328178218097,
+  "fixed_capped_mae": 0.161473026790091
+ },
+ "graph_001855": {
+  "mc_mean": 12.48403005516817,
+  "stored_sink_mean": 11.461123720987098,
+  "buggy_precap_sink_mean": 11.461123720987098,
+  "fixed_precap_sink_mean": 12.385187155631082,
+  "fixed_precap_mae": 0.0988428995370878,
+  "buggy_capped_sink_mean": 11.459010336882283,
+  "fixed_capped_sink_mean": 12.385187022310198,
+  "fixed_capped_mae": 0.09884303285797102
+ },
+ "graph_000500": {
+  "mc_mean": 22.34161942328864,
+  "stored_sink_mean": 22.71607176559052,
+  "buggy_precap_sink_mean": 22.71607176559052,
+  "fixed_precap_sink_mean": 22.299906503320795,
+  "fixed_precap_mae": 0.04171291996784632,
+  "buggy_capped_sink_mean": 22.638505419409164,
+  "fixed_capped_sink_mean": 22.24937524340806,
+  "fixed_capped_mae": 0.09224417988058065
+ },
+ "graph_001933": {
+  "mc_mean": 13.34286380544718,
+  "stored_sink_mean": 12.873191998741408,
+  "buggy_precap_sink_mean": 12.873191998741408,
+  "fixed_precap_sink_mean": 13.244236255783424,
+  "fixed_precap_mae": 0.09862754966375675,
+  "buggy_capped_sink_mean": 12.86818029672888,
+  "fixed_capped_sink_mean": 13.241377107461517,
+  "fixed_capped_mae": 0.10148669798566345
+ },
+ "graph_000877": {
+  "mc_mean": 11.099426495371642,
+  "stored_sink_mean": 11.087053046288853,
+  "buggy_precap_sink_mean": 11.087053046288853,
+  "fixed_precap_sink_mean": 11.02174593756025,
+  "fixed_precap_mae": 0.0776805578113926,
+  "buggy_capped_sink_mean": 11.087052810596214,
+  "fixed_capped_sink_mean": 11.021738875259098,
+  "fixed_capped_mae": 0.0776876201125436
+ },
+ "graph_001911": {
+  "mc_mean": 14.531641913539637,
+  "stored_sink_mean": 15.390454834037465,
+  "buggy_precap_sink_mean": 15.390454834037465,
+  "fixed_precap_sink_mean": 14.408556177929494,
+  "fixed_precap_mae": 0.12308573561014313,
+  "buggy_capped_sink_mean": 15.389977399659674,
+  "fixed_capped_sink_mean": 14.403143554284897,
+  "fixed_capped_mae": 0.12849835925474018
+ },
+ "graph_001405": {
+  "mc_mean": 14.28953105816638,
+  "stored_sink_mean": 13.534108011156006,
+  "buggy_precap_sink_mean": 13.534108011156006,
+  "fixed_precap_sink_mean": 14.178786894819556,
+  "fixed_precap_mae": 0.11074416334682446,
+  "buggy_capped_sink_mean": 13.534108011156006,
+  "fixed_capped_sink_mean": 14.178786894819556,
+  "fixed_capped_mae": 0.11074416334682446
+ },
+ "graph_001105": {
+  "mc_mean": 19.69641855584585,
+  "stored_sink_mean": 19.210708648905285,
+  "buggy_precap_sink_mean": 19.210708648905285,
+  "fixed_precap_sink_mean": 19.50180160765001,
+  "fixed_precap_mae": 0.19461694819583997,
+  "buggy_capped_sink_mean": 19.206726418792407,
+  "fixed_capped_sink_mean": 19.50177807199998,
+  "fixed_capped_mae": 0.19464048384586974
+ },
+ "graph_001063": {
+  "mc_mean": 14.553057080903438,
+  "stored_sink_mean": 14.875102078275424,
+  "buggy_precap_sink_mean": 14.875102078275424,
+  "fixed_precap_sink_mean": 14.430272377433663,
+  "fixed_precap_mae": 0.12278470346977421,
+  "buggy_capped_sink_mean": 14.875101073763279,
+  "fixed_capped_sink_mean": 14.430251149578996,
+  "fixed_capped_mae": 0.12280593132444118
+ },
+ "graph_001331": {
+  "mc_mean": 11.534197524430011,
+  "stored_sink_mean": 11.211871442609626,
+  "buggy_precap_sink_mean": 11.211871442609626,
+  "fixed_precap_sink_mean": 11.448950287868433,
+  "fixed_precap_mae": 0.08524723656157818,
+  "buggy_capped_sink_mean": 11.211871432581288,
+  "fixed_capped_sink_mean": 11.448950287868431,
+  "fixed_capped_mae": 0.08524723656157995
+ },
+ "graph_001371": {
+  "mc_mean": 16.956498311464518,
+  "stored_sink_mean": 16.76657219045761,
+  "buggy_precap_sink_mean": 16.76657219045761,
+  "fixed_precap_sink_mean": 17.022386605227897,
+  "fixed_precap_mae": 0.06588829376337912,
+  "buggy_capped_sink_mean": 16.639393813432243,
+  "fixed_capped_sink_mean": 16.90764924080668,
+  "fixed_capped_mae": 0.0488490706578375
+ },
+ "graph_000811": {
+  "mc_mean": 23.83028515245113,
+  "stored_sink_mean": 23.931435310033983,
+  "buggy_precap_sink_mean": 23.931435310033983,
+  "fixed_precap_sink_mean": 23.63354353879174,
+  "fixed_precap_mae": 0.19674161365938758,
+  "buggy_capped_sink_mean": 23.910657737163195,
+  "fixed_capped_sink_mean": 23.589426590935144,
+  "fixed_capped_mae": 0.24085856151598506
+ },
+ "graph_000527": {
+  "mc_mean": 15.151645192272152,
+  "stored_sink_mean": 14.715975047505573,
+  "buggy_precap_sink_mean": 14.715975047505573,
+  "fixed_precap_sink_mean": 15.061837169421924,
+  "fixed_precap_mae": 0.08980802285022804,
+  "buggy_capped_sink_mean": 14.652481708256385,
+  "fixed_capped_sink_mean": 15.044128167320643,
+  "fixed_capped_mae": 0.10751702495150894
+ },
+ "graph_000609": {
+  "mc_mean": 10.577456534477436,
+  "stored_sink_mean": 10.325311384629282,
+  "buggy_precap_sink_mean": 10.325311384629282,
+  "fixed_precap_sink_mean": 10.503803413471385,
+  "fixed_precap_mae": 0.07365312100605159,
+  "buggy_capped_sink_mean": 10.325311384629279,
+  "fixed_capped_sink_mean": 10.503803413471385,
+  "fixed_capped_mae": 0.07365312100605159
+ },
+ "graph_000741": {
+  "mc_mean": 16.505650625874377,
+  "stored_sink_mean": 16.180360293288018,
+  "buggy_precap_sink_mean": 16.180360293288018,
+  "fixed_precap_sink_mean": 16.43431348776453,
+  "fixed_precap_mae": 0.07133713810984688,
+  "buggy_capped_sink_mean": 16.035952726516765,
+  "fixed_capped_sink_mean": 16.369739585140955,
+  "fixed_capped_mae": 0.13591104073342208
+ },
+ "graph_001919": {
+  "mc_mean": 18.629341451677355,
+  "stored_sink_mean": 18.01079089492355,
+  "buggy_precap_sink_mean": 18.01079089492355,
+  "fixed_precap_sink_mean": 18.524832366048436,
+  "fixed_precap_mae": 0.10450908562891925,
+  "buggy_capped_sink_mean": 17.976121386466843,
+  "fixed_capped_sink_mean": 18.524805042209525,
+  "fixed_capped_mae": 0.10453640946782983
+ },
+ "graph_001837": {
+  "mc_mean": 17.158279109644813,
+  "stored_sink_mean": 16.316330158816584,
+  "buggy_precap_sink_mean": 16.316330158816584,
+  "fixed_precap_sink_mean": 17.00524578757491,
+  "fixed_precap_mae": 0.15303332206990206,
+  "buggy_capped_sink_mean": 16.30841750502511,
+  "fixed_capped_sink_mean": 17.005245735745447,
+  "fixed_capped_mae": 0.15303337389936544
+ },
+ "graph_000952": {
+  "mc_mean": 17.40201440230873,
+  "stored_sink_mean": 16.618676646141495,
+  "buggy_precap_sink_mean": 16.618676646141495,
+  "fixed_precap_sink_mean": 17.26616511524078,
+  "fixed_precap_mae": 0.1358492870679484,
+  "buggy_capped_sink_mean": 16.616678992514252,
+  "fixed_capped_sink_mean": 17.26616511524078,
+  "fixed_capped_mae": 0.1358492870679484
+ },
+ "graph_000215": {
+  "mc_mean": 22.320953754797074,
+  "stored_sink_mean": 22.769676563605703,
+  "buggy_precap_sink_mean": 22.769676563605703,
+  "fixed_precap_sink_mean": 22.121264988033555,
+  "fixed_precap_mae": 0.19968876676351854,
+  "buggy_capped_sink_mean": 22.769676563605703,
+  "fixed_capped_sink_mean": 22.121264988033555,
+  "fixed_capped_mae": 0.19968876676351854
+ },
+ "graph_000818": {
+  "mc_mean": 18.60612138922211,
+  "stored_sink_mean": 17.122573850061205,
+  "buggy_precap_sink_mean": 17.122573850061205,
+  "fixed_precap_sink_mean": 18.430147910351252,
+  "fixed_precap_mae": 0.17597347887085846,
+  "buggy_capped_sink_mean": 17.09245396163066,
+  "fixed_capped_sink_mean": 18.42868159272376,
+  "fixed_capped_mae": 0.1774397964983514
+ },
+ "graph_000593": {
+  "mc_mean": 13.886765491737915,
+  "stored_sink_mean": 15.395507126430054,
+  "buggy_precap_sink_mean": 15.395507126430054,
+  "fixed_precap_sink_mean": 13.888514399868603,
+  "fixed_precap_mae": 0.001748908130688065,
+  "buggy_capped_sink_mean": 15.363096723882242,
+  "fixed_capped_sink_mean": 13.850826746503737,
+  "fixed_capped_mae": 0.03593874523417817
+ },
+ "graph_000623": {
+  "mc_mean": 13.034213147103303,
+  "stored_sink_mean": 11.811503328831686,
+  "buggy_precap_sink_mean": 11.811503328831686,
+  "fixed_precap_sink_mean": 12.927926598168206,
+  "fixed_precap_mae": 0.10628654893509726,
+  "buggy_capped_sink_mean": 11.811497385666852,
+  "fixed_capped_sink_mean": 12.927926598146763,
+  "fixed_capped_mae": 0.10628654895653966
+ },
+ "graph_001737": {
+  "mc_mean": 14.65299036268485,
+  "stored_sink_mean": 15.548774046352854,
+  "buggy_precap_sink_mean": 15.548774046352854,
+  "fixed_precap_sink_mean": 14.876622957259936,
+  "fixed_precap_mae": 0.22363259457508633,
+  "buggy_capped_sink_mean": 15.34332453100535,
+  "fixed_capped_sink_mean": 14.753303579185305,
+  "fixed_capped_mae": 0.10031321650045477
+ },
+ "graph_001029": {
+  "mc_mean": 19.23489669697045,
+  "stored_sink_mean": 18.897472610837557,
+  "buggy_precap_sink_mean": 18.897472610837557,
+  "fixed_precap_sink_mean": 19.090285954634787,
+  "fixed_precap_mae": 0.1446107423356615,
+  "buggy_capped_sink_mean": 18.893697729727688,
+  "fixed_capped_sink_mean": 19.090285954634787,
+  "fixed_capped_mae": 0.1446107423356615
+ },
+ "graph_001219": {
+  "mc_mean": 21.69294021254797,
+  "stored_sink_mean": 18.125267444875444,
+  "buggy_precap_sink_mean": 18.125267444875444,
+  "fixed_precap_sink_mean": 21.495188548378177,
+  "fixed_precap_mae": 0.19775166416979317,
+  "buggy_capped_sink_mean": 18.120708423246192,
+  "fixed_capped_sink_mean": 21.495188538522886,
+  "fixed_capped_mae": 0.19775167402508487
+ },
+ "graph_000178": {
+  "mc_mean": 22.951783703300105,
+  "stored_sink_mean": 23.641078234643878,
+  "buggy_precap_sink_mean": 23.641078234643878,
+  "fixed_precap_sink_mean": 23.244614166589162,
+  "fixed_precap_mae": 0.29283046328905726,
+  "buggy_capped_sink_mean": 23.395781027264942,
+  "fixed_capped_sink_mean": 22.963001497827122,
+  "fixed_capped_mae": 0.011217794527016878
+ },
+ "graph_000391": {
+  "mc_mean": 15.472963893947282,
+  "stored_sink_mean": 17.33621084019391,
+  "buggy_precap_sink_mean": 17.33621084019391,
+  "fixed_precap_sink_mean": 15.525931020916735,
+  "fixed_precap_mae": 0.052967126969452494,
+  "buggy_capped_sink_mean": 17.32452543538819,
+  "fixed_capped_sink_mean": 15.401835307693123,
+  "fixed_capped_mae": 0.07112858625415974
+ },
+ "graph_000126": {
+  "mc_mean": 12.634026701094871,
+  "stored_sink_mean": 12.787377980069733,
+  "buggy_precap_sink_mean": 12.787377980069733,
+  "fixed_precap_sink_mean": 12.545090045281986,
+  "fixed_precap_mae": 0.08893665581288523,
+  "buggy_capped_sink_mean": 12.787377980069733,
+  "fixed_capped_sink_mean": 12.545090045281986,
+  "fixed_capped_mae": 0.08893665581288523
+ },
+ "graph_000700": {
+  "mc_mean": 12.914294317597273,
+  "stored_sink_mean": 13.175718220456076,
+  "buggy_precap_sink_mean": 13.175718220456076,
+  "fixed_precap_sink_mean": 12.987319945064767,
+  "fixed_precap_mae": 0.0730256274674943,
+  "buggy_capped_sink_mean": 13.129449159258701,
+  "fixed_capped_sink_mean": 12.931900416099769,
+  "fixed_capped_mae": 0.017606098502495726
+ },
+ "graph_000788": {
+  "mc_mean": 17.097755095540407,
+  "stored_sink_mean": 17.54221878343572,
+  "buggy_precap_sink_mean": 17.54221878343572,
+  "fixed_precap_sink_mean": 16.93939402641396,
+  "fixed_precap_mae": 0.1583610691264461,
+  "buggy_capped_sink_mean": 17.54221671654765,
+  "fixed_capped_sink_mean": 16.939290190550107,
+  "fixed_capped_mae": 0.15846490499029997
+ },
+ "graph_001062": {
+  "mc_mean": 17.274632185032615,
+  "stored_sink_mean": 17.150352114225022,
+  "buggy_precap_sink_mean": 17.150352114225022,
+  "fixed_precap_sink_mean": 17.127910530847533,
+  "fixed_precap_mae": 0.14672165418508243,
+  "buggy_capped_sink_mean": 17.08113598408638,
+  "fixed_capped_sink_mean": 17.12673161254381,
+  "fixed_capped_mae": 0.14790057248880473
+ },
+ "graph_000821": {
+  "mc_mean": 17.797959251830545,
+  "stored_sink_mean": 16.802214159716836,
+  "buggy_precap_sink_mean": 16.802214159716836,
+  "fixed_precap_sink_mean": 17.624913963280164,
+  "fixed_precap_mae": 0.17304528855038015,
+  "buggy_capped_sink_mean": 16.79344731267129,
+  "fixed_capped_sink_mean": 17.624378651929817,
+  "fixed_capped_mae": 0.1735805999007276
+ },
+ "graph_000387": {
+  "mc_mean": 14.821873577060169,
+  "stored_sink_mean": 13.312794067853654,
+  "buggy_precap_sink_mean": 13.312794067853654,
+  "fixed_precap_sink_mean": 14.777058297054502,
+  "fixed_precap_mae": 0.04481528000566648,
+  "buggy_capped_sink_mean": 13.282973396598813,
+  "fixed_capped_sink_mean": 14.758847396898258,
+  "fixed_capped_mae": 0.06302618016191097
+ },
+ "graph_001957": {
+  "mc_mean": 13.917252380978363,
+  "stored_sink_mean": 13.560013133032188,
+  "buggy_precap_sink_mean": 13.560013133032188,
+  "fixed_precap_sink_mean": 13.836451531588475,
+  "fixed_precap_mae": 0.08080084938988819,
+  "buggy_capped_sink_mean": 13.496052772436617,
+  "fixed_capped_sink_mean": 13.825010545567219,
+  "fixed_capped_mae": 0.09224183541114428
+ },
+ "graph_001925": {
+  "mc_mean": 18.372951067895723,
+  "stored_sink_mean": 18.62812357491203,
+  "buggy_precap_sink_mean": 18.62812357491203,
+  "fixed_precap_sink_mean": 18.321120675828677,
+  "fixed_precap_mae": 0.051830392067046205,
+  "buggy_capped_sink_mean": 18.612826121370663,
+  "fixed_capped_sink_mean": 18.22796210704484,
+  "fixed_capped_mae": 0.14498896085088475
+ },
+ "graph_001675": {
+  "mc_mean": 18.05515509619825,
+  "stored_sink_mean": 17.815637527478565,
+  "buggy_precap_sink_mean": 17.815637527478565,
+  "fixed_precap_sink_mean": 17.896785718967656,
+  "fixed_precap_mae": 0.15836937723059208,
+  "buggy_capped_sink_mean": 17.81563551958809,
+  "fixed_capped_sink_mean": 17.896785679308202,
+  "fixed_capped_mae": 0.15836941689004647
+ },
+ "graph_001270": {
+  "mc_mean": 21.37139203836601,
+  "stored_sink_mean": 22.673885818508708,
+  "buggy_precap_sink_mean": 22.673885818508708,
+  "fixed_precap_sink_mean": 21.37826946734038,
+  "fixed_precap_mae": 0.006877428974370048,
+  "buggy_capped_sink_mean": 22.665097323990913,
+  "fixed_capped_sink_mean": 21.20502412578757,
+  "fixed_capped_mae": 0.16636791257844052
+ },
+ "graph_001913": {
+  "mc_mean": 15.725706294332769,
+  "stored_sink_mean": 14.844689108791673,
+  "buggy_precap_sink_mean": 14.844689108791673,
+  "fixed_precap_sink_mean": 15.586590193536079,
+  "fixed_precap_mae": 0.13911610079668968,
+  "buggy_capped_sink_mean": 14.844689085692915,
+  "fixed_capped_sink_mean": 15.586590193535725,
+  "fixed_capped_mae": 0.13911610079704317
+ },
+ "graph_001354": {
+  "mc_mean": 12.784957833525807,
+  "stored_sink_mean": 11.904693346288767,
+  "buggy_precap_sink_mean": 11.904693346288767,
+  "fixed_precap_sink_mean": 12.680691175504638,
+  "fixed_precap_mae": 0.10426665802116908,
+  "buggy_capped_sink_mean": 11.89776679789229,
+  "fixed_capped_sink_mean": 12.68068749136747,
+  "fixed_capped_mae": 0.10427034215833686
+ },
+ "graph_000358": {
+  "mc_mean": 10.793932833793587,
+  "stored_sink_mean": 11.085430368387636,
+  "buggy_precap_sink_mean": 11.085430368387636,
+  "fixed_precap_sink_mean": 10.710253104014832,
+  "fixed_precap_mae": 0.08367972977875482,
+  "buggy_capped_sink_mean": 11.085024492815446,
+  "fixed_capped_sink_mean": 10.710071175094495,
+  "fixed_capped_mae": 0.08386165869909235
+ },
+ "graph_001312": {
+  "mc_mean": 12.775478551838846,
+  "stored_sink_mean": 13.122591580171427,
+  "buggy_precap_sink_mean": 13.122591580171427,
+  "fixed_precap_sink_mean": 12.693727326464069,
+  "fixed_precap_mae": 0.08175122537477719,
+  "buggy_capped_sink_mean": 13.122434342833028,
+  "fixed_capped_sink_mean": 12.673653723971698,
+  "fixed_capped_mae": 0.10182482786714786
+ },
+ "graph_000442": {
+  "mc_mean": 12.194520816184122,
+  "stored_sink_mean": 11.894747934616912,
+  "buggy_precap_sink_mean": 11.894747934616912,
+  "fixed_precap_sink_mean": 12.101553631692031,
+  "fixed_precap_mae": 0.09296718449209074,
+  "buggy_capped_sink_mean": 11.894672755636744,
+  "fixed_capped_sink_mean": 12.101552175350346,
+  "fixed_capped_mae": 0.0929686408337762
+ },
+ "graph_001481": {
+  "mc_mean": 11.730883141994836,
+  "stored_sink_mean": 11.711209952319969,
+  "buggy_precap_sink_mean": 11.711209952319969,
+  "fixed_precap_sink_mean": 11.637002384847962,
+  "fixed_precap_mae": 0.0938807571468736,
+  "buggy_capped_sink_mean": 11.711209709675781,
+  "fixed_capped_sink_mean": 11.637002384540017,
+  "fixed_capped_mae": 0.09388075745481927
+ },
+ "graph_000689": {
+  "mc_mean": 17.620756987036422,
+  "stored_sink_mean": 17.358738833768225,
+  "buggy_precap_sink_mean": 17.358738833768225,
+  "fixed_precap_sink_mean": 17.47870378729858,
+  "fixed_precap_mae": 0.14205319973784114,
+  "buggy_capped_sink_mean": 17.35042752609208,
+  "fixed_capped_sink_mean": 17.47063963216978,
+  "fixed_capped_mae": 0.1501173548666408
+ },
+ "graph_001273": {
+  "mc_mean": 17.296822798297736,
+  "stored_sink_mean": 15.8508378549006,
+  "buggy_precap_sink_mean": 15.8508378549006,
+  "fixed_precap_sink_mean": 17.1438130094941,
+  "fixed_precap_mae": 0.15300978880363658,
+  "buggy_capped_sink_mean": 15.831021807706513,
+  "fixed_capped_sink_mean": 17.14142483277119,
+  "fixed_capped_mae": 0.1553979655265465
+ },
+ "graph_000231": {
+  "mc_mean": 20.626899209066888,
+  "stored_sink_mean": 19.34084800535557,
+  "buggy_precap_sink_mean": 19.34084800535557,
+  "fixed_precap_sink_mean": 20.455349647027415,
+  "fixed_precap_mae": 0.17154956203947336,
+  "buggy_capped_sink_mean": 19.123468547280357,
+  "fixed_capped_sink_mean": 20.446982228681748,
+  "fixed_capped_mae": 0.1799169803851406
+ },
+ "graph_001147": {
+  "mc_mean": 11.467751275903664,
+  "stored_sink_mean": 11.300215140062114,
+  "buggy_precap_sink_mean": 11.300215140062114,
+  "fixed_precap_sink_mean": 11.39063172013569,
+  "fixed_precap_mae": 0.07711955576797358,
+  "buggy_capped_sink_mean": 11.300215140062114,
+  "fixed_capped_sink_mean": 11.39063172013569,
+  "fixed_capped_mae": 0.07711955576797358
+ },
+ "graph_000847": {
+  "mc_mean": 17.922671846310703,
+  "stored_sink_mean": 17.548956064779944,
+  "buggy_precap_sink_mean": 17.548956064779944,
+  "fixed_precap_sink_mean": 17.87893327098157,
+  "fixed_precap_mae": 0.043738575329133056,
+  "buggy_capped_sink_mean": 17.504442959885488,
+  "fixed_capped_sink_mean": 17.85636724450554,
+  "fixed_capped_mae": 0.06630460180516096
+ },
+ "graph_001653": {
+  "mc_mean": 14.959405961252207,
+  "stored_sink_mean": 15.559089939326078,
+  "buggy_precap_sink_mean": 15.559089939326078,
+  "fixed_precap_sink_mean": 14.846612514788479,
+  "fixed_precap_mae": 0.11279344646372813,
+  "buggy_capped_sink_mean": 15.54326173940203,
+  "fixed_capped_sink_mean": 14.82883711658586,
+  "fixed_capped_mae": 0.13056884466634777
+ },
+ "graph_000936": {
+  "mc_mean": 20.99739031624518,
+  "stored_sink_mean": 21.56748028711646,
+  "buggy_precap_sink_mean": 21.56748028711646,
+  "fixed_precap_sink_mean": 20.940411221392857,
+  "fixed_precap_mae": 0.05697909485232344,
+  "buggy_capped_sink_mean": 21.513349190475076,
+  "fixed_capped_sink_mean": 20.913018321663188,
+  "fixed_capped_mae": 0.08437199458199274
+ },
+ "graph_000478": {
+  "mc_mean": 12.511580906354224,
+  "stored_sink_mean": 12.259925226020234,
+  "buggy_precap_sink_mean": 12.259925226020234,
+  "fixed_precap_sink_mean": 12.48172301129645,
+  "fixed_precap_mae": 0.029857895057773476,
+  "buggy_capped_sink_mean": 12.230918042700186,
+  "fixed_capped_sink_mean": 12.478811082795506,
+  "fixed_capped_mae": 0.03276982355871816
+ },
+ "graph_001628": {
+  "mc_mean": 19.87489792997171,
+  "stored_sink_mean": 20.882368001359325,
+  "buggy_precap_sink_mean": 20.882368001359325,
+  "fixed_precap_sink_mean": 19.690495826519125,
+  "fixed_precap_mae": 0.1844021034525838,
+  "buggy_capped_sink_mean": 20.882367995498846,
+  "fixed_capped_sink_mean": 19.68987825132445,
+  "fixed_capped_mae": 0.185019678647258
+ },
+ "graph_001182": {
+  "mc_mean": 19.2235788814524,
+  "stored_sink_mean": 19.171060842156194,
+  "buggy_precap_sink_mean": 19.171060842156194,
+  "fixed_precap_sink_mean": 19.065458355630234,
+  "fixed_precap_mae": 0.1581205258221665,
+  "buggy_capped_sink_mean": 19.17105808540318,
+  "fixed_capped_sink_mean": 19.064748747860254,
+  "fixed_capped_mae": 0.15883013359214715
+ },
+ "graph_001131": {
+  "mc_mean": 14.539276603509748,
+  "stored_sink_mean": 14.946667191940508,
+  "buggy_precap_sink_mean": 14.946667191940508,
+  "fixed_precap_sink_mean": 14.431409653501222,
+  "fixed_precap_mae": 0.10786695000852653,
+  "buggy_capped_sink_mean": 14.936039244158342,
+  "fixed_capped_sink_mean": 14.42001027698496,
+  "fixed_capped_mae": 0.1192663265247873
+ },
+ "graph_001880": {
+  "mc_mean": 19.460574201463018,
+  "stored_sink_mean": 19.510929118637296,
+  "buggy_precap_sink_mean": 19.510929118637296,
+  "fixed_precap_sink_mean": 19.31584677588244,
+  "fixed_precap_mae": 0.1447274255805766,
+  "buggy_capped_sink_mean": 19.485880119529142,
+  "fixed_capped_sink_mean": 19.292624634237313,
+  "fixed_capped_mae": 0.16794956722570475
+ },
+ "graph_001681": {
+  "mc_mean": 14.429638821731968,
+  "stored_sink_mean": 13.907292406224533,
+  "buggy_precap_sink_mean": 13.907292406224533,
+  "fixed_precap_sink_mean": 14.503171821265896,
+  "fixed_precap_mae": 0.07353299953392778,
+  "buggy_capped_sink_mean": 13.867603989020418,
+  "fixed_capped_sink_mean": 14.402770330487396,
+  "fixed_capped_mae": 0.026868491244572468
+ },
+ "graph_000742": {
+  "mc_mean": 17.291406705908578,
+  "stored_sink_mean": 16.750863445335536,
+  "buggy_precap_sink_mean": 16.750863445335536,
+  "fixed_precap_sink_mean": 17.141710300363783,
+  "fixed_precap_mae": 0.1496964055447947,
+  "buggy_capped_sink_mean": 16.7508634453075,
+  "fixed_capped_sink_mean": 17.141710300363464,
+  "fixed_capped_mae": 0.14969640554511443
+ },
+ "graph_000175": {
+  "mc_mean": 17.045027977839148,
+  "stored_sink_mean": 16.788155313103974,
+  "buggy_precap_sink_mean": 16.788155313103974,
+  "fixed_precap_sink_mean": 17.243721483140675,
+  "fixed_precap_mae": 0.1986935053015273,
+  "buggy_capped_sink_mean": 16.642226479309816,
+  "fixed_capped_sink_mean": 17.07509242552765,
+  "fixed_capped_mae": 0.030064447688502582
+ },
+ "graph_001245": {
+  "mc_mean": 23.927363687097877,
+  "stored_sink_mean": 23.32960966251684,
+  "buggy_precap_sink_mean": 23.32960966251684,
+  "fixed_precap_sink_mean": 23.710034802961996,
+  "fixed_precap_mae": 0.21732888413588114,
+  "buggy_capped_sink_mean": 23.286674411488487,
+  "fixed_capped_sink_mean": 23.70874012795501,
+  "fixed_capped_mae": 0.21862355914286624
+ },
+ "graph_000008": {
+  "mc_mean": 16.996148489797697,
+  "stored_sink_mean": 17.57617281656499,
+  "buggy_precap_sink_mean": 17.57617281656499,
+  "fixed_precap_sink_mean": 16.84364634940895,
+  "fixed_precap_mae": 0.15250214038874788,
+  "buggy_capped_sink_mean": 17.57617281656499,
+  "fixed_capped_sink_mean": 16.843646349408946,
+  "fixed_capped_mae": 0.15250214038875143
+ },
+ "graph_000173": {
+  "mc_mean": 26.31408609996158,
+  "stored_sink_mean": 25.412022060999544,
+  "buggy_precap_sink_mean": 25.412022060999544,
+  "fixed_precap_sink_mean": 26.05077531578055,
+  "fixed_precap_mae": 0.26331078418103004,
+  "buggy_capped_sink_mean": 25.411862049763677,
+  "fixed_capped_sink_mean": 26.049797275436728,
+  "fixed_capped_mae": 0.26428882452485425
+ },
+ "graph_001869": {
+  "mc_mean": 16.515618316682776,
+  "stored_sink_mean": 16.629633411646903,
+  "buggy_precap_sink_mean": 16.629633411646903,
+  "fixed_precap_sink_mean": 16.5141855708027,
+  "fixed_precap_mae": 0.0014327458800771353,
+  "buggy_capped_sink_mean": 16.588828999326818,
+  "fixed_capped_sink_mean": 16.44888230475019,
+  "fixed_capped_mae": 0.06673601193258705
+ },
+ "graph_001409": {
+  "mc_mean": 14.686341025292192,
+  "stored_sink_mean": 15.002625379309034,
+  "buggy_precap_sink_mean": 15.002625379309034,
+  "fixed_precap_sink_mean": 14.572648767400768,
+  "fixed_precap_mae": 0.11369225789142412,
+  "buggy_capped_sink_mean": 15.002625336755692,
+  "fixed_capped_sink_mean": 14.57248731484931,
+  "fixed_capped_mae": 0.11385371044288206
+ },
+ "graph_000273": {
+  "mc_mean": 14.470967465668707,
+  "stored_sink_mean": 15.00912399377465,
+  "buggy_precap_sink_mean": 15.00912399377465,
+  "fixed_precap_sink_mean": 14.355883277183075,
+  "fixed_precap_mae": 0.11508418848563196,
+  "buggy_capped_sink_mean": 15.009123993774612,
+  "fixed_capped_sink_mean": 14.355883277177732,
+  "fixed_capped_mae": 0.11508418849097524
+ },
+ "graph_001781": {
+  "mc_mean": 16.44284054543515,
+  "stored_sink_mean": 14.996482796905594,
+  "buggy_precap_sink_mean": 14.996482796905594,
+  "fixed_precap_sink_mean": 16.30851624171771,
+  "fixed_precap_mae": 0.1343243037174382,
+  "buggy_capped_sink_mean": 14.94197583774636,
+  "fixed_capped_sink_mean": 16.308023073310956,
+  "fixed_capped_mae": 0.13481747212419393
+ },
+ "graph_001738": {
+  "mc_mean": 21.033869024671645,
+  "stored_sink_mean": 20.92050002319953,
+  "buggy_precap_sink_mean": 20.92050002319953,
+  "fixed_precap_sink_mean": 21.173026927329033,
+  "fixed_precap_mae": 0.13915790265738792,
+  "buggy_capped_sink_mean": 20.90039864638025,
+  "fixed_capped_sink_mean": 20.96903167019793,
+  "fixed_capped_mae": 0.06483735447371686
+ },
+ "graph_001893": {
+  "mc_mean": 12.739970849801443,
+  "stored_sink_mean": 12.43447272701903,
+  "buggy_precap_sink_mean": 12.43447272701903,
+  "fixed_precap_sink_mean": 12.655190305897685,
+  "fixed_precap_mae": 0.08478054390375789,
+  "buggy_capped_sink_mean": 12.434472727018566,
+  "fixed_capped_sink_mean": 12.655190305892491,
+  "fixed_capped_mae": 0.08478054390895196
+ },
+ "graph_001057": {
+  "mc_mean": 13.285670275757925,
+  "stored_sink_mean": 13.444761921120973,
+  "buggy_precap_sink_mean": 13.444761921120973,
+  "fixed_precap_sink_mean": 13.179202438530638,
+  "fixed_precap_mae": 0.10646783722728692,
+  "buggy_capped_sink_mean": 13.44417427956599,
+  "fixed_capped_sink_mean": 13.179199227939035,
+  "fixed_capped_mae": 0.10647104781888928
+ },
+ "graph_001297": {
+  "mc_mean": 14.412201694564201,
+  "stored_sink_mean": 14.699155087231627,
+  "buggy_precap_sink_mean": 14.699155087231627,
+  "fixed_precap_sink_mean": 14.315130030305463,
+  "fixed_precap_mae": 0.09707166425873837,
+  "buggy_capped_sink_mean": 14.69898061097794,
+  "fixed_capped_sink_mean": 14.29617369402211,
+  "fixed_capped_mae": 0.11602800054209084
+ },
+ "graph_001146": {
+  "mc_mean": 12.749081291718444,
+  "stored_sink_mean": 11.721213558826951,
+  "buggy_precap_sink_mean": 11.721213558826951,
+  "fixed_precap_sink_mean": 12.700427226964466,
+  "fixed_precap_mae": 0.048654064753977266,
+  "buggy_capped_sink_mean": 11.702576453313355,
+  "fixed_capped_sink_mean": 12.68801549409937,
+  "fixed_capped_mae": 0.06106579761907405
+ },
+ "graph_000226": {
+  "mc_mean": 12.456664962733354,
+  "stored_sink_mean": 13.107796340511582,
+  "buggy_precap_sink_mean": 13.107796340511582,
+  "fixed_precap_sink_mean": 12.358328456989117,
+  "fixed_precap_mae": 0.09833650574423736,
+  "buggy_capped_sink_mean": 13.107796340511582,
+  "fixed_capped_sink_mean": 12.358328456989117,
+  "fixed_capped_mae": 0.09833650574423736
+ },
+ "graph_001102": {
+  "mc_mean": 14.032776188510883,
+  "stored_sink_mean": 15.017056865229167,
+  "buggy_precap_sink_mean": 15.017056865229167,
+  "fixed_precap_sink_mean": 13.982670979711465,
+  "fixed_precap_mae": 0.05010520879941893,
+  "buggy_capped_sink_mean": 15.016305004791246,
+  "fixed_capped_sink_mean": 13.93683567913817,
+  "fixed_capped_mae": 0.09594050937271348
+ },
+ "graph_000590": {
+  "mc_mean": 16.64232588561548,
+  "stored_sink_mean": 14.607639006401298,
+  "buggy_precap_sink_mean": 14.607639006401298,
+  "fixed_precap_sink_mean": 16.50503578126616,
+  "fixed_precap_mae": 0.1372901043493222,
+  "buggy_capped_sink_mean": 14.597623149266724,
+  "fixed_capped_sink_mean": 16.504301688865752,
+  "fixed_capped_mae": 0.1380241967497291
+ },
+ "graph_001918": {
+  "mc_mean": 18.967859253074646,
+  "stored_sink_mean": 19.077467348405435,
+  "buggy_precap_sink_mean": 19.077467348405435,
+  "fixed_precap_sink_mean": 18.915213122121145,
+  "fixed_precap_mae": 0.05264613095350157,
+  "buggy_capped_sink_mean": 19.065061099359806,
+  "fixed_capped_sink_mean": 18.824574736268502,
+  "fixed_capped_mae": 0.14328451680614407
+ },
+ "graph_000812": {
+  "mc_mean": 17.332461602113455,
+  "stored_sink_mean": 18.45572952160653,
+  "buggy_precap_sink_mean": 18.45572952160653,
+  "fixed_precap_sink_mean": 17.20282550624598,
+  "fixed_precap_mae": 0.12963609586747538,
+  "buggy_capped_sink_mean": 18.45427864832579,
+  "fixed_capped_sink_mean": 17.192491681133298,
+  "fixed_capped_mae": 0.13996992098015681
+ },
+ "graph_001565": {
+  "mc_mean": 13.44284621347749,
+  "stored_sink_mean": 14.570336368107014,
+  "buggy_precap_sink_mean": 14.570336368107014,
+  "fixed_precap_sink_mean": 13.467218717120113,
+  "fixed_precap_mae": 0.02437250364262411,
+  "buggy_capped_sink_mean": 14.564307855046822,
+  "fixed_capped_sink_mean": 13.381763305113532,
+  "fixed_capped_mae": 0.061082908363957245
+ },
+ "graph_001278": {
+  "mc_mean": 11.992479057299482,
+  "stored_sink_mean": 10.773029368239932,
+  "buggy_precap_sink_mean": 10.773029368239932,
+  "fixed_precap_sink_mean": 11.909731896208399,
+  "fixed_precap_mae": 0.08274716109108304,
+  "buggy_capped_sink_mean": 10.773029353669413,
+  "fixed_capped_sink_mean": 11.909731896208399,
+  "fixed_capped_mae": 0.08274716109108304
+ },
+ "graph_000820": {
+  "mc_mean": 20.226100660349427,
+  "stored_sink_mean": 19.924720476944444,
+  "buggy_precap_sink_mean": 19.924720476944444,
+  "fixed_precap_sink_mean": 20.24497660600652,
+  "fixed_precap_mae": 0.018875945657093496,
+  "buggy_capped_sink_mean": 19.804622978114548,
+  "fixed_capped_sink_mean": 20.141287765612113,
+  "fixed_capped_mae": 0.08481289473731479
+ },
+ "graph_000219": {
+  "mc_mean": 19.743793762996788,
+  "stored_sink_mean": 19.75357428740657,
+  "buggy_precap_sink_mean": 19.75357428740657,
+  "fixed_precap_sink_mean": 19.59538875138502,
+  "fixed_precap_mae": 0.1484050116117679,
+  "buggy_capped_sink_mean": 19.734345200878984,
+  "fixed_capped_sink_mean": 19.57464948611965,
+  "fixed_capped_mae": 0.1691442768771374
+ },
+ "graph_001517": {
+  "mc_mean": 14.279868268561605,
+  "stored_sink_mean": 14.471690422662988,
+  "buggy_precap_sink_mean": 14.471690422662988,
+  "fixed_precap_sink_mean": 14.180301475861118,
+  "fixed_precap_mae": 0.09956679270048774,
+  "buggy_capped_sink_mean": 14.47169042266299,
+  "fixed_capped_sink_mean": 14.18030147586111,
+  "fixed_capped_mae": 0.09956679270049484
+ },
+ "graph_000467": {
+  "mc_mean": 19.422078405114274,
+  "stored_sink_mean": 18.737315030987716,
+  "buggy_precap_sink_mean": 18.737315030987716,
+  "fixed_precap_sink_mean": 19.298668168233114,
+  "fixed_precap_mae": 0.12341023688115982,
+  "buggy_capped_sink_mean": 18.707401214402132,
+  "fixed_capped_sink_mean": 19.274698766556234,
+  "fixed_capped_mae": 0.14737963855803926
+ },
+ "graph_001060": {
+  "mc_mean": 12.207911182044377,
+  "stored_sink_mean": 12.912435335690507,
+  "buggy_precap_sink_mean": 12.912435335690507,
+  "fixed_precap_sink_mean": 12.215598431294286,
+  "fixed_precap_mae": 0.00768724924990849,
+  "buggy_capped_sink_mean": 12.911829578185744,
+  "fixed_capped_sink_mean": 12.161768916838785,
+  "fixed_capped_mae": 0.04614226520559228
+ },
+ "graph_000408": {
+  "mc_mean": 16.52498852731762,
+  "stored_sink_mean": 15.908885192368185,
+  "buggy_precap_sink_mean": 15.908885192368185,
+  "fixed_precap_sink_mean": 16.436945896093736,
+  "fixed_precap_mae": 0.08804263122388534,
+  "buggy_capped_sink_mean": 15.844887650946442,
+  "fixed_capped_sink_mean": 16.396750444861816,
+  "fixed_capped_mae": 0.12823808245580537
+ },
+ "graph_000517": {
+  "mc_mean": 14.858818944270364,
+  "stored_sink_mean": 14.839209997924755,
+  "buggy_precap_sink_mean": 14.839209997924755,
+  "fixed_precap_sink_mean": 14.748045133064208,
+  "fixed_precap_mae": 0.11077381120615648,
+  "buggy_capped_sink_mean": 14.838743988889098,
+  "fixed_capped_sink_mean": 14.74804513306287,
+  "fixed_capped_mae": 0.11077381120749408
+ },
+ "graph_000291": {
+  "mc_mean": 15.771656039017032,
+  "stored_sink_mean": 16.62990067907036,
+  "buggy_precap_sink_mean": 16.62990067907036,
+  "fixed_precap_sink_mean": 15.882603548300404,
+  "fixed_precap_mae": 0.11094750928337227,
+  "buggy_capped_sink_mean": 16.592330645592337,
+  "fixed_capped_sink_mean": 15.772718088578323,
+  "fixed_capped_mae": 0.0010620495612911895
+ },
+ "graph_000571": {
+  "mc_mean": 15.207328988157713,
+  "stored_sink_mean": 15.09623054833794,
+  "buggy_precap_sink_mean": 15.09623054833794,
+  "fixed_precap_sink_mean": 15.128952649628586,
+  "fixed_precap_mae": 0.07837633852912695,
+  "buggy_capped_sink_mean": 15.09602490781781,
+  "fixed_capped_sink_mean": 15.128952649628586,
+  "fixed_capped_mae": 0.07837633852912695
+ },
+ "graph_001156": {
+  "mc_mean": 15.578606276440881,
+  "stored_sink_mean": 14.846238505711696,
+  "buggy_precap_sink_mean": 14.846238505711696,
+  "fixed_precap_sink_mean": 15.454831368006761,
+  "fixed_precap_mae": 0.12377490843411998,
+  "buggy_capped_sink_mean": 14.84607768764018,
+  "fixed_capped_sink_mean": 15.454699530234445,
+  "fixed_capped_mae": 0.12390674620643694
+ },
+ "graph_001145": {
+  "mc_mean": 11.683634860473122,
+  "stored_sink_mean": 12.015673898367796,
+  "buggy_precap_sink_mean": 12.015673898367796,
+  "fixed_precap_sink_mean": 11.622609123879338,
+  "fixed_precap_mae": 0.061025736593784075,
+  "buggy_capped_sink_mean": 11.996336154422153,
+  "fixed_capped_sink_mean": 11.609601412699933,
+  "fixed_capped_mae": 0.07403344777318921
+ },
+ "graph_000927": {
+  "mc_mean": 12.597985361449993,
+  "stored_sink_mean": 13.378393281334812,
+  "buggy_precap_sink_mean": 13.378393281334812,
+  "fixed_precap_sink_mean": 12.569854428587918,
+  "fixed_precap_mae": 0.028130932862074687,
+  "buggy_capped_sink_mean": 13.363486785685806,
+  "fixed_capped_sink_mean": 12.558640598479137,
+  "fixed_capped_mae": 0.039344762970856095
+ },
+ "graph_001987": {
+  "mc_mean": 15.264643683128792,
+  "stored_sink_mean": 14.87616841903128,
+  "buggy_precap_sink_mean": 14.87616841903128,
+  "fixed_precap_sink_mean": 15.14562719298857,
+  "fixed_precap_mae": 0.11901649014022198,
+  "buggy_capped_sink_mean": 14.876168369407628,
+  "fixed_capped_sink_mean": 15.14562489036665,
+  "fixed_capped_mae": 0.11901879276214267
+ },
+ "graph_001313": {
+  "mc_mean": 11.904852077233786,
+  "stored_sink_mean": 12.234386324746145,
+  "buggy_precap_sink_mean": 12.234386324746145,
+  "fixed_precap_sink_mean": 11.913557741648466,
+  "fixed_precap_mae": 0.00870566441468057,
+  "buggy_capped_sink_mean": 12.225580296860524,
+  "fixed_capped_sink_mean": 11.896246994132765,
+  "fixed_capped_mae": 0.008605083101020483
+ },
+ "graph_001543": {
+  "mc_mean": 20.09703568933054,
+  "stored_sink_mean": 18.954124992626312,
+  "buggy_precap_sink_mean": 18.954124992626312,
+  "fixed_precap_sink_mean": 19.92181138906378,
+  "fixed_precap_mae": 0.17522430026675906,
+  "buggy_capped_sink_mean": 18.852655502663815,
+  "fixed_capped_sink_mean": 19.909513380429,
+  "fixed_capped_mae": 0.18752230890153854
+ },
+ "graph_000179": {
+  "mc_mean": 11.748372573349863,
+  "stored_sink_mean": 10.462588025065942,
+  "buggy_precap_sink_mean": 10.462588025065942,
+  "fixed_precap_sink_mean": 11.6862867669307,
+  "fixed_precap_mae": 0.06208580641916406,
+  "buggy_capped_sink_mean": 10.456249299197744,
+  "fixed_capped_sink_mean": 11.683266378118287,
+  "fixed_capped_mae": 0.06510619523157679
+ },
+ "graph_000627": {
+  "mc_mean": 16.839896500553643,
+  "stored_sink_mean": 16.035627330394163,
+  "buggy_precap_sink_mean": 16.035627330394163,
+  "fixed_precap_sink_mean": 16.70633219486823,
+  "fixed_precap_mae": 0.133564305685411,
+  "buggy_capped_sink_mean": 16.03562732993729,
+  "fixed_capped_sink_mean": 16.706332194668438,
+  "fixed_capped_mae": 0.13356430588520496
+ },
+ "graph_001442": {
+  "mc_mean": 10.336166764304233,
+  "stored_sink_mean": 10.328783021539282,
+  "buggy_precap_sink_mean": 10.328783021539282,
+  "fixed_precap_sink_mean": 10.256999461046517,
+  "fixed_precap_mae": 0.07916730325771582,
+  "buggy_capped_sink_mean": 10.328783021352997,
+  "fixed_capped_sink_mean": 10.256999461046453,
+  "fixed_capped_mae": 0.07916730325777976
+ },
+ "graph_000476": {
+  "mc_mean": 16.52380921715558,
+  "stored_sink_mean": 16.788523691382288,
+  "buggy_precap_sink_mean": 16.788523691382288,
+  "fixed_precap_sink_mean": 16.392689846088174,
+  "fixed_precap_mae": 0.13111937106740612,
+  "buggy_capped_sink_mean": 16.788377466983242,
+  "fixed_capped_sink_mean": 16.3726251597849,
+  "fixed_capped_mae": 0.1511840573706813
+ },
+ "graph_001022": {
+  "mc_mean": 15.06694991888536,
+  "stored_sink_mean": 14.909924363523288,
+  "buggy_precap_sink_mean": 14.909924363523288,
+  "fixed_precap_sink_mean": 14.94527378187595,
+  "fixed_precap_mae": 0.12167613700941082,
+  "buggy_capped_sink_mean": 14.906725140666197,
+  "fixed_capped_sink_mean": 14.944863217464441,
+  "fixed_capped_mae": 0.12208670142091904
+ },
+ "graph_001200": {
+  "mc_mean": 13.340910668805014,
+  "stored_sink_mean": 12.961039706609343,
+  "buggy_precap_sink_mean": 12.961039706609343,
+  "fixed_precap_sink_mean": 13.243960277186684,
+  "fixed_precap_mae": 0.0969503916183303,
+  "buggy_capped_sink_mean": 12.961039411394104,
+  "fixed_capped_sink_mean": 13.243960277186684,
+  "fixed_capped_mae": 0.0969503916183303
+ },
+ "graph_000200": {
+  "mc_mean": 15.672126723033097,
+  "stored_sink_mean": 15.582716385487219,
+  "buggy_precap_sink_mean": 15.582716385487219,
+  "fixed_precap_sink_mean": 15.568403918556593,
+  "fixed_precap_mae": 0.1037228044765044,
+  "buggy_capped_sink_mean": 15.580413464705012,
+  "fixed_capped_sink_mean": 15.550952531364105,
+  "fixed_capped_mae": 0.12117419166899168
+ },
+ "graph_001947": {
+  "mc_mean": 12.268843299206937,
+  "stored_sink_mean": 12.193879107215226,
+  "buggy_precap_sink_mean": 12.193879107215226,
+  "fixed_precap_sink_mean": 12.172190943215078,
+  "fixed_precap_mae": 0.09665235599185884,
+  "buggy_capped_sink_mean": 12.187129781807924,
+  "fixed_capped_sink_mean": 12.172190943185141,
+  "fixed_capped_mae": 0.09665235602179578
+ },
+ "graph_000307": {
+  "mc_mean": 14.536055030178396,
+  "stored_sink_mean": 13.949561847200327,
+  "buggy_precap_sink_mean": 13.949561847200327,
+  "fixed_precap_sink_mean": 14.419895515093575,
+  "fixed_precap_mae": 0.1161595150848207,
+  "buggy_capped_sink_mean": 13.949408697286168,
+  "fixed_capped_sink_mean": 14.4198914422229,
+  "fixed_capped_mae": 0.11616358795549608
+ },
+ "graph_000132": {
+  "mc_mean": 18.62384507773419,
+  "stored_sink_mean": 17.210315543173092,
+  "buggy_precap_sink_mean": 17.210315543173092,
+  "fixed_precap_sink_mean": 18.462153696412148,
+  "fixed_precap_mae": 0.16169138132204353,
+  "buggy_capped_sink_mean": 17.21030384898856,
+  "fixed_capped_sink_mean": 18.462153576902775,
+  "fixed_capped_mae": 0.1616915008314166
+ },
+ "graph_000147": {
+  "mc_mean": 12.458023565644996,
+  "stored_sink_mean": 12.67916700815529,
+  "buggy_precap_sink_mean": 12.67916700815529,
+  "fixed_precap_sink_mean": 12.371728398123063,
+  "fixed_precap_mae": 0.08629516752193389,
+  "buggy_capped_sink_mean": 12.67916700815529,
+  "fixed_capped_sink_mean": 12.371728398123063,
+  "fixed_capped_mae": 0.08629516752193389
+ },
+ "graph_000586": {
+  "mc_mean": 15.40395211151673,
+  "stored_sink_mean": 15.843413984822318,
+  "buggy_precap_sink_mean": 15.843413984822318,
+  "fixed_precap_sink_mean": 15.351348358184099,
+  "fixed_precap_mae": 0.05260375333263134,
+  "buggy_capped_sink_mean": 15.842881544936597,
+  "fixed_capped_sink_mean": 15.313560472784536,
+  "fixed_capped_mae": 0.09039163873219458
+ },
+ "graph_001469": {
+  "mc_mean": 13.11677630870277,
+  "stored_sink_mean": 13.758280079679748,
+  "buggy_precap_sink_mean": 13.758280079679748,
+  "fixed_precap_sink_mean": 13.11741857393639,
+  "fixed_precap_mae": 0.0006422652336208756,
+  "buggy_capped_sink_mean": 13.726451270588205,
+  "fixed_capped_sink_mean": 13.077954825026664,
+  "fixed_capped_mae": 0.03882148367610583
+ },
+ "graph_000248": {
+  "mc_mean": 15.809062717706663,
+  "stored_sink_mean": 15.313291724167598,
+  "buggy_precap_sink_mean": 15.313291724167598,
+  "fixed_precap_sink_mean": 15.68543083674879,
+  "fixed_precap_mae": 0.12363188095787336,
+  "buggy_capped_sink_mean": 15.313291724167598,
+  "fixed_capped_sink_mean": 15.68543083674879,
+  "fixed_capped_mae": 0.12363188095787336
+ }
+}
