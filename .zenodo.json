@@ -1,0 +1,35 @@
+{
+  "title": "Pissta: Monte-Carlo-Labeled Random Timing DAG Datasets for Physics-Informed Surrogate SSTA (pissta-2k/5k/10k + OOD-100)",
+  "version": "1.0.0",
+  "upload_type": "dataset",
+  "description": "<p>Datasets of random single-source/single-sink timing DAGs (6&ndash;14 gates, 1&ndash;4 reconvergence points, 2D spatial coordinates, per-gate loads) with Monte-Carlo-labeled critical-path delay statistics (mean/std; N=10,000 samples, seed 42 per graph) under correlated process variation (inter-die + spatial + Pelgrom mismatch), produced by the Pissta physics-informed SSTA framework. Each graph ships MC labels, per-gate linearized delay sensitivities, per-gate var_d/load_ff&sup2;, and an analytical-SSTA (iterative Clark MAX) baseline.</p><p><strong>Versions:</strong> <em>pissta-2k</em> (2,000 graphs; paper-exact Stage 6A dataset used for all reported Stage 6B/6C/7/8 results; frozen artifact), <em>pissta-5k</em> and <em>pissta-10k</em> (companion scaling releases; graphs 000000&ndash;001999 are byte-identical entries of pissta-2k, so 2k &sub; 5k &sub; 10k), and <em>pissta-ood100</em> (100 out-of-distribution topologies, 15&ndash;25 gates, &ge;2 reconvergences; Stage 7 evaluation set).</p><p><strong>Reproducibility:</strong> MC labels, graph structures, and stratified splits recompute bit-exactly from the released code and seeds; file SHA256s and process constants are pinned in per-dataset <code>manifest.json</code>. The pissta-2k gate-load value&rarr;gate pairing is frozen (the 2026-08 build drew loads in Python set-iteration order); load values are bit-exact. Extension graphs use a canonical, process-independent pairing. Regeneration: <code>zenodo/scripts/generate_pissta.py</code>; verification: <code>zenodo/scripts/verify_release.py</code>.</p><p><strong>Disclaimers:</strong> all model parameters (&alpha;=1.3, Vdd=1.0&nbsp;V, L_nom=45&nbsp;nm, W_nom=90&nbsp;nm, Vth_nom=0.40&nbsp;V) are deliberately simple demonstration parameters for software/methodology validation &mdash; not silicon-calibrated, and not real technology results. Labels are Monte-Carlo emulations from the repository's own variation sampler, not measurements or SPICE simulations of a physical process.</p><p><strong>Licensing:</strong> code MIT; data CC-BY-4.0. Recommended: separate deposits per dataset (CC-BY-4.0) plus one code deposit (MIT), linked via related identifiers.</p>",
+  "creators": [
+    {
+      "name": "Desai, Prathmesh",
+      "affiliation": "Independent"
+    }
+  ],
+  "keywords": [
+    "statistical static timing analysis",
+    "SSTA",
+    "process variation",
+    "Monte Carlo",
+    "graph neural network",
+    "physics-informed machine learning",
+    "benchmark dataset",
+    "design technology co-optimization",
+    "digital circuits",
+    "uncertainty quantification"
+  ],
+  "license": "cc-by-4.0",
+  "access_right": "open",
+  "language": "eng",
+  "publication_date": "2026-09-17",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/Avinash-634/Pissta",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ]
+}

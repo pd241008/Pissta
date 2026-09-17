@@ -55,6 +55,10 @@ htmlcov/
 # Stage 6A generated data (regeneratable)
 data_generation/data/
 
+# Zenodo release kit generated datasets (regeneratable; see zenodo/CODE_README.md)
+zenodo/data/
+zenodo/data-smoke/
+
 # Stage 6B generated artifacts (regeneratable)
 gnn_baseline/checkpoints/
 gnn_baseline/results/*.json

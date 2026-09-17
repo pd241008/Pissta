@@ -25,6 +25,7 @@ This is not a generic list of "best practices." If a pattern or architecture cho
 | **[SSTA](./ssta/)** | Monte Carlo timing analysis and analytical SSTA engines. |
 | **[Experiments](./experiments/)** | Orchestration scripts, reproducibility checks, and sanity tests. |
 | **[Results](./results/)** | Locked reference distributions, raw data, and final reports. |
+| **[Zenodo Release Kit](./zenodo/)** | Dataset release kit — pissta-2k/5k/10k + OOD-100, manifests, regeneration & verification scripts, licensing. |
 | **[docs/ADRs](./docs/adrs/)** | Architecture Decision Records for key technical choices. |
 | **[docs/Postmortems](./docs/postmortems/)** | Lessons learned from bugs and validation failures. |
 
@@ -103,6 +104,10 @@ project-root/
 │   ├── graph_generator.py     # Random valid DAG generator
 │   ├── analytical_ssta_arbitrary.py  # Arbitrary-DAG analytical SSTA
 │   └── data/
+├── zenodo/                    # Zenodo dataset release kit (see zenodo/README.md)
+│   ├── CODE_README.md         # Regeneration + verification + upload guide
+│   ├── scripts/               # generate_pissta.py, verify_release.py
+│   └── data/                  # generated releases (gitignored)
 ├── gnn_baseline/              # Stage 6B/6C GNN surrogate modeling
 │   ├── run_stage6b.py         # Vanilla DAG-GNN baseline
 │   ├── run_stage6c.py         # Physics-informed ablation
