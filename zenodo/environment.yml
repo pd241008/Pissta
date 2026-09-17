@@ -1,0 +1,23 @@
+# Pissta release kit — conda environment for dataset regeneration.
+#
+# Create with:
+#   conda env create -f zenodo/environment.yml
+#   conda activate pissta-release
+#
+# Torch is installed CPU-only here; MC label generation uses CPU sampling, so
+# no CUDA build is required to regenerate the datasets. Bit-exact float64
+# reproduction was verified with the versions below (Python 3.14.6).
+name: pissta-release
+channels:
+  - conda-forge
+dependencies:
+  - python=3.14
+  - numpy=2.4.0
+  - pytorch=2.9.1
+  - cpuonly
+  - matplotlib=3.10.8
+  - pyyaml=6.0.3
+  - pytest=9.0.2
+  - pip
+  - pip:
+      - torch-geometric==2.8.0.post1

@@ -1,0 +1,16 @@
+# Pissta release kit — exact environment for dataset regeneration.
+#
+# Install with:
+#   pip install -r zenodo/requirements.txt
+#
+# Versions are the ones the released datasets were generated with
+# (Ubuntu/WSL2 x86_64, Python 3.14.6, 20-core CPU, CPU-only MC sampling).
+# Bit-exact float64 reproduction was verified on this stack; other NumPy
+# versions may differ in RNG stream or floating-point reduction order.
+
+numpy==2.4.0
+torch==2.9.1
+torch-geometric==2.8.0.post1
+matplotlib==3.10.8
+pyyaml==6.0.3
+pytest==9.0.2
