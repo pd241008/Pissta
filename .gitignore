@@ -59,6 +59,11 @@ data_generation/data/
 zenodo/data/
 zenodo/data-smoke/
 
+# Internal working notes (narrative history, context, postmortems — not release docs)
+PROJECT_HISTORY.md
+physics_informed_ssta_context.md
+docs/postmortems/
+
 # Stage 6B generated artifacts (regeneratable)
 gnn_baseline/checkpoints/
 gnn_baseline/results/*.json
