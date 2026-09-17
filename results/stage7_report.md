@@ -169,7 +169,7 @@ Does the nrecon gradient from ID (§2.2) persist within the in-range OOD subset?
 ## 7. Scope / honesty notes for the paper
 
 - Report nrecon=2 under-coverage explicitly as a known limitation; do not present the pooled 90% as uniform. Include per-seed range (vanilla 0.797–0.875, maxbias 0.828–0.891) to surface seed-level variance.
-- State MAX-bias training cost alongside accuracy/coverage in the Stage 8 method table (see PROJECT_HISTORY §10).
+- State MAX-bias training cost alongside accuracy/coverage in the Stage 8 method table (see `results/stage8_report.md`).
 - OOD coverage collapse is attributed to **exchangeability failure** (§6.2–6.3), not a normalizer artifact — the in-range subset (74% of OOD graphs, zero extrapolated nodes) still shows 28–32% coverage. Report overall pooled (25–27%) and in-range subset (28–32%) as separate numbers, not conflated.
 - The nrecon gradient from ID is **amplified, not reversed** OOD (§6.3): the same weak spot (higher reconvergence) that showed mild under-coverage in-distribution becomes catastrophic out-of-distribution. nrecon=5 (no training analog) gets 0% coverage.
 - OOD MC labels use N=10k, seed=42 (Stage 6A convention, NOT N=100k Stage 3 reference) — flagged for comparability with training labels.

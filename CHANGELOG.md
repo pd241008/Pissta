@@ -4,6 +4,14 @@
 
 ---
 
+### September 17, 2026 — Zenodo release kit: nested pissta-5k/10k companions, repo-root LICENSE, docs scope
+
+- 📦 **Release kit in `zenodo/`** (ADR-010): `generate_pissta.py` + `verify_release.py`, per-version manifests with process constants, generator commit, config snapshot, real SHA256s, and toy-model/emulation disclaimers; `.zenodo.json` metadata prefill at the repo root. Four builds verified green: pissta-2k (frozen; all 2,000 MC labels recomputed bit-exactly), pissta-5k, pissta-10k, pissta-ood100.
+- 🧬 **Nested companions**: the 2k build's gate-load↔gate-name pairing depended on the build process's `PYTHONHASHSEED` (set-iteration order — same nondeterminism class as B1/B4), so a fresh superset run would have silently changed the paper graphs' labels. 5k/10k therefore copy graphs 0–1999 verbatim from the frozen 2k and extend with a canonical (sorted) pairing; the N1 nesting check asserts byte-identity across 2k ⊂ 5k ⊂ 10k over all 2,000 prefix graphs.
+- ⚖️ **License split**: MIT (code) + CC-BY-4.0 (data) in a single root-level `LICENSE`; `zenodo/LICENSE` is now a pointer stub.
+- 🧹 **Docs scope**: `PROJECT_HISTORY.md`, `physics_informed_ssta_context.md`, and `docs/postmortems/` untracked (working notes, kept locally); `docs/adrs/` remains the canonical decision record — new **ADR-010** documents the release-kit decisions, and dangling references in reports/ADRs were redirected to ADRs and `results/stage8_report.md`.
+- 🛡️ **Path hygiene**: release manifests and script output emit repo-relative paths only; an external `--out-dir` renders as `<external>/<name>` (no absolute-path leakage in published artifacts).
+
 ### September 13, 2026 — Stage 8 prep: training-time instrumentation fixed, combined MAX-bias + Tier A+B ablation, full cross-method cost table
 
 - 🐛 **Training-time logging fixed** in the harnesses that silently dropped it (same bug class as B3): `run_maxbias.py`, `run_nocoor.py`, `run_tier_b_only.py` now persist `train_time` + `history` per seed and `avg_train_time_s` / `avg_inference_ms_per_graph` in their `stability_summary` (was: training finished, `train_result['train_time']` discarded at JSON write). `numpy` import added where the new aggregation needed it.

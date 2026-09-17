@@ -82,7 +82,7 @@ the 5k/10k manifests.
 zenodo/
 ├── README.md            ← you are here
 ├── CODE_README.md       ← how to regenerate + verify + upload
-├── LICENSE              ← MIT (code) + CC-BY-4.0 (data)
+├── LICENSE              ← pointer stub → repo-root LICENSE (MIT code + CC-BY-4.0 data)
 ├── requirements.txt     ← exact package pins
 ├── environment.yml      ← conda equivalent
 ├── scripts/
