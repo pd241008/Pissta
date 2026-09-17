@@ -22,7 +22,7 @@ We use a **numbered monorepo structure** following the Design Dungeons playbook.
 - Numbered directories enforce a logical dependency order (foundations → variation → timing → analysis → experiments).
 - Each module has its own README documenting interfaces and dependencies.
 - Root-level README provides navigation without requiring deep knowledge of internals.
-- ADRs and postmortems live in `docs/` for traceability.
+- ADRs live in `docs/` for traceability; postmortems and the narrative project history are working notes, kept out of version control.
 
 ## Consequences
 

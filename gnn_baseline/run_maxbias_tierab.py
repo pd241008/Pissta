@@ -12,8 +12,8 @@ The two levers that each produced results on their own:
 
 This harness runs BOTH TOGETHER on the same frozen architecture/hyperparameters/
 splits/seeds protocol as maxbias_cm, to test whether the physics features add
-anything on top of the positive aggregation architecture (the follow-up
-logged in PROJECT_HISTORY next-steps #6).
+anything on top of the positive aggregation architecture (the Stage 8
+combined-ablation follow-up).
 
 Combined config = MaxBiasedDAGGNNSage(num_node_features=6, hidden_dim=54)
   (capacity matched to vanilla's 29698 params).

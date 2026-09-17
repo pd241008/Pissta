@@ -25,9 +25,8 @@ This is not a generic list of "best practices." If a pattern or architecture cho
 | **[SSTA](./ssta/)** | Monte Carlo timing analysis and analytical SSTA engines. |
 | **[Experiments](./experiments/)** | Orchestration scripts, reproducibility checks, and sanity tests. |
 | **[Results](./results/)** | Locked reference distributions, raw data, and final reports. |
-| **[Zenodo Release Kit](./zenodo/)** | Dataset release kit — pissta-2k/5k/10k + OOD-100, manifests, regeneration & verification scripts, licensing. |
+| **[Zenodo Release Kit](./zenodo/)** | Dataset release kit — pissta-2k/5k/10k + OOD-100, manifests, regeneration & verification scripts. |
 | **[docs/ADRs](./docs/adrs/)** | Architecture Decision Records for key technical choices. |
-| **[docs/Postmortems](./docs/postmortems/)** | Lessons learned from bugs and validation failures. |
 
 ---
 
@@ -52,6 +51,7 @@ This is not a generic list of "best practices." If a pattern or architecture cho
 
 ```text
 project-root/
+├── LICENSE                    # MIT (code) + CC-BY-4.0 (data)
 ├── foundations/               # Theory, configs, frozen parameters
 │   ├── README.md
 │   ├── config_loader.py
@@ -96,8 +96,7 @@ project-root/
 │   ├── stage5_tail_aware_ssta.json
 │   └── ...
 ├── docs/
-│   ├── adrs/                  # Architecture Decision Records
-│   └── postmortems/           # Lessons learned
+│   └── adrs/                  # Architecture Decision Records
 ├── data_generation/           # Stage 6A training data generation
 │   ├── README.md
 │   ├── run_stage6a.py         # DAG dataset generator
@@ -116,10 +115,17 @@ project-root/
 │   ├── eval.py                # Metrics + analytical comparison
 │   ├── dataset.py             # PyG Data loaders
 │   └── results/
-├── tests/                       # Unit tests (pytest, 11 tests)
+├── tests/                       # Unit tests (pytest)
 ├── CHANGELOG.md
+├── LICENSE
 └── README.md
 ```
+
+---
+
+## 📄 License
+
+Code: **MIT** · Data (Zenodo deposits): **CC-BY-4.0** — see [LICENSE](./LICENSE).
 
 ---
 
