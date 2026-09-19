@@ -1,0 +1,349 @@
+{
+  "scope": "Stage 4 fixed six-gate reference topology (the \u00a7IV 0.3083 pipeline)",
+  "scripts_audited": [
+    "ssta/analytical_ssta.py (Run A: linearized moments + Clark MAX \u2014 the stored analytical comparator)",
+    "experiments/run_stage4b_hybrid.py (Run B: empirical moments + Clark \u2014 gap decomposition)"
+  ],
+  "inputs_audited": [
+    "foundations/stage3_config.json (frozen coordinates/params)",
+    "results/stage3_raw.npz (locked N=100k, seed 42 MC reference)",
+    "results/stage3_summary.json"
+  ],
+  "stored_outputs_revalidated": [
+    "results/stage4_analytical_ssta.json",
+    "results/stage4b_hybrid_run.json"
+  ],
+  "d1_check": {
+    "topological_order": [
+      "G1",
+      "G2",
+      "G3",
+      "G4",
+      "G5",
+      "G6"
+    ],
+    "gate_coords_key_order": [
+      "G1",
+      "G2",
+      "G3",
+      "G4",
+      "G5",
+      "G6"
+    ],
+    "topo_order_matches_coords_order": true,
+    "note": "D1 readback (topological-index into gate_coords-ordered arrays) is harmless for this topology iff topo order == coords order AND the pipeline is invariant to gate_coords permutation; both are tested.",
+    "n_permutations_tested": 720,
+    "max_absdiff_over_permutations": 0.0,
+    "worst_permutation": null,
+    "bit_invariant_under_all_permutations": true
+  },
+  "d2_check": {
+    "per_gate": {
+      "G1": {
+        "d_um": 0.0,
+        "cap_active": false,
+        "sigma_capped": 0.015713484026367724,
+        "sigma_precap": 0.015713484026367724,
+        "capped_equals_precap": true
+      },
+      "G2": {
+        "d_um": 2.0,
+        "cap_active": false,
+        "sigma_capped": 0.025434495871687994,
+        "sigma_precap": 0.025434495871687994,
+        "capped_equals_precap": true
+      },
+      "G3": {
+        "d_um": 2.0,
+        "cap_active": false,
+        "sigma_capped": 0.025434495871687994,
+        "sigma_precap": 0.025434495871687994,
+        "capped_equals_precap": true
+      },
+      "G4": {
+        "d_um": 2.8284271247461903,
+        "cap_active": false,
+        "sigma_capped": 0.03235604395235787,
+        "sigma_precap": 0.03235604395235787,
+        "capped_equals_precap": true
+      },
+      "G5": {
+        "d_um": 2.8284271247461903,
+        "cap_active": false,
+        "sigma_capped": 0.03235604395235787,
+        "sigma_precap": 0.03235604395235787,
+        "capped_equals_precap": true
+      },
+      "G6": {
+        "d_um": 4.0,
+        "cap_active": false,
+        "sigma_capped": 0.042975732457363816,
+        "sigma_precap": 0.042975732457363816,
+        "capped_equals_precap": true
+      }
+    },
+    "max_gate_distance_um": 4.0,
+    "cap_inactive_for_all_gates": true,
+    "analytical_comparator_uses_capped_formula": true,
+    "note": "D2 could only bite if a gate sits beyond 5 um from origin (cap boundary) or if sampler and comparator formulas diverge. Both checked numerically per gate."
+  },
+  "run_a_reimplementation": {
+    "n_total": 17,
+    "n_bit_exact": 17,
+    "n_last_ulp_drift": 0,
+    "n_genuine_mismatch": 0,
+    "max_absdiff": 0.0,
+    "all_within_float_tolerance": true,
+    "checks": {
+      "mean": {
+        "stored": 9.25636690050889,
+        "recomputed": 9.25636690050889,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "std": {
+        "stored": 0.39633629705697,
+        "recomputed": 0.39633629705697,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "p95": {
+        "stored": 9.908340109167606,
+        "recomputed": 9.908340109167606,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "p99": {
+        "stored": 10.178245127463402,
+        "recomputed": 10.178245127463402,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "p99_87": {
+        "stored": 10.445375791679801,
+        "recomputed": 10.445375791679801,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "path_moments.AT_G4_mean": {
+        "stored": 6.410875078798936,
+        "recomputed": 6.410875078798936,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "path_moments.AT_G4_std": {
+        "stored": 0.2789427546769272,
+        "recomputed": 0.2789427546769272,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "path_moments.AT_G5_mean": {
+        "stored": 6.410875078798936,
+        "recomputed": 6.410875078798936,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "path_moments.AT_G5_std": {
+        "stored": 0.2789427546769272,
+        "recomputed": 0.2789427546769272,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "path_moments.Cov_AT_G4_AT_G5": {
+        "stored": 0.02814931722973752,
+        "recomputed": 0.02814931722973752,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "path_moments.rho_AT_G4_AT_G5": {
+        "stored": 0.3617742855371913,
+        "recomputed": 0.3617742855371913,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "clark_max.mu_max": {
+        "stored": 6.5366017155638865,
+        "recomputed": 6.5366017155638865,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "clark_max.std_max": {
+        "stored": 0.24900175339648736,
+        "recomputed": 0.24900175339648736,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "final_sum.mu_final": {
+        "stored": 9.25636690050889,
+        "recomputed": 9.25636690050889,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "final_sum.var_final": {
+        "stored": 0.15708246036483076,
+        "recomputed": 0.15708246036483076,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "final_sum.std_final": {
+        "stored": 0.39633629705697,
+        "recomputed": 0.39633629705697,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "final_sum.cov_max_d6": {
+        "stored": 0.010077742170471825,
+        "recomputed": 0.010077742170471825,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      }
+    }
+  },
+  "run_b_rederivation": {
+    "n_total": 14,
+    "n_bit_exact": 10,
+    "n_last_ulp_drift": 4,
+    "n_genuine_mismatch": 0,
+    "max_absdiff": 3.3306690738754696e-16,
+    "all_within_float_tolerance": true,
+    "checks": {
+      "empirical_moments.AT_G4_mean": {
+        "stored": 6.432847975087171,
+        "recomputed": 6.432847975087171,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "empirical_moments.AT_G4_std": {
+        "stored": 0.29643377252572184,
+        "recomputed": 0.29643377252572184,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "empirical_moments.AT_G5_mean": {
+        "stored": 6.433142511028641,
+        "recomputed": 6.433142511028641,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "empirical_moments.AT_G5_std": {
+        "stored": 0.29546228587989015,
+        "recomputed": 0.29546228587989015,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "empirical_moments.rho_AT_G4_AT_G5": {
+        "stored": 0.3845667250693832,
+        "recomputed": 0.38456672506938355,
+        "absdiff": 3.3306690738754696e-16,
+        "exact_repr_match": false
+      },
+      "empirical_moments.d_G6_mean": {
+        "stored": 2.742940707136634,
+        "recomputed": 2.742940707136634,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "empirical_moments.d_G6_std": {
+        "stored": 0.28145368398078446,
+        "recomputed": 0.28145368398078446,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "empirical_moments.cov_max_d6_empirical": {
+        "stored": 0.010613794004517254,
+        "recomputed": 0.010613794004517261,
+        "absdiff": 6.938893903907228e-18,
+        "exact_repr_match": false
+      },
+      "empirical_moments.cov_max_d6_approx": {
+        "stored": 0.01038402625427885,
+        "recomputed": 0.010384026254278846,
+        "absdiff": 5.204170427930421e-18,
+        "exact_repr_match": false
+      },
+      "run_b_clark.mu_max": {
+        "stored": 6.563983539363727,
+        "recomputed": 6.563983539363727,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "run_b_clark.std_max": {
+        "stored": 0.26538152549096183,
+        "recomputed": 0.26538152549096183,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "run_b_clark.mu_final": {
+        "stored": 9.306924246500362,
+        "recomputed": 9.306924246500362,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "run_b_clark.std_final": {
+        "stored": 0.41280937829320574,
+        "recomputed": 0.4128093782932057,
+        "absdiff": 5.551115123125783e-17,
+        "exact_repr_match": false
+      },
+      "run_b_clark.p99_87": {
+        "stored": 10.54535238137998,
+        "recomputed": 10.54535238137998,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      }
+    }
+  },
+  "gap_decomposition": {
+    "n_total": 3,
+    "n_bit_exact": 3,
+    "n_last_ulp_drift": 0,
+    "n_genuine_mismatch": 0,
+    "max_absdiff": 0.0,
+    "all_within_float_tolerance": true,
+    "checks": {
+      "total_gap": {
+        "stored": 0.30825842725604957,
+        "recomputed": 0.30825842725604957,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "shape_gap": {
+        "stored": 0.20828183755587126,
+        "recomputed": 0.20828183755587126,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      },
+      "linearization_gap": {
+        "stored": 0.09997658970017831,
+        "recomputed": 0.09997658970017831,
+        "absdiff": 0.0,
+        "exact_repr_match": true
+      }
+    },
+    "headline_numbers_bit_exact": true,
+    "mc_p99_87": {
+      "stored": 10.75363421893585,
+      "recomputed": 10.75363421893585,
+      "exact": true
+    },
+    "stored_values": {
+      "total_gap": 0.30825842725604957,
+      "shape_gap": 0.20828183755587126,
+      "linearization_gap": 0.09997658970017831
+    }
+  },
+  "caveats": [
+    "Run B consumes EMPIRICAL moments (ddof=1) from the locked MC reference \u2014 estimator variance, not just distributional shape, contributes to the shape gap (already flagged in run_stage4b_hybrid.py).",
+    "P99.87 here is mean+3sigma of the final Gaussian \u2014 same convention as the stored figures; MC side is the empirical quantile of the locked N=100k sample.",
+    "The Stage 4 pipeline operates on ONE frozen topology: the D1 pattern that affected compute_analytical_ssta_arbitrary (corpus code, still unfixed in data_generation/analytical_ssta_arbitrary.py) is structurally harmless here, and the permutation sweep + bit-exact reproduction prove it empirically."
+  ],
+  "verdict": {
+    "d1_defect_found": false,
+    "d2_defect_found": false,
+    "stored_figures_reproduced": true,
+    "gap_decomposition_headline_bit_exact": true,
+    "last_ulp_note": "Values with absdiff in (0, 1e-12) are last-ulp floating-point reassociation differences (numpy/BLAS reduction order across versions, e.g. np.corrcoef's internal matmul); they do not indicate a modeling or pipeline defect. All three headline gap numbers reproduce bit-exactly because they are differences of exactly-round-tripped endpoints.",
+    "outcome": "CLEAN \u2014 no D1/D2 defect pattern affects the fixed-topology pipeline; the stored analytical figures and the 0.3083 gap decomposition are reproduced (headline numbers bit-exactly, all intermediates within last-ulp float tolerance) by a from-scratch name-keyed reimplementation"
+  },
+  "elapsed_s": 0.24093914031982422
+}
