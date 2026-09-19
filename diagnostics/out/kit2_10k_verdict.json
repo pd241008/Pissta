@@ -1,0 +1,256 @@
+{
+  "n_test_graphs": 1505,
+  "generation_config_check": {
+    "generation_seed": 42,
+    "mc_n_samples": 10000,
+    "mc_seed": 42,
+    "n_gates_range": [
+      6,
+      14
+    ],
+    "min_reconvergence": 1,
+    "sampler": "run_branching_monte_carlo (name-aligned variation columns, ssta/monte_carlo.py @ 2873f73, 2026-08-21)",
+    "same_as_2k": true,
+    "load_pairing_note": "canonical: ascending load value -> lexicographic gate name (process-independent)"
+  },
+  "analytical": {
+    "variant_used": "fixed_capped",
+    "mean_mae": 0.11007127839150899,
+    "per_seed_mean_mae": [
+      0.11007127839150899,
+      0.11007127839150899,
+      0.11007127839150899
+    ],
+    "ordering_invariance_sample50_max_absdiff": 0.0,
+    "timing": {
+      "mean_ms_per_graph": 0.49819153489601453,
+      "p95_ms_per_graph": 0.8608148000348591,
+      "total_corpus_s": 0.7497782600185019,
+      "by_n_gates": {
+        "6-8": {
+          "n": 508,
+          "mean_ms": 0.2548946043413786
+        },
+        "9-11": {
+          "n": 479,
+          "mean_ms": 0.47518563256660984
+        },
+        "12-14": {
+          "n": 518,
+          "mean_ms": 0.7580654112233117
+        }
+      }
+    }
+  },
+  "gnn": {
+    "vanilla": {
+      "fresh_10k": {
+        "per_seed_mean_mae": [
+          0.3079947531223297,
+          0.2912616431713104,
+          0.2842014729976654
+        ],
+        "pooled_mean_mae": 0.2944859564304352,
+        "avg_inference_ms_per_graph": 0.4702233567633762
+      },
+      "zero_shot_2k_on_10k": {
+        "per_seed_mean_mae": [
+          0.4335086917560362,
+          0.44185154683566175,
+          0.41105484629786293
+        ],
+        "pooled_mean_mae": 0.4288050282965203
+      }
+    },
+    "maxbias_cm": {
+      "fresh_10k": {
+        "per_seed_mean_mae": [
+          0.29761892557144165,
+          0.28700223565101624,
+          0.2826812267303467
+        ],
+        "pooled_mean_mae": 0.2891007959842682,
+        "avg_inference_ms_per_graph": 0.43789869898821127
+      },
+      "zero_shot_2k_on_10k": {
+        "per_seed_mean_mae": [
+          0.43780353267327493,
+          0.4208699178854096,
+          0.40055833417315817
+        ],
+        "pooled_mean_mae": 0.41974392824394763
+      }
+    }
+  },
+  "paired_bootstrap": {
+    "vanilla_fresh10k_vs_analytical": {
+      "tier": "vanilla_fresh10k_vs_analytical",
+      "mean_delta": 0.18441467091673222,
+      "mean_win_rate": 0.21727574750830564,
+      "mean_ci_low": 0.16941020518588723,
+      "mean_ci_high": 0.1995462393783278,
+      "n_graphs": 1505,
+      "per_seed_mean_deltas": [
+        0.19792347098820348,
+        0.18119036289859172,
+        0.1741301788634014
+      ],
+      "bootstrap_method": "cluster by graph_id"
+    },
+    "vanilla_zeroshot_vs_analytical": {
+      "tier": "vanilla_zeroshot_vs_analytical",
+      "mean_delta": 0.3187337499050113,
+      "mean_win_rate": 0.07840531561461794,
+      "mean_ci_low": 0.2991136968063194,
+      "mean_ci_high": 0.3393903888683734,
+      "n_graphs": 1505,
+      "per_seed_mean_deltas": [
+        0.3234374133645272,
+        0.33178026844415276,
+        0.3009835679063539
+      ],
+      "bootstrap_method": "cluster by graph_id"
+    },
+    "vanilla_fresh10k_vs_zeroshot": {
+      "tier": "vanilla_fresh10k_vs_zeroshot",
+      "mean_delta": -0.13431907898827908,
+      "mean_win_rate": 0.7036544850498339,
+      "mean_ci_low": -0.15057143038161439,
+      "mean_ci_high": -0.11835118431057513,
+      "n_graphs": 1505,
+      "per_seed_mean_deltas": [
+        -0.1255139423763237,
+        -0.150589905545561,
+        -0.12685338904295254
+      ],
+      "bootstrap_method": "cluster by graph_id"
+    },
+    "maxbias_cm_fresh10k_vs_analytical": {
+      "tier": "maxbias_cm_fresh10k_vs_analytical",
+      "mean_delta": 0.17902951157948885,
+      "mean_win_rate": 0.19269102990033224,
+      "mean_ci_low": 0.16503618060520356,
+      "mean_ci_high": 0.19389602151524316,
+      "n_graphs": 1505,
+      "per_seed_mean_deltas": [
+        0.1875476420709631,
+        0.1769309555763196,
+        0.1726099370911838
+      ],
+      "bootstrap_method": "cluster by graph_id"
+    },
+    "maxbias_cm_zeroshot_vs_analytical": {
+      "tier": "maxbias_cm_zeroshot_vs_analytical",
+      "mean_delta": 0.3096726498524386,
+      "mean_win_rate": 0.08039867109634552,
+      "mean_ci_low": 0.2903809923551602,
+      "mean_ci_high": 0.3293492263248674,
+      "n_graphs": 1505,
+      "per_seed_mean_deltas": [
+        0.32773225428176594,
+        0.31079863949390063,
+        0.29048705578164913
+      ],
+      "bootstrap_method": "cluster by graph_id"
+    },
+    "maxbias_cm_fresh10k_vs_zeroshot": {
+      "tier": "maxbias_cm_fresh10k_vs_zeroshot",
+      "mean_delta": -0.13064313827294977,
+      "mean_win_rate": 0.66578073089701,
+      "mean_ci_low": -0.1463109408396555,
+      "mean_ci_high": -0.11482824241600163,
+      "n_graphs": 1505,
+      "per_seed_mean_deltas": [
+        -0.14018461221080286,
+        -0.13386768391758105,
+        -0.11787711869046538
+      ],
+      "bootstrap_method": "cluster by graph_id"
+    }
+  },
+  "disaggregation": {
+    "vanilla": {
+      "by_nrecon": {
+        "1": {
+          "n_graphs": 756,
+          "gnn_mean_mae": 0.2148793572050764,
+          "analytical_mean_mae": 0.10033570977202584
+        },
+        "2": {
+          "n_graphs": 635,
+          "gnn_mean_mae": 0.34803804863156296,
+          "analytical_mean_mae": 0.11912811432258706
+        },
+        "3": {
+          "n_graphs": 110,
+          "gnn_mean_mae": 0.5195560368624601,
+          "analytical_mean_mae": 0.12499161552516579
+        },
+        "4": {
+          "n_graphs": 4,
+          "gnn_mean_mae": 0.6493086814880371,
+          "analytical_mean_mae": 0.10201177223961766
+        }
+      },
+      "by_n_gates": {
+        "6-8": {
+          "n_graphs": 508,
+          "gnn_mean_mae": 0.16308094197370876,
+          "analytical_mean_mae": 0.07947217871832521
+        },
+        "9-11": {
+          "n_graphs": 479,
+          "gnn_mean_mae": 0.25780537896630823,
+          "analytical_mean_mae": 0.106271402579706
+        },
+        "12-14": {
+          "n_graphs": 518,
+          "gnn_mean_mae": 0.4572730862189137,
+          "analytical_mean_mae": 0.14359344663056497
+        }
+      }
+    },
+    "maxbias_cm": {
+      "by_nrecon": {
+        "1": {
+          "n_graphs": 756,
+          "gnn_mean_mae": 0.20874690799275825,
+          "analytical_mean_mae": 0.10033570977202584
+        },
+        "2": {
+          "n_graphs": 635,
+          "gnn_mean_mae": 0.34738357523920654,
+          "analytical_mean_mae": 0.11912811432258706
+        },
+        "3": {
+          "n_graphs": 110,
+          "gnn_mean_mae": 0.488613189350475,
+          "analytical_mean_mae": 0.12499161552516579
+        },
+        "4": {
+          "n_graphs": 4,
+          "gnn_mean_mae": 0.7370013395945231,
+          "analytical_mean_mae": 0.10201177223961766
+        }
+      },
+      "by_n_gates": {
+        "6-8": {
+          "n_graphs": 508,
+          "gnn_mean_mae": 0.1798288277753695,
+          "analytical_mean_mae": 0.07947217871832521
+        },
+        "9-11": {
+          "n_graphs": 479,
+          "gnn_mean_mae": 0.2616962022721643,
+          "analytical_mean_mae": 0.106271402579706
+        },
+        "12-14": {
+          "n_graphs": 518,
+          "gnn_mean_mae": 0.42160456275694463,
+          "analytical_mean_mae": 0.14359344663056497
+        }
+      }
+    }
+  },
+  "sign_convention": "negative delta = first-listed method better; significant iff CI excludes 0"
+}
