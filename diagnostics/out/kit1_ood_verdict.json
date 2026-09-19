@@ -1,0 +1,112 @@
+{
+  "n_graphs": 100,
+  "n_gates_range": [
+    15,
+    25
+  ],
+  "nrecon_distribution": {
+    "2": 21,
+    "3": 48,
+    "4": 23,
+    "5": 8
+  },
+  "analytical_variant_used": "fixed_capped (name-correct readback + capped Pelgrom moments)",
+  "fixed_readback_invariance_sample20_max_absdiff": 0.0,
+  "mae": {
+    "vanilla": {
+      "gnn_pooled_mean_mae": 2.570546464920044,
+      "gnn_per_seed_mean_mae": [
+        2.631482524871826,
+        2.3227726936340334,
+        2.7573841762542726
+      ],
+      "analytical_mean_mae": 0.21114815370995343
+    },
+    "maxbias_cm": {
+      "gnn_pooled_mean_mae": 2.3817599264780682,
+      "gnn_per_seed_mean_mae": [
+        2.4634768295288088,
+        2.3289134979248045,
+        2.352889451980591
+      ],
+      "analytical_mean_mae": 0.21114815370995343
+    }
+  },
+  "paired_bootstrap": {
+    "vanilla": {
+      "tier": "vanilla_vs_analytical",
+      "mean_delta": 2.3593983112100907,
+      "mean_win_rate": 0.01,
+      "mean_ci_low": 1.9623158787714718,
+      "mean_ci_high": 2.7880649732111715,
+      "n_graphs": 100,
+      "per_seed_mean_deltas": [
+        2.4203343711618728,
+        2.11162453992408,
+        2.5462360225443192
+      ],
+      "bootstrap_method": "cluster by graph_id"
+    },
+    "maxbias_cm": {
+      "tier": "maxbias_cm_vs_analytical",
+      "mean_delta": 2.170611772768114,
+      "mean_win_rate": 0.0,
+      "mean_ci_low": 1.8112230796625193,
+      "mean_ci_high": 2.5633266867374807,
+      "n_graphs": 100,
+      "per_seed_mean_deltas": [
+        2.2523286758188554,
+        2.117765344214851,
+        2.1417412982706376
+      ],
+      "bootstrap_method": "cluster by graph_id"
+    }
+  },
+  "nrecon_breakdown": {
+    "vanilla": {
+      "2": {
+        "n": 21,
+        "analytical_mean_mae": 0.18253126899886057,
+        "gnn_mean_mae": 1.7851446091182648
+      },
+      "3": {
+        "n": 48,
+        "analytical_mean_mae": 0.2093318220741036,
+        "gnn_mean_mae": 2.1684458123313055
+      },
+      "4": {
+        "n": 23,
+        "analytical_mean_mae": 0.23804446602996088,
+        "gnn_mean_mae": 3.2848493880119873
+      },
+      "5": {
+        "n": 8,
+        "analytical_mean_mae": 0.2198385679716499,
+        "gnn_mean_mae": 4.991209348042807
+      }
+    },
+    "maxbias_cm": {
+      "2": {
+        "n": 21,
+        "analytical_mean_mae": 0.18253126899886057,
+        "gnn_mean_mae": 1.7174251495845734
+      },
+      "3": {
+        "n": 48,
+        "analytical_mean_mae": 0.2093318220741036,
+        "gnn_mean_mae": 2.0398751762178207
+      },
+      "4": {
+        "n": 23,
+        "analytical_mean_mae": 0.23804446602996088,
+        "gnn_mean_mae": 2.8764405872510825
+      },
+      "5": {
+        "n": 8,
+        "analytical_mean_mae": 0.2198385679716499,
+        "gnn_mean_mae": 4.754740317662557
+      }
+    }
+  },
+  "conclusion": "Sign direction: negative delta = GNN better than analytical; positive = analytical better. Significant iff CI excludes 0."
+}

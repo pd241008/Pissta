@@ -74,3 +74,9 @@ gnn_baseline/checkpoints_smoke/
 # Local backups of pre-rerun artifacts
 gnn_baseline/results_backup_*/
 gnn_baseline/checkpoints_backup_*/
+
+# Kit handoff packages (regenerable: python diagnostics/package_deliverables.py)
+deliverables/
+
+# Transient console logs from diagnostics runs
+diagnostics/out/*.log
