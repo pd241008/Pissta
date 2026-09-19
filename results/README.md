@@ -4,6 +4,14 @@ Locked reference distributions, raw data, and final reports.
 
 ## Contents
 
+### Stage 9–11 (Cross-Method Follow-ups: OOD accuracy, 10k scale test, Stage 4 audit)
+
+| File | Description |
+|------|-------------|
+| `stage9_ood_crossmethod_report.md` | OOD-100 cross-method comparison: GNN per-graph MAE (2.38–2.57) vs validated analytical (0.2111) on the 100 OOD graphs, paired cluster-bootstrap CIs, nrecon breakdown — the point-accuracy counterpart to Stage 7 §6 coverage collapse |
+| `stage10_scale_test_report.md` | pissta-10k scale test: fresh 10k training (0.289–0.295) vs zero-shot (0.42–0.43) vs analytical (0.1101, 0.50 ms/graph), paired bootstraps, "may erode at scale" hypothesis rejected, MAX-bias advantage washes out at 10k (ns) |
+| `stage11_stage4_audit_report.md` | Stage 4 fixed-topology audit: D1/D2 defect patterns absent (720-permutation invariance; Pelgrom cap inactive), 0.3083 gap decomposition reproduced bit-exactly — confirmatory note closing the scope caveat |
+
 ### Stage 3 (Monte Carlo Reference)
 
 | File | Description |

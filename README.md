@@ -44,6 +44,9 @@ This is not a generic list of "best practices." If a pattern or architecture cho
 | Stage 6B | Complete | Vanilla DAG-GNN baseline (beats analytical SSTA 3/3 seeds; lockstep-frozen) |
 | Stage 6C | Complete | Physics-informed — feature injection added no headroom (original Tier A/A+B sig. *worse*; redesigned A+B *ns*; B-only *ns*), but architectural MAX-biased aggregation **beat vanilla capacity-matched (Δ −0.062, CI [−0.088,−0.037])** — the arc's first positive result. See `docs/adrs/ADR-008-*.md` (addendum #2) |
 | Stage 7 | Complete | Split conformal calibration (studentized residual) closes the "calibrated uncertainty" half of the thesis: pooled 90% coverage **maxbias_cm 0.908 / vanilla 0.895**; eval MAE 0.371 vs 0.416. **Caveat:** both backbones under-cover nrecon=2 (MAX-heavy reconvergence regime); no coverage claim under distribution shift. See `docs/adrs/ADR-009-*.md` |
+| Stage 9 | Complete | OOD-100 cross-method comparison — under the distribution shift that collapses coverage (25–27%), GNN point error degrades ~6× (2.38–2.57 MAE) vs the validated analytical baseline's 1.9× (0.2111); paired cluster-bootstrap CIs exclude 0, analytical wins 99–100% of graphs. See `results/stage9_ood_crossmethod_report.md` |
+| Stage 10 | Complete | pissta-10k scale test — fresh 10k training (0.289) and zero-shot (0.42) both remain significantly behind the analytical baseline (0.1101, 0.50 ms/graph); the "may erode at scale" hypothesis is rejected; MAX-bias advantage washes out at 10k (ns). See `results/stage10_scale_test_report.md` |
+| Stage 11 | Complete | Stage 4 fixed-topology audit — D1/D2 defect patterns absent (720-permutation readback invariance; Pelgrom cap inactive), 0.3083 gap decomposition reproduced bit-exactly; §IV pipeline independently verified. See `results/stage11_stage4_audit_report.md` |
 
 ---
 
