@@ -2,7 +2,9 @@
 Kit 3 — Stage 4 fixed-six-gate pipeline audit + bit-exact revalidation.
 
 Closes the counterpart asks on the locked six-gate reference topology
-(the §IV 0.3083 P99.87 gap-decomposition figures):
+(the §IV P99.87 gap-decomposition figures; 0.2781 = 0.2083 shape +
+ 0.0698 linearization after the 2026-09-20 propagate_path covariance
+ fix — the original audit ran against the pre-fix 0.3083 figures):
 
   1. Stage 4 scripts inventory + integrity (packaged by package_deliverables.py):
      ssta/analytical_ssta.py (Run A — linearized moments + Clark, the stored
@@ -34,7 +36,8 @@ Closes the counterpart asks on the locked six-gate reference topology
 
   4. Run B re-derivation from the locked N=100k seed-42 MC reference
      (stage3_raw.npz): empirical moments -> Clark -> gap decomposition must
-     reproduce the stored 0.3083 / 0.2083 / 0.1000 numbers bit-exactly.
+     reproduce the stored 0.2781 / 0.2083 / 0.0698 numbers bit-exactly
+     (pre-fix values were 0.3083 / 0.2083 / 0.1000).
 
 Outputs:
   diagnostics/out/kit3_stage4_audit_verdict.json
@@ -352,7 +355,7 @@ def main() -> None:
             }
 
     # ------------------------------------------------------------------
-    # Bit-exact revalidation: Run B + gap decomposition (0.3083)
+    # Bit-exact revalidation: Run B + gap decomposition (0.2781)
     # ------------------------------------------------------------------
     print("\n[4] Run B re-derivation from stage3_raw.npz vs stored stage4b_hybrid_run.json")
     run_b = recompute_run_b_from_raw()
@@ -421,7 +424,7 @@ def main() -> None:
     headline_bit_exact = all(c["exact_repr_match"] for c in gap_checks.values())
 
     verdict = {
-        "scope": "Stage 4 fixed six-gate reference topology (the §IV 0.3083 pipeline)",
+        "scope": "Stage 4 fixed six-gate reference topology (the §IV 0.2781 pipeline, post propagate_path fix)",
         "scripts_audited": [
             "ssta/analytical_ssta.py (Run A: linearized moments + Clark MAX — the stored analytical comparator)",
             "experiments/run_stage4b_hybrid.py (Run B: empirical moments + Clark — gap decomposition)",
@@ -473,7 +476,7 @@ def main() -> None:
                 "exactly-round-tripped endpoints."
             ),
             "outcome": ("CLEAN — no D1/D2 defect pattern affects the fixed-topology "
-                        "pipeline; the stored analytical figures and the 0.3083 gap "
+                        "pipeline; the stored analytical figures and the 0.2781 gap "
                         "decomposition are reproduced (headline numbers bit-exactly, "
                         "all intermediates within last-ulp float tolerance) by a "
                         "from-scratch name-keyed reimplementation"

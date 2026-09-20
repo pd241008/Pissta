@@ -1,5 +1,5 @@
 {
-  "scope": "Stage 4 fixed six-gate reference topology (the \u00a7IV 0.3083 pipeline)",
+  "scope": "Stage 4 fixed six-gate reference topology (the \u00a7IV 0.2781 pipeline, post propagate_path fix)",
   "scripts_audited": [
     "ssta/analytical_ssta.py (Run A: linearized moments + Clark MAX \u2014 the stored analytical comparator)",
     "experiments/run_stage4b_hybrid.py (Run B: empirical moments + Clark \u2014 gap decomposition)"
@@ -96,32 +96,32 @@
     "all_within_float_tolerance": true,
     "checks": {
       "mean": {
-        "stored": 9.25636690050889,
-        "recomputed": 9.25636690050889,
+        "stored": 9.266103831064765,
+        "recomputed": 9.266103831064765,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
       "std": {
-        "stored": 0.39633629705697,
-        "recomputed": 0.39633629705697,
+        "stored": 0.40314878056135095,
+        "recomputed": 0.40314878056135095,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
       "p95": {
-        "stored": 9.908340109167606,
-        "recomputed": 9.908340109167606,
+        "stored": 9.929283575088187,
+        "recomputed": 9.929283575088187,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
       "p99": {
-        "stored": 10.178245127463402,
-        "recomputed": 10.178245127463402,
+        "stored": 10.203827894650468,
+        "recomputed": 10.203827894650468,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
       "p99_87": {
-        "stored": 10.445375791679801,
-        "recomputed": 10.445375791679801,
+        "stored": 10.475550172748818,
+        "recomputed": 10.475550172748818,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
@@ -132,8 +132,8 @@
         "exact_repr_match": true
       },
       "path_moments.AT_G4_std": {
-        "stored": 0.2789427546769272,
-        "recomputed": 0.2789427546769272,
+        "stored": 0.2929142027438721,
+        "recomputed": 0.2929142027438721,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
@@ -144,8 +144,8 @@
         "exact_repr_match": true
       },
       "path_moments.AT_G5_std": {
-        "stored": 0.2789427546769272,
-        "recomputed": 0.2789427546769272,
+        "stored": 0.2929142027438721,
+        "recomputed": 0.2929142027438721,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
@@ -156,38 +156,38 @@
         "exact_repr_match": true
       },
       "path_moments.rho_AT_G4_AT_G5": {
-        "stored": 0.3617742855371913,
-        "recomputed": 0.3617742855371913,
+        "stored": 0.32808547602354277,
+        "recomputed": 0.32808547602354277,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
       "clark_max.mu_max": {
-        "stored": 6.5366017155638865,
-        "recomputed": 6.5366017155638865,
+        "stored": 6.546338646119762,
+        "recomputed": 6.546338646119762,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
       "clark_max.std_max": {
-        "stored": 0.24900175339648736,
-        "recomputed": 0.24900175339648736,
+        "stored": 0.2597082056805265,
+        "recomputed": 0.2597082056805265,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
       "final_sum.mu_final": {
-        "stored": 9.25636690050889,
-        "recomputed": 9.25636690050889,
+        "stored": 9.266103831064765,
+        "recomputed": 9.266103831064765,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
       "final_sum.var_final": {
-        "stored": 0.15708246036483076,
-        "recomputed": 0.15708246036483076,
+        "stored": 0.1625289392681043,
+        "recomputed": 0.1625289392681043,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
       "final_sum.std_final": {
-        "stored": 0.39633629705697,
-        "recomputed": 0.39633629705697,
+        "stored": 0.40314878056135095,
+        "recomputed": 0.40314878056135095,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
@@ -201,10 +201,10 @@
   },
   "run_b_rederivation": {
     "n_total": 14,
-    "n_bit_exact": 10,
-    "n_last_ulp_drift": 4,
+    "n_bit_exact": 14,
+    "n_last_ulp_drift": 0,
     "n_genuine_mismatch": 0,
-    "max_absdiff": 3.3306690738754696e-16,
+    "max_absdiff": 0.0,
     "all_within_float_tolerance": true,
     "checks": {
       "empirical_moments.AT_G4_mean": {
@@ -232,10 +232,10 @@
         "exact_repr_match": true
       },
       "empirical_moments.rho_AT_G4_AT_G5": {
-        "stored": 0.3845667250693832,
+        "stored": 0.38456672506938355,
         "recomputed": 0.38456672506938355,
-        "absdiff": 3.3306690738754696e-16,
-        "exact_repr_match": false
+        "absdiff": 0.0,
+        "exact_repr_match": true
       },
       "empirical_moments.d_G6_mean": {
         "stored": 2.742940707136634,
@@ -250,16 +250,16 @@
         "exact_repr_match": true
       },
       "empirical_moments.cov_max_d6_empirical": {
-        "stored": 0.010613794004517254,
+        "stored": 0.010613794004517261,
         "recomputed": 0.010613794004517261,
-        "absdiff": 6.938893903907228e-18,
-        "exact_repr_match": false
+        "absdiff": 0.0,
+        "exact_repr_match": true
       },
       "empirical_moments.cov_max_d6_approx": {
-        "stored": 0.01038402625427885,
+        "stored": 0.010384026254278846,
         "recomputed": 0.010384026254278846,
-        "absdiff": 5.204170427930421e-18,
-        "exact_repr_match": false
+        "absdiff": 0.0,
+        "exact_repr_match": true
       },
       "run_b_clark.mu_max": {
         "stored": 6.563983539363727,
@@ -280,10 +280,10 @@
         "exact_repr_match": true
       },
       "run_b_clark.std_final": {
-        "stored": 0.41280937829320574,
+        "stored": 0.4128093782932057,
         "recomputed": 0.4128093782932057,
-        "absdiff": 5.551115123125783e-17,
-        "exact_repr_match": false
+        "absdiff": 0.0,
+        "exact_repr_match": true
       },
       "run_b_clark.p99_87": {
         "stored": 10.54535238137998,
@@ -302,8 +302,8 @@
     "all_within_float_tolerance": true,
     "checks": {
       "total_gap": {
-        "stored": 0.30825842725604957,
-        "recomputed": 0.30825842725604957,
+        "stored": 0.27808404618703264,
+        "recomputed": 0.27808404618703264,
         "absdiff": 0.0,
         "exact_repr_match": true
       },
@@ -314,8 +314,8 @@
         "exact_repr_match": true
       },
       "linearization_gap": {
-        "stored": 0.09997658970017831,
-        "recomputed": 0.09997658970017831,
+        "stored": 0.06980220863116138,
+        "recomputed": 0.06980220863116138,
         "absdiff": 0.0,
         "exact_repr_match": true
       }
@@ -327,9 +327,9 @@
       "exact": true
     },
     "stored_values": {
-      "total_gap": 0.30825842725604957,
+      "total_gap": 0.27808404618703264,
       "shape_gap": 0.20828183755587126,
-      "linearization_gap": 0.09997658970017831
+      "linearization_gap": 0.06980220863116138
     }
   },
   "caveats": [
@@ -343,7 +343,7 @@
     "stored_figures_reproduced": true,
     "gap_decomposition_headline_bit_exact": true,
     "last_ulp_note": "Values with absdiff in (0, 1e-12) are last-ulp floating-point reassociation differences (numpy/BLAS reduction order across versions, e.g. np.corrcoef's internal matmul); they do not indicate a modeling or pipeline defect. All three headline gap numbers reproduce bit-exactly because they are differences of exactly-round-tripped endpoints.",
-    "outcome": "CLEAN \u2014 no D1/D2 defect pattern affects the fixed-topology pipeline; the stored analytical figures and the 0.3083 gap decomposition are reproduced (headline numbers bit-exactly, all intermediates within last-ulp float tolerance) by a from-scratch name-keyed reimplementation"
+    "outcome": "CLEAN \u2014 no D1/D2 defect pattern affects the fixed-topology pipeline; the stored analytical figures and the 0.2781 gap decomposition are reproduced (headline numbers bit-exactly, all intermediates within last-ulp float tolerance) by a from-scratch name-keyed reimplementation"
   },
-  "elapsed_s": 0.24093914031982422
+  "elapsed_s": 0.2550086975097656
 }
