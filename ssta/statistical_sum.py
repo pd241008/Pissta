@@ -31,16 +31,25 @@ def propagate_path(
     cov_d: np.ndarray,
     idx: Dict[str, int],
 ) -> Tuple[float, float]:
+    """Exact Gaussian path propagation: pair each gate against the full
+    accumulated set, not just the first gate.
+
+    Var(sum) = sum_i var_i + 2 * sum_{i<j} cov_ij over ALL path pairs.
+    """
     mu = float(mean_d[idx[path[0]]])
     var = float(var_d[idx[path[0]]])
-    for name in path[1:]:
+    for n, name in enumerate(path[1:], start=1):
         i = idx[name]
+        # Cov(running sum, d_k) = sum of covariances against EVERY gate
+        # already accumulated. Pairing only against path[0] drops the
+        # middle-gate covariance terms on 3+-gate paths.
+        cov_running = sum(float(cov_d[idx[prev], i]) for prev in path[:n])
         mu, var = gaussian_sum(
             mu_x=mu,
             var_x=var,
             mu_y=float(mean_d[i]),
             var_y=float(var_d[i]),
-            cov_xy=float(cov_d[idx[path[0]], i]),
+            cov_xy=cov_running,
         )
     return float(mu), float(var)
 
