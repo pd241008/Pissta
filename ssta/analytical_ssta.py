@@ -195,7 +195,7 @@ def main() -> None:
         },
         "notes": [
             "Analytical SSTA is deterministic given config; no seed dependence.",
-            "Clark P99.87 (10.4454) is lower than naive Gaussian mean+3sigma from Stage 3 MC (10.5648).",
+            "Clark P99.87 (10.4756) is lower than naive Gaussian mean+3sigma from Stage 3 MC (10.5648).",
             "This is expected: linearized delay model + Clark MAX approximation both neglect higher-order tail effects present in true MC.",
             "Covariance bookkeeping verified: analytical per-gate covariances match empirical MC covariances within ~3-5%.",
         ],
