@@ -2,7 +2,8 @@
 
 **Date:** 2026-08-15  
 **Stage:** Stage 4 — Analytical SSTA (Clark MAX Approximation)  
-**Status:** Complete — covariance bookkeeping verified, analytical error is consistent across seeds
+**Updated:** 2026-09-20 — propagate_path covariance fix applied; all numbers regenerated (see §12)  
+**Status:** Complete — covariance bookkeeping verified (per-gate; path accumulator fixed 2026-09-20), analytical error is consistent across seeds
 
 ---
 
@@ -64,6 +65,12 @@ For two Gaussian variables X ~ N(μ_X, σ²_X) and Y ~ N(μ_Y, σ²_Y) with Cov(
 
 X + Y ~ N(μ_X + μ_Y, σ²_X + σ²_Y + 2σ_XY)
 
+For 3+-gate paths each new gate is paired against the **entire accumulated
+sum** (all-pairs): Var(Σ) = Σᵢ Σⱼ Cov(dᵢ, dⱼ), with per-gate independent
+variance entering via Var(dᵢ) on the diagonal. (Corrected 2026-09-20: the
+original accumulator paired each new gate against path[0] only, dropping
+2·Cov(G2,G4) = 0.007990 — 10.3% of path variance. See §12.)
+
 Applied sequentially along:
 - **Path 1:** AT_G4 = d_G1 + d_G2 + d_G4
 - **Path 2:** AT_G5 = d_G1 + d_G3 + d_G5
@@ -95,27 +102,27 @@ where Cov(max, d6) ≈ Φ(θ) · Cov(AT_G4, d6) + Φ(−θ) · Cov(AT_G5, d6)
 
 | Node | Mean | Std | Notes |
 |------|------|-----|-------|
-| AT_G4 | 6.4109 | 0.2789 | Path 1 (G1→G2→G4) |
-| AT_G5 | 6.4109 | 0.2789 | Path 2 (G1→G3→G5) |
+| AT_G4 | 6.4109 | 0.2929 | Path 1 (G1→G2→G4) |
+| AT_G5 | 6.4109 | 0.2929 | Path 2 (G1→G3→G5) |
 | Cov(AT_G4, AT_G5) | 0.0281 | — | Positive due to shared G1 + spatial correlation |
-| ρ(AT_G4, AT_G5) | 0.3618 | — | Moderate positive correlation |
+| ρ(AT_G4, AT_G5) | 0.3281 | — | Moderate positive correlation (empirical MC: 0.3846 — see §12) |
 
 ### 4.2 Clark MAX Approximation
 
 | Quantity | Value |
 |----------|-------|
-| μ_max | 6.5366 |
-| σ_max | 0.2490 |
+| μ_max | 6.5463 |
+| σ_max | 0.2597 |
 
 ### 4.3 Final Critical-Path Delay (After Adding G6)
 
 | Metric | Analytical | Monte Carlo (Seed 42) | Absolute Error | Relative Error |
 |--------|------------|----------------------|----------------|----------------|
-| Mean | 9.2564 | 9.3065 | −0.0501 | −0.54% |
-| Std | 0.3963 | 0.4194 | −0.0231 | −5.50% |
-| P95 | 9.9083 | 10.0243 | −0.1159 | −1.16% |
-| P99 | 10.1782 | 10.3675 | −0.1892 | −1.83% |
-| P99.87 | 10.4454 | 10.7536 | **−0.3083** | **−2.87%** |
+| Mean | 9.2661 | 9.3065 | −0.0404 | −0.43% |
+| Std | 0.4031 | 0.4194 | −0.0163 | −3.88% |
+| P95 | 9.9293 | 10.0243 | −0.0950 | −0.95% |
+| P99 | 10.2038 | 10.3675 | −0.1636 | −1.58% |
+| P99.87 | 10.4756 | 10.7536 | **−0.2781** | **−2.59%** |
 
 ---
 
@@ -123,10 +130,12 @@ where Cov(max, d6) ≈ Φ(θ) · Cov(AT_G4, d6) + Φ(−θ) · Cov(AT_G5, d6)
 
 | Method | Runtime | Notes |
 |--------|---------|-------|
-| Analytical SSTA | **0.35 ms** | Deterministic, single evaluation |
+| Analytical SSTA | **0.35–1.0 ms** | Deterministic, single evaluation; wall-clock varies with load |
 | Monte Carlo (N=100k) | **200 ms** | Includes sampling + timing propagation |
 
-**Speedup: ~566×**
+**Speedup: ~200–570×** (0.35 ms → 566× original run; 0.39 ms → 518× pre-fix
+stored run; 1.01 ms → 198× on the 2026-09-20 re-run under load — wall-clock
+noise only, the deterministic work is unchanged)
 
 The analytical method is near-instant and requires no sampling. This is the first
 real speedup number for the paper's results table.
@@ -141,12 +150,12 @@ seeds:
 
 | Seed | MC P99.87 | Analytical P99.87 | Absolute Error |
 |------|-----------|-------------------|----------------|
-| 42 | 10.7536 | 10.4454 | −0.3083 |
-| 123 | 10.7367 | 10.4454 | −0.2913 |
-| 999 | 10.7522 | 10.4454 | −0.3068 |
+| 42 | 10.7536 | 10.4756 | −0.2781 |
+| 123 | 10.7367 | 10.4756 | −0.2611 |
+| 999 | 10.7522 | 10.4756 | −0.2766 |
 
 **Conclusion:** The analytical error is consistent across all three MC seeds
-(range: −0.291 to −0.308, std ≈ 0.009). This confirms the error is a property
+(range: −0.261 to −0.278, std ≈ 0.009). This confirms the error is a property
 of the analytical approximations, not an artifact of a particular seed.
 
 ---
@@ -157,9 +166,9 @@ The user's instruction stated: *"If Clark's P99.87 comes out worse than the naiv
 gaussian+3σ approximation, stop and check your covariance bookkeeping."*
 
 - **Naive Gaussian (Stage 3 MC mean + 3σ):** 9.3065 + 3×0.4194 = **10.5648**
-- **Clark P99.87:** **10.4454**
+- **Clark P99.87:** **10.4756**
 
-Clark's result is indeed lower by ≈0.12. **We checked covariance bookkeeping and
+Clark's result is indeed lower by ≈0.09. **We checked covariance bookkeeping and
 verified it is correct:** analytical per-gate delay covariances match empirical
 Monte Carlo covariances within 3–5%. The "worse" result is expected, not a bug.
 
@@ -180,7 +189,10 @@ Together, these approximations produce a distribution that is closer to Gaussian
 than the true Monte Carlo distribution, so its 3σ quantile (10.445) falls short of
 both the true MC tail (10.754) and the naive Gaussian proxy based on MC stats (10.565).
 
-This is a **known limitation of first-order analytical SSTA**, not a covariance bug.
+This residual ≈0.09 shortfall is a **known limitation of first-order analytical
+SSTA**. (Revised 2026-09-20: part of the originally reported ≈0.12 gap *was* a
+covariance bug — the propagate_path accumulator dropped middle-gate cross terms;
+that contribution is now fixed. See §12.)
 
 ---
 
@@ -200,18 +212,24 @@ from `stage3_raw.npz` (N=100k, seed 42):
 
 The analytical covariances are consistently within ~3–5% of empirical values.
 Cross-gate covariances (e.g., Cov(G4,G6), Cov(G5,G6)) also match within the same
-tolerance. **No bookkeeping bugs detected.**
+tolerance. **No per-gate bookkeeping bugs detected.** (Scope note, 2026-09-20:
+this check validated per-gate moments and cross-gate covariances; it could not
+see the path-accumulator defect in propagate_path, which only manifests in the
+within-path variance of 3+-gate paths — fixed, see §12.)
 
 ---
 
 ## 9. Key Takeaways
 
-1. **Analytical SSTA is 566× faster** than N=100k Monte Carlo (0.35 ms vs 200 ms).
-2. **Covariance bookkeeping is verified correct** — analytical and empirical
-   delay covariances agree within ~3–5%.
-3. **Clark's P99.87 (10.445) is lower than naive Gaussian (10.565)**, but this is
-   expected due to first-order linearization and Gaussian approximations, not a bug.
-4. **Error is consistent across all three MC seeds** (−0.291 to −0.308), confirming
+1. **Analytical SSTA is ~200–570× faster** than N=100k Monte Carlo (0.35–1.0 ms
+   vs 200 ms; wall-clock noise, see §5).
+2. **Per-gate covariance bookkeeping is verified correct** — analytical and
+   empirical delay covariances agree within ~3–5%; the within-path accumulator
+   bug found and fixed 2026-09-20 (§12) was invisible to this check.
+3. **Clark's P99.87 (10.476) is lower than naive Gaussian (10.565)**, and the
+   residual is expected due to first-order linearization and Gaussian
+   approximations, not a bug.
+4. **Error is consistent across all three MC seeds** (−0.261 to −0.278), confirming
    it is an inherent limitation of the analytical method, not seed-dependent noise.
 5. **The analytical method is useful** for rapid exploration and floorplanning
    sensitivity analysis, but for sign-off-quality tail estimates, Monte Carlo
@@ -240,3 +258,41 @@ tolerance. **No bookkeeping bugs detected.**
   improve tail accuracy without returning to full Monte Carlo.
 - Stage 7: GNN surrogate trained on Stage 3 reference, validated against both
   analytical and MC distributions.
+
+---
+
+## 12. Correction (2026-09-20): propagate_path covariance defect fixed
+
+Identified in the paper's bug catalog and fixed by decision (a) fix + re-run:
+`propagate_path` (`ssta/statistical_sum.py`) accumulated each new gate's
+covariance against **path[0] only**, so on 3+-gate paths the middle-gate cross
+terms were dropped — on this topology the missing term is 2·Cov(G2,G4) =
+0.007990 (10.3% of path variance). `covariance_between_paths` (all-pairs) was
+unaffected, as were all per-gate moments (§8). The fix pairs each new gate
+against the full accumulated set (Var(dᵢ) diagonal + Cov(dᵢ,dⱼ) off-diagonal);
+bit-identical for 2-gate paths; regression-tested in
+`tests/test_statistical_sum.py`.
+
+All Stage 4 / 4b / 5 artifacts were regenerated from the fixed code and
+re-verified (fresh-vs-stored 17/17 bit-exact; kit3 audit re-run CLEAN).
+Corrected values (pre-fix → post-fix, MC truth):
+
+| Quantity | Pre-fix | Post-fix | MC truth |
+|---|---|---|---|
+| AT_G4 std | 0.278943 | 0.292914 | 0.296434 |
+| ρ(AT_G4, AT_G5) | 0.3618 | 0.3281 | 0.3846 (empirical) |
+| Final std | 0.396336 | 0.403149 | 0.419426 |
+| Final mean | 9.256367 | 9.266104 | 9.306492 |
+| P99.87 | 10.445376 | 10.475550 | 10.753634 |
+| Total gap (P99.87) | 0.308258 | 0.278084 | — |
+| Linearization gap | 0.099977 | 0.069802 | — |
+| Shape gap | 0.208282 | 0.208282 (unchanged) | — |
+
+The bug accounted for 30.2% of the old linearization gap; the AT-level std bias
+shrinks −5.90% → −1.19%. One disclosed side effect: ρ moves away from the
+empirical 0.3846 because the fix corrects the denominator (σ·σ) while the
+numerator Cov(AT4,AT5) = 0.028149 keeps its own separately-disclosed ~16%
+linearization deficit (empirical ≈ 0.0337). §7's conclusion is revised
+accordingly: part of the old gap WAS a covariance bug (now fixed); the residual
+≈0.09 shortfall vs naive Gaussian remains the linearization + Gaussian-shape
+limitation.

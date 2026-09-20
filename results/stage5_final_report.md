@@ -77,7 +77,7 @@ This confirms significant right-skew, justifying the 3-moment approach.
 | Method | P99.87 | Gap vs MC | Notes |
 |--------|--------|-----------|-------|
 | Monte Carlo (truth) | 10.7536 | — | N=100k, seed 42 |
-| Clark/linearized (Stage 4) | 10.4454 | 0.3083 | 2-moment Gaussian |
+| Clark/linearized (Stage 4) | 10.4756 | 0.2781 | 2-moment Gaussian |
 | Clark/empirical (Stage 4b) | 10.5454 | 0.2083 | Empirical moments, Gaussian |
 | **Tail-aware/linearized (Stage 5)** | **10.6584** | **0.0952** | Skew-normal 3-moment |
 
@@ -85,7 +85,7 @@ This confirms significant right-skew, justifying the 3-moment approach.
 
 | Component | Value | Fraction of Shape Gap |
 |-----------|-------|----------------------|
-| Total gap (MC − Clark/lin) | 0.3083 | — |
+| Total gap (MC − Clark/lin) | 0.2781 | — |
 | Shape gap (MC − Clark/emp) | 0.2083 | — |
 | Tail-aware gap (MC − Tail) | 0.0952 | — |
 | Gap closure vs shape (seed 42) | 0.1131 | **54.28%** |
