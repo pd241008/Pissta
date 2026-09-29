@@ -458,9 +458,9 @@ def main() -> None:
             "P99.87 here is mean+3sigma of the final Gaussian — same convention as the "
             "stored figures; MC side is the empirical quantile of the locked N=100k sample.",
             "The Stage 4 pipeline operates on ONE frozen topology: the D1 pattern that "
-            "affected compute_analytical_ssta_arbitrary (corpus code, still unfixed in "
-            "data_generation/analytical_ssta_arbitrary.py) is structurally harmless here, "
-            "and the permutation sweep + bit-exact reproduction prove it empirically.",
+            "affected compute_analytical_ssta_arbitrary is structurally harmless here "
+            "(fixed in the corpus code 2026-09-29; the audit ran against the defective "
+            "snapshot), and the permutation sweep + bit-exact reproduction prove it empirically.",
         ],
         "verdict": {
             "d1_defect_found": not d1_clean,

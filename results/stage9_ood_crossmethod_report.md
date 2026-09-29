@@ -55,7 +55,7 @@ Two observations:
 | buggy_capped (D1 present) | 1.0499 |
 | buggy_precap (both defects — the stored-feature recipe) | 1.0498 |
 
-The readback alignment (D1) matters 5× more than the Pelgrom cap (D2) on OOD topologies — consistent with the ID audit, and worth stating because the *stored* physics features in `dataset.pkl` still carry both defects. Any future corpus regeneration should fix `data_generation/analytical_ssta_arbitrary.py` (D1 still unfixed in code) before recomputing features.
+The readback alignment (D1) matters 5× more than the Pelgrom cap (D2) on OOD topologies — consistent with the ID audit, and worth stating because the *stored* physics features in `dataset.pkl` still carry both defects. **Update 2026-09-29:** D1 is now fixed in `data_generation/analytical_ssta_arbitrary.py` (name-keyed readback, regression-tested in `tests/test_analytical_arbitrary.py`); the *stored* features in `dataset.pkl` still carry both defects — recompute before physics-feature use.
 
 ## Validation notes
 
