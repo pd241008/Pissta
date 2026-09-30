@@ -4,6 +4,15 @@ Generalized analytical SSTA for arbitrary timing DAGs.
 Extends Stage 4's analytical pipeline to work with any valid timing graph,
 not just the hardcoded branching structure. Uses iterative Clark MAX for
 nodes with multiple predecessors.
+
+D1 fix (2026-09-29): delay-moment arrays are read back by NAME via
+``delay_moments["idx"]`` (they are laid out in gate_coords key order), not
+by topological index. The topological-index readback handed gates other
+gates' moments whenever the two orders diverged — see the paper's bug
+catalog and ``diagnostics/verify_analytical_baseline.py`` (fixed_capped
+variant, ~0.1129 MAE) for the quantified impact. NOTE: the physics features
+stored in ``data_generation/data/dataset.pkl`` (2026-08-21) were generated
+with the defective readback and still carry it; recompute before use.
 """
 
 from __future__ import annotations
@@ -28,12 +37,19 @@ def compute_analytical_ssta_arbitrary(
     """Compute analytical SSTA for an arbitrary timing graph."""
     order = graph.topological_order()
     n_gates = len(graph.gates)
-    idx = {name: i for i, name in enumerate(order)}
 
     # Compute per-gate delay moments
     process_moments = compute_process_moments(variation_params)
     graph_gate_loads = {name: graph.gates[name].load_ff for name in graph.gates}
     delay_moments = compute_delay_moments(timing_params, variation_params, process_moments, gate_loads=graph_gate_loads)
+
+    # Name-keyed readback (D1 fix, 2026-09-29): compute_delay_moments lays its
+    # arrays out in process_moments' gate_coords KEY order and returns the
+    # matching name->index map as delay_moments["idx"]. Reading the arrays back
+    # with topological indices handed every gate another gate's (mean, var,
+    # cov) entries whenever the two orders diverged — 0/50 sampled ID graphs
+    # had them coincide. Topological order remains the propagation order below.
+    idx = delay_moments["idx"]
 
     delay_mean = {name: float(delay_moments["mean_d"][idx[name]]) for name in order}
     delay_var = {name: float(delay_moments["var_d"][idx[name]]) for name in order}

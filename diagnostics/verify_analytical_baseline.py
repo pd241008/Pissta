@@ -21,8 +21,10 @@ BACKGROUND (established 2026-09-15, see diagnostics/out/*.json):
      label misalignment fixed in ssta/monte_carlo.py (2873f73, 2026-08-21);
      the analytical twin was never fixed.
      Demonstrated: passing gate_coords in topological order (which re-aligns
-     arrays) changes the stored sink_mean per graph, and the buggy readback
-     reproduces the stored features BIT-EXACTLY on all 304 test graphs.
+     arrays) changes the stored sink_mean per graph, and     the buggy readback reproduces the stored features BIT-EXACTLY on all 304 test graphs.
+     (Fixed in code 2026-09-29: name-keyed readback via delay_moments["idx"],
+     regression-tested in tests/test_analytical_arbitrary.py. The stored dataset.pkl
+     features predate the fix and still carry it.)
 
   D2 (stale noise model). The MC labels were always sampled with the
      min(d, 5.0) Pelgrom cap (variation/sampler.py, since 5eebca2), but the
@@ -241,9 +243,11 @@ def main() -> None:
             "analytical baseline is ~0.1129 MAE. This reverses the Stage 8 "
             "GNN-vs-analytical ordering: every GNN row (0.34-0.43) is WORSE than "
             "the corrected analytical baseline, and the analytical method needs no "
-            "corpus or training. The underlying code bug (D1) in "
-            "data_generation/analytical_ssta_arbitrary.py is still present and "
-            "should be fixed separately."
+            "corpus or training. Update 2026-09-29: the D1 code bug in "
+            "data_generation/analytical_ssta_arbitrary.py is now FIXED "
+            "(name-keyed readback; regression-tested in "
+            "tests/test_analytical_arbitrary.py). The stored dataset.pkl physics "
+            "features still carry both defects — recompute before use."
         ),
     }
 
