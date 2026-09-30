@@ -4,6 +4,15 @@
 
 ---
 
+### September 29, 2026 — D1 fixed in the arbitrary-DAG analytical pipeline
+
+- 🐛 **Fixed D1 index misalignment** (`data_generation/analytical_ssta_arbitrary.py`): the function built its readback index from `topological_order()` while `compute_delay_moments` lays its arrays out in `gate_coords` key order — on generated graphs the two orders diverge in 50/50 sampled cases, so gates received other gates' (mean, var, cov) entries. Readback is now name-keyed via `delay_moments["idx"]` (matching the paper's corrected `name_correct=True` reimplementation, ~0.1129 MAE); topological order remains the propagation order. No consumer code changes needed (`run_stage6a.py`, `zenodo/scripts/generate_pissta.py`, `gnn_baseline/run_stage6c.py` all call the function as-is).
+- 🧪 **Regression tests added** (`tests/test_analytical_arbitrary.py`): per-gate/sink moments bit-invariant to `gate_coords` dict ordering (the D1 core property, tested on a reconvergent 5-gate DAG with genuinely divergent orders); per-gate means pinned against independent `nominal_delay` computation and variances against the name-keyed moment builder; value-neutrality vs the old readback in the order-coincidence case, cross-checked against the `propagate_path` closed form.
+- 📝 **Docs updated**: the "D1 still unfixed / pending upstream fix" notes in `results/stage9_ood_crossmethod_report.md`, `diagnostics/verify_analytical_baseline.py`, and `diagnostics/kit3_stage4_audit.py` now carry dated fix notices. **The stored physics features in `data_generation/data/dataset.pkl` (2026-08-21) still carry D1+D2** — recompute before physics-feature use; MC labels are unaffected.
+- ℹ️ **Scope note**: existing results (§IV/§X-B figures, Stage 8/9/10 tables) were computed from stored features or corrected reimplementations and are unchanged by this fix; `zenodo/scripts/verify_release.py` is unaffected (it verifies MC labels and schema, not analytical features).
+
+---
+
 ### September 20, 2026 — propagate_path covariance defect fixed; Stage 4/4b/5 artifacts regenerated
 
 - 🐛 **Fixed within-path covariance accumulation** (`ssta/statistical_sum.py`): `propagate_path` paired each new gate's covariance against `path[0]` only, dropping middle-gate cross terms on 3+-gate paths — on the six-gate §IV topology the missing term is 2·Cov(G2,G4) = 0.007990 (10.3% of path variance). The fixed accumulator pairs each new gate against the entire accumulated set (per-gate `var_d` on the diagonal, `cov_d` off-diagonal); bit-identical for 2-gate paths. `covariance_between_paths` (all-pairs) was never affected — cross-path covariance and cov_max_d6 were always correct.
